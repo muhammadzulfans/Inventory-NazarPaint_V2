@@ -23,6 +23,7 @@ import CreateAkun from "./pages/admin/users/CreateAkun.jsx";
 import SwitchToko from "./pages/admin/switch/SwitchBranch.jsx";
 import KelolaInventoryAdmin from "./pages/admin/inventory/KelolaInventoryAdmin.jsx";
 import Profile from "./pages/admin/ProfileAdmin.jsx";
+import DetailSalesAdmin from "./pages/admin/sales/DetailSalesAdmin.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -42,6 +43,7 @@ function App() {
                     <Route index element={<DashboardAdmin />} />
                     <Route path="inventory" element={<InventoryAdmin />} />
                     <Route path="sales" element={<SalesAdmin />} />
+                    <Route path="detail-sales" element={<DetailSalesAdmin />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="order" element={<OrderAdmin />} />
                     <Route path="mutasi" element={<MutasiAdmin />} />
                     <Route path="createAkun" element={<CreateAkun />} />
@@ -59,6 +61,7 @@ function App() {
                     <Route index element={<DashboardKaryawan />} />
                     <Route path="inventory" element={<InventoryKaryawan />} />
                     <Route path="sales" element={<SalesKaryawan />} />
+                    <Route path="detail-sales" element={<DetailSalesAdmin />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="profile" element={<Profile />} />
                 </Route>
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import profile from "../../assets/images/defaultProfile.jpg";
@@ -5,7 +6,7 @@ import SidebarButton from "./SidebarButton.jsx";
 import useAuthStore from "../../store/authStore.js"; // Import store
 
 import { RxHamburgerMenu } from "react-icons/rx";
-import { FiChevronsLeft } from "react-icons/fi";
+import { FiChevronsLeft, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { GrHomeRounded } from "react-icons/gr";
 import { PiShoppingCartSimpleBold } from "react-icons/pi";
@@ -21,6 +22,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     // Ambil data user dan fungsi logout dari Zustand
     const { user, logout } = useAuthStore();
+
+    // State untuk toggle submenu penjualan
+    const [salesMenuOpen, setSalesMenuOpen] = useState(
+        location.pathname.includes("/sales") || location.pathname.includes("/detail-sales")
+    );
 
     const isKaryawanPage = location.pathname.startsWith("/karyawan");
     const prefix = isKaryawanPage ? "/karyawan" : "/admin";
@@ -73,13 +79,58 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     isActive={location.pathname === `${prefix}/inventory`}
                     onClick={() => navigate(`${prefix}/inventory`)}
                 />
-                <SidebarButton
-                    icon={<PiShoppingCartSimpleBold />}
-                    label="Penjualan"
-                    isOpen={isOpen}
-                    isActive={location.pathname === `${prefix}/sales`}
-                    onClick={() => navigate(`${prefix}/sales`)}
-                />
+
+
+                {/* CONTAINER ITEM PENJUALAN DROPDOWN */}
+                <div className="flex flex-col px-1">
+                    <div
+                        onClick={() => {
+                            if (!isOpen) setIsOpen(true);
+                            setSalesMenuOpen(!salesMenuOpen);
+                        }}
+                        className={`flex items-center justify-between w-full p-3 rounded-xl cursor-pointer font-inter font-medium text-sm transition-colors ${
+                            location.pathname.includes("/sales") || location.pathname.includes("/detail-sales")
+                                ? "bg-black/10 text-black"
+                                : "text-black "
+                        }`}
+                    >
+                        <div className="flex items-center gap-4">
+                            <span><PiShoppingCartSimpleBold size={24} /></span>
+                            {isOpen && <span className="text-lg font-inter">Penjualan</span>}
+                        </div>
+                        {isOpen && (
+                            <span>{salesMenuOpen ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}</span>
+                        )}
+                    </div>
+
+                    {/* SUBMENU LIST */}
+                    {isOpen && salesMenuOpen && (
+                        <div className="flex flex-col pl-5 mt-2 gap-2 border-l border-black/20 ml-5 animate-in fade-in duration-150">
+                            <button
+                                onClick={() => navigate(`${prefix}/sales`)}
+                                className={`text-left text-lg font-inter font-medium py-2 px-3 rounded-lg ${
+                                    location.pathname === `${prefix}/sales`
+                                        ? "bg-button font-bold"
+                                        : "text-black/80 "
+                                }`}
+                            >
+                                • Penjualan
+                            </button>
+                            <button
+                                onClick={() => navigate(`${prefix}/detail-sales`)}
+                                className={`text-left text-lg font-inter font-medium py-2 px-3 rounded-lg ${
+                                    location.pathname === `${prefix}/detail-sales`
+                                        ? "bg-button font-bold"
+                                        : "text-black/80 "
+                                }`}
+                            >
+                                • Detail Penjualan
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+
                 {user?.role === "OWNER" && (
                     <SidebarButton
                         icon={<LuNotebookPen />}
