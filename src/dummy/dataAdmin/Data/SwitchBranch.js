@@ -1,0 +1,38 @@
+export const SwitchBranch = [
+    {
+        id: 1,
+        nama: "NazarPaint Pusat",
+        alamat: "Jl. Raya Singkil, Klaben, Pesarean, Kec. Adiwerna, Kabupaten Tegal, Jawa Tengah 52121",
+        tipe: "Toko Utama",
+        stok: "1.240 Kg tersedia",
+        badgeColor: "bg-yellow-100 text-yellow-700",
+        icon: "🏪",
+    },
+    {
+        id: 2,
+        nama: "NazarPaint Cabang 1 Pusat Singkil",
+        alamat: "Jl. Raya Karangjati, Karang Cegak, Balamoa, Kec. Pangkah, Kabupaten Tegal, Jawa Tengah 52471",
+        tipe: "Cabang",
+        stok: "640 Kg tersedia",
+        badgeColor: "bg-blue-100 text-blue-600",
+        icon: "🏬",
+    },
+    {
+        id: 3,
+        nama: "NazarPaint Cabang 2 Pusat Singkil",
+        alamat: "47CH+88C, Jalan Raya, Surodadi Lor, Suradadi, Tegal Regency, Central Java 52182",
+        tipe: "Cabang",
+        stok: "820 Kg tersedia",
+        badgeColor: "bg-blue-100 text-blue-600",
+        icon: "🏢",
+    },
+    {
+        id: 4,
+        nama: "NazarPaint Gudang Sentral",
+        alamat: "Kawasan Industri Blok C No. 3",
+        tipe: "Gudang",
+        stok: "3.500 Kg tersedia",
+        badgeColor: "bg-green-100 text-green-700",
+        icon: "🏭",
+    },
+];

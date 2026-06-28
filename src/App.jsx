@@ -1,0 +1,72 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import useAuthStore from './store/authStore.js';
+
+// Import Halaman auth
+import Login from './pages/auth/Login.jsx';
+import LoginKaryawan from './pages/auth/LoginKaryawan.jsx'; // Berdasarkan strukturmu, ini login karyawan
+import Register from './pages/auth/Register';
+
+// Import Halaman Admin
+import DashboardAdmin from './pages/admin/dashboard/DashboardAdmin.jsx';
+import InventoryAdmin from './pages/admin/inventory/InventoryAdmin.jsx';
+import SalesAdmin from './pages/admin/sales/SalesAdmin.jsx';
+import MutasiAdmin from "./pages/admin/Mutasi/MutasiAdmin.jsx";
+import OrderAdmin from "./pages/admin/Order/OrderAdmin.jsx";
+import PrediksiAdmin from "./pages/admin/Prediksi/PrediksiAdmin.jsx";
+
+// Import Halaman Karyawan
+import DashboardKaryawan from './pages/karyawan/dashboard/DashboardKaryawan.jsx';
+import InventoryKaryawan from './pages/karyawan/inventory/InventoryKaryawan.jsx';
+import SalesKaryawan from './pages/karyawan/sales/SalesKaryawan.jsx';
+import MainLayout from './layouts/MainLayout';
+import CreateAkun from "./pages/admin/users/CreateAkun.jsx";
+import SwitchToko from "./pages/admin/switch/SwitchBranch.jsx";
+import KelolaInventoryAdmin from "./pages/admin/inventory/KelolaInventoryAdmin.jsx";
+import Profile from "./pages/admin/ProfileAdmin.jsx";
+
+function App() {
+    const { isAuthenticated, user } = useAuthStore();
+
+    return (
+        <Router>
+            <Routes>
+                {/* --- PUBLIC ROUTES --- */}
+                <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to={user?.role === 'OWNER' ? "/admin" : "/karyawan"} />} />
+                <Route path="/register" element={<Register />} />
+
+                {/* --- ADMIN ROUTES --- */}
+                <Route
+                    path="/admin"
+                    element={isAuthenticated && user?.role === 'OWNER' ? <MainLayout /> : <Navigate to="/login" />}
+                >
+                    <Route index element={<DashboardAdmin />} />
+                    <Route path="inventory" element={<InventoryAdmin />} />
+                    <Route path="sales" element={<SalesAdmin />} />
+                    <Route path="order" element={<OrderAdmin />} />
+                    <Route path="mutasi" element={<MutasiAdmin />} />
+                    <Route path="createAkun" element={<CreateAkun />} />
+                    <Route path="prediksi" element={<PrediksiAdmin />} />
+                    <Route path="switchToko" element={<SwitchToko />} />
+                    <Route path="KelolaInventory" element={<KelolaInventoryAdmin />} />
+                    <Route path="profile" element={<Profile />} />
+                </Route>
+
+                {/* --- KARYAWAN ROUTES --- */}
+                <Route
+                    path="/karyawan"
+                    element={isAuthenticated && (user?.role === 'EMPLOYE' || user?.role === 'KARYAWAN') ? <MainLayout /> : <Navigate to="/login" />}
+                >
+                    <Route index element={<DashboardKaryawan />} />
+                    <Route path="inventory" element={<InventoryKaryawan />} />
+                    <Route path="sales" element={<SalesKaryawan />} />
+                    <Route path="profile" element={<Profile />} />
+                </Route>
+
+                {/* --- INITIAL REDIRECT --- */}
+                <Route path="/" element={<Navigate to="/login" />} />
+            </Routes>
+        </Router>
+    );
+}
+
+export default App;

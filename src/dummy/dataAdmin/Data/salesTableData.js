@@ -1,0 +1,51 @@
+export const salesTableData = [
+    {
+        kode: "229",
+        namaBaranag: "White",
+        type: "Pro",
+        totalProduk: 5,
+        hargaSatuan: 16000,
+        tanggal: "12 Januari 2025",
+    },
+    {
+        kode: "329",
+        namaBaranag: "Yellow",
+        type: "Super",
+        totalProduk: 7,
+        hargaSatuan: 18000,
+        tanggal: "12 Januari 2025",
+    },
+    {
+        kode: "331",
+        namaBaranag: "Green",
+        type: "Super",
+        totalProduk: 10,
+        hargaSatuan: 18000,
+        tanggal: "12 Januari 2025",
+    },
+    {
+        kode: "515",
+        namaBaranag: "Black",
+        type: "Gloss",
+        totalProduk: 6,
+        hargaSatuan: 35000,
+        tanggal: "12 Januari 2025",
+    },
+    {
+        kode: "525",
+        namaBaranag: "White",
+        type: "Gloss",
+        totalProduk: 14,
+        hargaSatuan: 35000,
+        tanggal: "12 Januari 2025",
+    },
+    {
+        kode: "201",
+        namaBaranag: "Gray",
+        type: "Pro",
+        totalProduk: 11,
+        hargaSatuan: 35000,
+        tanggal: "12 Januari 2025",
+    },
+
+];
