@@ -1,3 +1,4 @@
+// src/pages/admin/sales/DetailSalesAdmin.jsx
 import { useState } from "react";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
@@ -8,6 +9,9 @@ import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 import { useSalesManagement } from "../../../hooks/admin/useSalesManagement.js";
 import { FiSearch, FiFilter } from "react-icons/fi";
+
+// Import Komponen Detail Modal Baru
+import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
 
 const DetailSalesAdmin = () => {
     const {
@@ -23,6 +27,15 @@ const DetailSalesAdmin = () => {
         isSuccessOpen, setIsSuccessOpen, successMessage,
         triggerDelete, confirmDelete
     } = useSalesManagement();
+
+    // State Lokal Tambahan untuk Mengontrol Preview Struk Transaksi
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+    const handlePreview = (item) => {
+        setSelectedTransaction(item);
+        setIsPreviewOpen(true);
+    };
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white min-h-full">
@@ -68,6 +81,7 @@ const DetailSalesAdmin = () => {
                         <TableSalesAdmin
                             data={salesData}
                             isLoading={isLoading}
+                            onPreview={handlePreview}
                             onEdit={handleEdit}
                             onDelete={triggerDelete}
                         />
@@ -83,6 +97,12 @@ const DetailSalesAdmin = () => {
             </div>
 
             {/* MODALS SECTION */}
+            <TransactionDetailModal
+                isOpen={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                transaction={selectedTransaction}
+            />
+
             <DeleteModal
                 isOpen={isDeleteOpen}
                 onClose={() => { setIsDeleteOpen(false); }}
