@@ -1,7 +1,7 @@
 import { HiOutlinePencilSquare, HiOutlineEye } from "react-icons/hi2";
 import { PiTrashBold } from "react-icons/pi";
 
-const TableSalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
+const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
     // Karena kolom sekarang berbasis per transaksi (bukan per item barang),
     // kita olah datanya langsung dari object parent 'sale'
     const rows = data.map((sale) => {
@@ -33,11 +33,11 @@ const TableSalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
         <table className="w-full text-sm font-inter font-normal">
             <thead className="text-black text-center">
             <tr className="bg-card">
-                <th className="p-3 border-l border-cardBG">Order ID</th>
-                <th className="p-3 border-l border-cardBG">Customer Name</th>
+                <th className="p-3 border-l border-cardBG">ID Penjualan</th>
+                <th className="p-3 border-l border-cardBG">Nama Pelanggan</th>
                 <th className="p-3 border-l border-cardBG">Jumlah Item</th>
                 <th className="p-3 border-l border-cardBG">Total Harga</th>
-                <th className="p-3 border-l border-cardBG">Tgl Penjualan</th>
+                <th className="p-3 border-l border-cardBG">Tanggal Penjualan</th>
                 <th className="p-3 border-l border-cardBG">Preview</th>
                 <th className="p-3 border-x border-cardBG">Aksi</th>
             </tr>
@@ -97,4 +97,4 @@ const TableSalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
     );
 };
 
-export default TableSalesAdmin;
+export default TableHistorySalesAdmin;

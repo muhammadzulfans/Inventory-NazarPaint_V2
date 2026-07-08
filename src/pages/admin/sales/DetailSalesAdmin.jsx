@@ -1,52 +1,43 @@
-// src/pages/admin/sales/DetailSalesAdmin.jsx
-import { useState } from "react";
+import React from "react";
+import { FiSearch, FiFilter } from "react-icons/fi";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import TableSalesAdmin from "../../../components/tables/AdminLayouts/TableSalesAdmin.jsx";
-import DeleteModal from "../../../components/modals/DeleteModal.jsx";
-import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
-import { useSalesManagement } from "../../../hooks/admin/useSalesManagement.js";
-import { FiSearch, FiFilter } from "react-icons/fi";
 
-// Import Komponen Detail Modal Baru
-import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+// IMPORT CUSTOM HOOK LOGIC BARU KHUSUS DETAIL
+import { useDetailSalesManagement } from "../../../hooks/admin/useDetailSalesManagement.js";
+
+// IMPORT TABEL DETAIL BARU
+import TableDetailSalesAdmin from "../../../components/tables/AdminLayouts/TableDetailSalesAdmin.jsx";
 
 const DetailSalesAdmin = () => {
     const {
-        salesData, isLoading, error,
-        search, setSearch,
-        type, setType,
-        storeId, setStoreId, storeOptions,
-        pagination, handlePageChange, handleRowsPerPageChange,
-        handleEdit,
-        deleteSale,
-        isDeleteOpen, setIsDeleteOpen,
-        isDeleting,
-        isSuccessOpen, setIsSuccessOpen, successMessage,
-        triggerDelete, confirmDelete
-    } = useSalesManagement();
-
-    // State Lokal Tambahan untuk Mengontrol Preview Struk Transaksi
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] = useState(null);
-
-    const handlePreview = (item) => {
-        setSelectedTransaction(item);
-        setIsPreviewOpen(true);
-    };
+        detailSalesData,
+        isLoading,
+        error,
+        search,
+        setSearch,
+        type,
+        setType,
+        storeId,
+        setStoreId,
+        storeOptions,
+        pagination,
+        handlePageChange,
+        handleRowsPerPageChange
+    } = useDetailSalesManagement();
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white min-h-full">
             <div className="mb-8">
-                <h1 className="text-3xl font-inter font-medium text-black">Detail Riwayat Penjualan</h1>
-                <p className="text-sm text-gray-500 mt-1 font-inter">Manajemen data riwayat transaksi kasir dan toko NazarPaint.</p>
+                <h1 className="text-3xl font-inter font-medium text-black">Detail Transaksi Penjualan</h1>
+                <p className="text-sm text-gray-500 mt-1 font-inter">Manajemen data transaksi penjualan.</p>
             </div>
 
             {/* TABEL UTAMA */}
             <div className="w-full bg-card pt-7 pb-9 px-7 rounded-2xl shadow-[0_4px_4px_rgba(0,0,0,0.2)]">
-                <h2 className="text-2xl font-inter font-medium mb-6">Data Transaksi Penjualan</h2>
+                <h2 className="text-2xl font-inter font-medium mb-6">Daftar Data Transaksi Penjualan</h2>
 
                 {/* FILTER CONTROLS */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
@@ -78,12 +69,9 @@ const DetailSalesAdmin = () => {
                     {error ? (
                         <p className="text-center py-10 text-red-400 font-inter">{error}</p>
                     ) : (
-                        <TableSalesAdmin
-                            data={salesData}
+                        <TableDetailSalesAdmin
+                            data={detailSalesData}
                             isLoading={isLoading}
-                            onPreview={handlePreview}
-                            onEdit={handleEdit}
-                            onDelete={triggerDelete}
                         />
                     )}
                     <TablePagination
@@ -95,27 +83,6 @@ const DetailSalesAdmin = () => {
                     />
                 </div>
             </div>
-
-            {/* MODALS SECTION */}
-            <TransactionDetailModal
-                isOpen={isPreviewOpen}
-                onClose={() => setIsPreviewOpen(false)}
-                transaction={selectedTransaction}
-            />
-
-            <DeleteModal
-                isOpen={isDeleteOpen}
-                onClose={() => { setIsDeleteOpen(false); }}
-                onConfirm={confirmDelete}
-                itemName={deleteSale?.namaBarang || "transaksi ini"}
-                itemType="Transaksi"
-                isLoading={isDeleting}
-            />
-            <SuccessModal
-                isOpen={isSuccessOpen}
-                onClose={() => setIsSuccessOpen(false)}
-                message={successMessage}
-            />
         </div>
     );
 };

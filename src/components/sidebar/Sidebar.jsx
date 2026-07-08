@@ -89,7 +89,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                             setSalesMenuOpen(!salesMenuOpen);
                         }}
                         className={`flex items-center justify-between w-full p-3 rounded-xl cursor-pointer font-inter font-medium text-sm transition-colors ${
-                            location.pathname.includes("/sales") || location.pathname.includes("/detail-sales")
+                            location.pathname.includes("/sales") || location.pathname.includes("/history-sales") || location.pathname.includes("/detail-sales")
                                 ? "bg-black/10 text-black"
                                 : "text-black "
                         }`}
@@ -114,7 +114,17 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                         : "text-black/80 "
                                 }`}
                             >
-                                • Penjualan
+                                • Penjualan POS
+                            </button>
+                            <button
+                                onClick={() => navigate(`${prefix}/history-sales`)}
+                                className={`text-left text-lg font-inter font-medium py-2 px-3 rounded-lg ${
+                                    location.pathname === `${prefix}/history-sales`
+                                        ? "bg-button font-bold"
+                                        : "text-black/80 "
+                                }`}
+                            >
+                                • Riwayat Transaksi
                             </button>
                             <button
                                 onClick={() => navigate(`${prefix}/detail-sales`)}
