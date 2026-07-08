@@ -2,7 +2,7 @@ import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { PiTrashBold } from "react-icons/pi";
 
 const TableOrderAdmin = ({ data = [], onEdit, onDelete, onStatusChange }) => {
-    // Flatten data langsung di table, plek ketiplek kayak TableSalesAdmin
+    // Flatten data langsung di table, plek ketiplek kayak TableHistorySalesAdmin
     const rows = data.flatMap((order) =>
         (order.items || []).map((item) => ({
             purchaseId: order.id,

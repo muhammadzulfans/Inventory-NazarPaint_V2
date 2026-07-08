@@ -12,10 +12,10 @@ const FilterDropdown = ({ icon: Icon, options, value, onChange, label , classNam
             {/* BOX UTAMA - Desain disesuaikan dengan SearchFilter kamu */}
             <div
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between bg-gray-200 px-8 py-4 rounded-2xl cursor-pointer min-w-[200px]"
+                className="flex items-center justify-between bg-white px-8 rounded-full cursor-pointer min-w-[200px] shadow-[0_4px_4px_rgba(0,0,0,0.1)]"
             >
-                <div className="flex items-center gap-4 text-lg font-inter font-normal text-black">
-                    {Icon && <Icon className="text-gray-400 size-5" />}
+                <div className="flex items-center gap-4 h-11 text-lg font-inter font-normal text-black">
+                    {Icon && <Icon className="text-gray-500 size-5" />}
                     <span className={!value ? "text-gray-500" : "text-black"}>
                         {selectedLabel || label}
                     </span>

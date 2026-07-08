@@ -2,7 +2,7 @@ import { FaPlus } from "react-icons/fa6";
 import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import TableSalesAdmin from "../../../components/tables/AdminLayouts/TableSalesAdmin.jsx";
+import TableHistorySalesAdmin from "../../../components/tables/AdminLayouts/TableHistorySalesAdmin.jsx";
 import FormCreatePenjualan from "../../admin/sales/FormCreatePenjualan.jsx";
 import { salesTableData } from "../../../dummy/dataAdmin/Data/salesTableData.js";
 import { useState } from "react";
@@ -38,7 +38,7 @@ const SalesAdmin = () => {
                         <SearchFilter leftIcon={<FiFilter className="text-gray-400 size-5" />} label="Ganti Cabang Toko" rightIcon={<FiChevronDown className="text-gray-500 size-6" />} />
                     </div>
                     <div className="overflow-x-auto bg-white pb-5 rounded-xl">
-                        <TableSalesAdmin data={data} />
+                        <TableHistorySalesAdmin data={data} />
                         <TablePagination />
                     </div>
                 </div>

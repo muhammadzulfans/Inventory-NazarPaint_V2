@@ -81,7 +81,7 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                             <td className="p-3">
                                 {item.type ? (
                                     <span
-                                        className="uppercase text-xs font-semibold bg-gray-100 px-2.5 py-1 rounded-md">
+                                        className="uppercase text-xs font-semibold bg-gray-200 px-2.5 py-1 rounded-md">
                                             {item.type}
                                         </span>
                                 ) : "-"}

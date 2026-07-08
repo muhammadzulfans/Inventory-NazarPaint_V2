@@ -1,4 +1,3 @@
-// src/components/ui/KeranjangItem.jsx
 import React from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import ChartItemKeranjang from "./ChartItemKeranjang.jsx";

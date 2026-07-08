@@ -36,7 +36,13 @@ const Navbar = () => {
             return "Persediaan";
         }
         if (path.endsWith("/sales")) {
-            return "Penjualan";
+            return "Penjualan > Penjualan POS";
+        }
+        if (path.endsWith("/history-sales")) {
+            return "Penjualan > Riwayat Transaksi";
+        }
+        if (path.endsWith("/detail-sales")) {
+            return "Penjualan > Detail Penjualan";
         }
         if (path.endsWith("/order")) {
             return "Pembelian";
