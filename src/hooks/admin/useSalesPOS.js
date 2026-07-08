@@ -1,28 +1,16 @@
-// src/hooks/admin/useSalesPOS.js
 import { useState, useEffect } from "react";
 import { productService } from "../../api/services/productService.js";
 import { storeService } from "../../api/services/storeService.js";
 
-// Fungsi pernyataan / mapping manual kode warna ke nilai Hexa
 const getColorHexByCode = (code, type) => {
     if (type === "ACCESSORIES" || type === "AKSESORIS") {
-        return "#f472b6"; // Hexa warna Pink (Tailwind pink-400)
+        return "#f472b6";
     }
-
     const colorMap = {
-        "207": "#22c55e", // Green
-        "210": "#ef4444", // Red
-        "211": "#000000", // Black
-        "219": "#78350f", // Coklat
-        "309": "#f97316", // Orange
-        "321": "#ffffff", // White
-        "329": "#eab308", // Yellow
-        "331": "#16a34a", // Green Super
-        "5100": "#15803d",// Green Gloss
-        "512": "#111827", // Black Gloss
-        "311": "#3b82f6", // Blue
+        "207": "#22c55e", "210": "#ef4444", "211": "#000000", "219": "#78350f",
+        "309": "#f97316", "321": "#ffffff", "329": "#eab308", "331": "#16a34a",
+        "5100": "#15803d", "512": "#111827", "311": "#3b82f6",
     };
-
     return colorMap[code] || "#9ca3af";
 };
 
@@ -45,16 +33,20 @@ export const useSalesPOS = () => {
     const [customerName, setCustomerName] = useState("");
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
+    // ==========================================
+    // STATE MODAL WARNING / VALIDASI BARU
+    // ==========================================
+    const [isWarningOpen, setIsWarningOpen] = useState(false);
+    const [warningMessage, setWarningMessage] = useState("");
+
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(12); // Default tampil 10 data per halaman
+    const [rowsPerPage, setRowsPerPage] = useState(12);
 
-    // Reset halaman ke 1 jika user mengubah filter tipe atau mengetik pencarian
     useEffect(() => {
         setCurrentPage(1);
     }, [selectedType, searchQuery, selectedStoreId]);
 
-    // Fetch data cabang toko
     useEffect(() => {
         storeService.getAll()
             .then((res) => {
@@ -72,16 +64,10 @@ export const useSalesPOS = () => {
             });
     }, []);
 
-    // Fetch data produk terpaging berdasarkan state pagination
     useEffect(() => {
         const fetchBackendProducts = async () => {
             setIsLoading(true);
-
-            const params = {
-                page: currentPage,
-                limit: rowsPerPage
-            };
-
+            const params = { page: currentPage, limit: rowsPerPage };
             if (selectedType !== "ALL") params.type = selectedType;
             if (searchQuery) params.search = searchQuery;
 
@@ -94,9 +80,7 @@ export const useSalesPOS = () => {
                         const storeStock = item.stockPerStore?.find(s => s.store.id === selectedStoreId);
                         currentStock = storeStock ? storeStock.quantity : 0;
                     }
-
                     const normalizedType = item.type ? item.type.toUpperCase().trim() : "";
-
                     return {
                         id: item.id,
                         name: item.name,
@@ -109,23 +93,42 @@ export const useSalesPOS = () => {
                     };
                 });
                 setProducts(transformed);
-
-                // Set total halaman secara dinamis dari response data metadata backend
                 if (response.pagination) {
                     setTotalPages(response.pagination.totalPages || 1);
                 }
             }
             setIsLoading(false);
         };
-
         fetchBackendProducts();
     }, [selectedType, searchQuery, selectedStoreId, currentPage, rowsPerPage]);
 
-    // Cart Logic
+    // ==========================================
+    // VALIDASI KONDISI AMBIL BARANG MASUK KERANJANG
+    // ==========================================
     const addToCart = (product) => {
+        // KONDISI 1: Belum pilih cabang toko
+        if (!selectedStoreId || selectedStoreId === "") {
+            setWarningMessage("Produk tidak bisa ditambahkan ke keranjang, Anda harus memilih cabang terlebih dahulu!");
+            setIsWarningOpen(true);
+            return;
+        }
+
+        // KONDISI 2: Stok kosong / habis di cabang bersangkutan
+        if (product.stock <= 0) {
+            setWarningMessage(`Stok barang "${product.name}" tidak bisa ditambahkan, karena stok belum tersedia.`);
+            setIsWarningOpen(true);
+            return;
+        }
+
         setCart((prevCart) => {
             const existingItem = prevCart.find((item) => item.id === product.id);
             if (existingItem) {
+                // KONDISI 3: Cek jika penambahan qty di keranjang melebihi stok yang ada
+                if (existingItem.quantity >= product.stock) {
+                    setWarningMessage(`Gagal menambah jumlah! Stok tersedia hanya ${product.stock} ${product.unit}.`);
+                    setIsWarningOpen(true);
+                    return prevCart;
+                }
                 return prevCart.map((item) =>
                     item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
                 );
@@ -136,13 +139,22 @@ export const useSalesPOS = () => {
     };
 
     const updateQuantity = (productId, amount) => {
+        const targetProduct = products.find(p => p.id === productId);
         setCart((prevCart) =>
             prevCart
-                .map((item) =>
-                    item.id === productId
-                        ? { ...item, quantity: Math.max(0, item.quantity + amount) }
-                        : item
-                )
+                .map((item) => {
+                    if (item.id === productId) {
+                        const nextQty = item.quantity + amount;
+                        // Validasi batas atas saat menaikkan qty lewat tombol + di keranjang
+                        if (amount > 0 && targetProduct && nextQty > targetProduct.stock) {
+                            setWarningMessage(`Stok tidak mencukupi! Maksimal pembelian ${targetProduct.stock} ${targetProduct.unit}.`);
+                            setIsWarningOpen(true);
+                            return item;
+                        }
+                        return { ...item, quantity: Math.max(0, nextQty) };
+                    }
+                    return item;
+                })
                 .filter((item) => item.quantity > 0)
         );
     };
@@ -162,31 +174,11 @@ export const useSalesPOS = () => {
     };
 
     return {
-        products,
-        isLoading,
-        selectedType,
-        setSelectedType,
-        searchQuery,
-        setSearchQuery,
-        selectedStoreId,
-        setSelectedStoreId,
-        storeOptions,
-        cart,
-        customerName,
-        setCustomerName,
-        isSuccessOpen,
-        setIsSuccessOpen,
-        addToCart,
-        updateQuantity,
-        removeFromCart,
-        subtotal,
-        totalItems,
-        handleProcessPayment,
-        // Return state pagination untuk digunakan di file UI
-        currentPage,
-        setCurrentPage,
-        totalPages,
-        rowsPerPage,
-        setRowsPerPage
+        products, isLoading, selectedType, setSelectedType, searchQuery, setSearchQuery,
+        selectedStoreId, setSelectedStoreId, storeOptions, cart, customerName, setCustomerName,
+        isSuccessOpen, setIsSuccessOpen, addToCart, updateQuantity, removeFromCart, subtotal,
+        totalItems, handleProcessPayment, currentPage, setCurrentPage, totalPages, rowsPerPage, setRowsPerPage,
+        // Lempar state warning baru ke UI
+        isWarningOpen, setIsWarningOpen, warningMessage
     };
 };

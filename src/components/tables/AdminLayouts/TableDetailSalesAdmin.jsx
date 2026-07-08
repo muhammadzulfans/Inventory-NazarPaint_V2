@@ -45,7 +45,7 @@ const TableDetailSalesAdmin = ({ data = [] }) => {
                 <th className="p-3 border-l border-cardBG">Total Harga Jual</th>
                 <th className="p-3 border-l border-cardBG">Total Harga Pokok</th>
                 <th className="p-3 border-l border-cardBG">Total Keuntungan</th>
-                <th className="p-3 border-x border-cardBG">Tanggal Transaksi</th>
+                <th className="p-3 border-x border-cardBG">Tanggal</th>
             </tr>
             </thead>
             <tbody className="text-black text-left">

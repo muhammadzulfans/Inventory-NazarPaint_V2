@@ -6,6 +6,7 @@ import { useSalesPOS, PRODUCT_TYPES_BACKEND } from "../../../hooks/admin/useSale
 
 // Import Reusable Components UI & Pagination
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
+import WarningModal from "../../../components/modals/WarningModal.jsx"; // Pakai WarningModal milikmu bro
 import KeranjangItem from "../../../components/ui/KeranjangItem.jsx";
 import ProductCard from "../../../components/ui/ProductCard.jsx";
 import CategoryPillsOptions from "../../../components/ui/CategoryPillsOptions.jsx";
@@ -35,22 +36,25 @@ const SalesAdmin = () => {
         subtotal,
         totalItems,
         handleProcessPayment,
-        // Tarik state pagination dari custom hook bro
         currentPage,
         setCurrentPage,
         totalPages,
         rowsPerPage,
-        setRowsPerPage
+        setRowsPerPage,
+        // Ambil state warning dari custom hook
+        isWarningOpen,
+        setIsWarningOpen,
+        warningMessage
     } = useSalesPOS();
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white min-h-full w-full">
             <div className="mb-8">
                 <h1 className="text-3xl font-inter font-medium text-black">Kelola Transaksi Penjualan</h1>
+                <p className="text-sm text-gray-500 mt-1 font-inter">Kelola manajemen data transaksi penjualan POS Anda.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
                 {/* Area Produk (3 Kolom Grid Layout) */}
                 <div className="lg:col-span-3 p-6 bg-card rounded-2xl shadow-[0_4px_4px_rgba(0,0,0,0.2)] flex flex-col justify-between">
                     <div>
@@ -105,6 +109,7 @@ const SalesAdmin = () => {
                         )}
                     </div>
 
+                    {/* Pagination */}
                     {!isLoading && products.length > 0 && (
                         <div className="border-t border-gray-100 pt-4 mt-auto">
                             <TablePagination
@@ -133,10 +138,23 @@ const SalesAdmin = () => {
                 </div>
             </div>
 
+            {/* Modal Notifikasi Berhasil */}
             <SuccessModal
                 isOpen={isSuccessOpen}
                 onClose={() => setIsSuccessOpen(false)}
                 message="Transaksi Berhasil Diproses!"
+            />
+
+            {/* ==========================================
+                INTEGRASI WARNING MODAL KAMU DISINI BRO
+               ========================================== */}
+            <WarningModal
+                isOpen={isWarningOpen}
+                title="Peringatan Validasi Kasir"
+                message={warningMessage}
+                onClose={() => setIsWarningOpen(false)}
+                onConfirm={() => setIsWarningOpen(false)} // Klik 'Ya, Lanjutkan' akan langsung menutup modal
+                confirmText="Oke, Mengerti"
             />
         </div>
     );

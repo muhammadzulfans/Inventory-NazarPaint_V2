@@ -1,5 +1,6 @@
 import { HiOutlinePencilSquare, HiOutlineEye } from "react-icons/hi2";
 import { PiTrashBold } from "react-icons/pi";
+import React from "react";
 
 const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
     // Karena kolom sekarang berbasis per transaksi (bukan per item barang),
@@ -37,7 +38,7 @@ const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
                 <th className="p-3 border-l border-cardBG">Nama Pelanggan</th>
                 <th className="p-3 border-l border-cardBG">Jumlah Item</th>
                 <th className="p-3 border-l border-cardBG">Total Harga</th>
-                <th className="p-3 border-l border-cardBG">Tanggal Penjualan</th>
+                <th className="p-3 border-l border-cardBG">Tanggal</th>
                 <th className="p-3 border-l border-cardBG">Preview</th>
                 <th className="p-3 border-x border-cardBG">Aksi</th>
             </tr>
@@ -56,9 +57,17 @@ const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
                         <td className="p-3 text-center font-medium">{row.id}</td>
                         <td className="p-3">{row.customerName}</td>
                         <td className="p-3 text-center">{row.totalItems} Kg</td>
-                        <td className="p-3 text-center font-medium text-green-600">
-                            Rp. {row.totalHarga.toLocaleString("id-ID")}
+                        <td className="p-3 text-center">
+                            {row.totalHarga.toLocaleString("id-ID") ? (
+                                <span
+                                    className="text-xs font-semibold bg-green-100 px-2.5 py-1 rounded-md">
+                                    Rp. {row.totalHarga.toLocaleString("id-ID")}
+                                </span>
+                            ) : "-"}
                         </td>
+                        {/*<td className="p-3 text-center font-medium text-green-600">*/}
+                        {/*    Rp. {row.totalHarga.toLocaleString("id-ID")}*/}
+                        {/*</td>*/}
                         <td className="p-3 text-center">{row.tanggal}</td>
 
                         {/* KOLOM PREVIEW */}
@@ -83,10 +92,10 @@ const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
                 ))
             )}
             {/* BARIS TOTAL FOOTER */}
-            <tr className="font-inter font-bold text-lg border-b bg-gray-50/30 text-center">
+            <tr className="font-inter font-bold text-base border-b bg-gray-50/30 text-center">
                 <td className="px-3 py-6 text-left" colSpan={2}>Total</td>
-                <td className="p-3 font-inter text-sm">{grandTotalQty} Kg</td>
-                <td className="p-3 font-inter text-sm text-green-600">
+                <td className="p-3 font-inter">{grandTotalQty} Kg</td>
+                <td className="p-3 font-inter text-green-600">
                     Rp. {grandTotalHarga.toLocaleString("id-ID")}
                 </td>
                 {/* Sisa kolom dikosongkan agar sejajar (Tgl Penjualan, Preview, Aksi) */}

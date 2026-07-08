@@ -32,7 +32,7 @@ const DetailSalesAdmin = () => {
         <div className="px-8 pt-6 pb-10 bg-white min-h-full">
             <div className="mb-8">
                 <h1 className="text-3xl font-inter font-medium text-black">Detail Transaksi Penjualan</h1>
-                <p className="text-sm text-gray-500 mt-1 font-inter">Manajemen data transaksi penjualan.</p>
+                <p className="text-sm text-gray-500 mt-1 font-inter">Manajemen data transaksi penjualan Anda.</p>
             </div>
 
             {/* TABEL UTAMA */}

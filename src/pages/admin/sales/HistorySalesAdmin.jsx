@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import TableHistorySalesAdmin from "../../../components/tables/AdminLayouts/TableHistorySalesAdmin.jsx";
@@ -39,13 +39,13 @@ const HistorySalesAdmin = () => {
     return (
         <div className="px-8 pt-6 pb-10 bg-white min-h-full">
             <div className="mb-8">
-                <h1 className="text-3xl font-inter font-medium text-black">Detail Riwayat Transaksi Penjualan</h1>
-                {/*<p className="text-sm text-gray-500 mt-1 font-inter">Manajemen data riwayat transaksi kasir dan toko NazarPaint.</p>*/}
+                <h1 className="text-3xl font-inter font-medium text-black">Riwayat Transaksi Penjualan</h1>
+                <p className="text-sm text-gray-500 mt-1 font-inter">Kelola manajemen data riwayat transaksi penjualan Anda.</p>
             </div>
 
             {/* TABEL UTAMA */}
             <div className="w-full bg-card pt-7 pb-9 px-7 rounded-2xl shadow-[0_4px_4px_rgba(0,0,0,0.2)]">
-                <h2 className="text-2xl font-inter font-medium mb-6">Daftar Transaksi Penjualan</h2>
+                <h2 className="text-2xl font-inter font-medium mb-6">Daftar Riwayat Transaksi Penjualan</h2>
 
                 {/* FILTER CONTROLS */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
