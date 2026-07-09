@@ -25,6 +25,7 @@ import KelolaInventoryAdmin from "./pages/admin/inventory/KelolaInventoryAdmin.j
 import Profile from "./pages/admin/ProfileAdmin.jsx";
 import DetailSalesAdmin from "./pages/admin/sales/DetailSalesAdmin.jsx";
 import HistorySalesAdmin from "./pages/admin/sales/HistorySalesAdmin.jsx";
+import DetailOrderAdmin from "./pages/admin/Order/DetailOrderAdmin.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -47,6 +48,7 @@ function App() {
                     <Route path="history-sales" element={<HistorySalesAdmin />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="detail-sales" element={<DetailSalesAdmin />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="order" element={<OrderAdmin />} />
+                    <Route path="detail-order" element={<DetailOrderAdmin />} />
                     <Route path="mutasi" element={<MutasiAdmin />} />
                     <Route path="createAkun" element={<CreateAkun />} />
                     <Route path="prediksi" element={<PrediksiAdmin />} />

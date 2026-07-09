@@ -25,7 +25,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     // State untuk toggle submenu penjualan
     const [salesMenuOpen, setSalesMenuOpen] = useState(
-        location.pathname.includes("/sales") || location.pathname.includes("/detail-sales")
+        location.pathname.includes("/sales") || location.pathname.includes("/history-sales") || location.pathname.includes("/detail-sales")
+    );
+
+    const [orderMenuOpen, setOrderMenuOpen] = useState(
+        location.pathname.includes("/order") || location.pathname.includes("/detail-order")
     );
 
     const isKaryawanPage = location.pathname.startsWith("/karyawan");
@@ -140,6 +144,55 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     )}
                 </div>
 
+
+                {/* CONTAINER ITEM PEMBELIAN DROPDOWN */}
+                <div className="flex flex-col px-1">
+                    <div
+                        onClick={() => {
+                            if (!isOpen) setIsOpen(true);
+                            setOrderMenuOpen(!orderMenuOpen);
+                        }}
+                        className={`flex items-center justify-between w-full p-3 rounded-xl cursor-pointer font-inter font-medium text-sm transition-colors ${
+                            location.pathname.includes("/order") || location.pathname.includes("/detail-order")
+                                ? "bg-black/10 text-black"
+                                : "text-black "
+                        }`}
+                    >
+                        <div className="flex items-center gap-4">
+                            <span><LuNotebookPen size={24} /></span>
+                            {isOpen && <span className="text-lg font-inter">Pembelian</span>}
+                        </div>
+                        {isOpen && (
+                            <span>{orderMenuOpen ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}</span>
+                        )}
+                    </div>
+
+                    {/* SUBMENU LIST */}
+                    {isOpen && orderMenuOpen && (
+                        <div className="flex flex-col pl-5 mt-2 gap-2 border-l border-black/20 ml-5 animate-in fade-in duration-150">
+                            <button
+                                onClick={() => navigate(`${prefix}/order`)}
+                                className={`text-left text-lg font-inter font-medium py-2 px-3 rounded-lg ${
+                                    location.pathname === `${prefix}/order`
+                                        ? "bg-button font-bold"
+                                        : "text-black/80 "
+                                }`}
+                            >
+                                • Pembelian
+                            </button>
+                            <button
+                                onClick={() => navigate(`${prefix}/detail-order`)}
+                                className={`text-left text-lg font-inter font-medium py-2 px-3 rounded-lg ${
+                                    location.pathname === `${prefix}/detail-order`
+                                        ? "bg-button font-bold"
+                                        : "text-black/80 "
+                                }`}
+                            >
+                                • Detail Pembelian
+                            </button>
+                        </div>
+                    )}
+                </div>
 
                 {user?.role === "OWNER" && (
                     <SidebarButton
