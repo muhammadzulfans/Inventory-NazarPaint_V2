@@ -1,18 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { productService } from "../../api/services/productService.js";
 import { storeService } from "../../api/services/storeService.js";
-
-const getColorHexByCode = (code, type) => {
-    if (type === "ACCESSORIES" || type === "AKSESORIS") {
-        return "#f472b6";
-    }
-    const colorMap = {
-        "207": "#22c55e", "210": "#ef4444", "211": "#000000", "219": "#78350f",
-        "309": "#f97316", "321": "#ffffff", "329": "#eab308", "331": "#16a34a",
-        "5100": "#15803d", "512": "#111827", "311": "#3b82f6",
-    };
-    return colorMap[code] || "#9ca3af";
-};
+import { salesService } from "../../api/services/salesService.js";
+import { getColorHexByCode } from "../../utils/productColor.js";
 
 export const PRODUCT_TYPES_BACKEND = [
     { value: "ALL", label: "Semua Tipe" },
@@ -33,11 +23,14 @@ export const useSalesPOS = () => {
     const [customerName, setCustomerName] = useState("");
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
-    // ==========================================
-    // STATE MODAL WARNING / VALIDASI BARU
-    // ==========================================
+    // State Warning / Validasi
     const [isWarningOpen, setIsWarningOpen] = useState(false);
     const [warningMessage, setWarningMessage] = useState("");
+
+    // ==========================================
+    // STATE BARU: Loading khusus proses checkout
+    // ==========================================
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -64,56 +57,54 @@ export const useSalesPOS = () => {
             });
     }, []);
 
-    useEffect(() => {
-        const fetchBackendProducts = async () => {
-            setIsLoading(true);
-            const params = { page: currentPage, limit: rowsPerPage };
-            if (selectedType !== "ALL") params.type = selectedType;
-            if (searchQuery) params.search = searchQuery;
+    // Dipisah jadi function sendiri (pakai useCallback) biar bisa dipanggil ulang
+    // setelah transaksi sukses, buat refresh stok produk terbaru.
+    const fetchBackendProducts = useCallback(async () => {
+        setIsLoading(true);
+        const params = { page: currentPage, limit: rowsPerPage };
+        if (selectedType !== "ALL") params.type = selectedType;
+        if (searchQuery) params.search = searchQuery;
 
-            const response = await productService.getAllProducts(params);
+        const response = await productService.getAllProducts(params);
 
-            if (response && response.success) {
-                const transformed = response.data.map((item) => {
-                    let currentStock = item.totalStock;
-                    if (selectedStoreId) {
-                        const storeStock = item.stockPerStore?.find(s => s.store.id === selectedStoreId);
-                        currentStock = storeStock ? storeStock.quantity : 0;
-                    }
-                    const normalizedType = item.type ? item.type.toUpperCase().trim() : "";
-                    return {
-                        id: item.id,
-                        name: item.name,
-                        type: normalizedType,
-                        price: item.sellPrice,
-                        unit: item.unit || "Kg",
-                        stock: currentStock,
-                        hexColor: getColorHexByCode(item.code, normalizedType),
-                        code: item.code || "-"
-                    };
-                });
-                setProducts(transformed);
-                if (response.pagination) {
-                    setTotalPages(response.pagination.totalPages || 1);
+        if (response && response.success) {
+            const transformed = response.data.map((item) => {
+                let currentStock = item.totalStock;
+                if (selectedStoreId) {
+                    const storeStock = item.stockPerStore?.find(s => s.store.id === selectedStoreId);
+                    currentStock = storeStock ? storeStock.quantity : 0;
                 }
+                const normalizedType = item.type ? item.type.toUpperCase().trim() : "";
+                return {
+                    id: item.id,
+                    name: item.name,
+                    type: normalizedType,
+                    price: item.sellPrice,
+                    unit: item.unit || "Kg",
+                    stock: currentStock,
+                    hexColor: getColorHexByCode(item.code, normalizedType),
+                    code: item.code || "-"
+                };
+            });
+            setProducts(transformed);
+            if (response.pagination) {
+                setTotalPages(response.pagination.totalPages || 1);
             }
-            setIsLoading(false);
-        };
-        fetchBackendProducts();
+        }
+        setIsLoading(false);
     }, [selectedType, searchQuery, selectedStoreId, currentPage, rowsPerPage]);
 
-    // ==========================================
-    // VALIDASI KONDISI AMBIL BARANG MASUK KERANJANG
-    // ==========================================
+    useEffect(() => {
+        fetchBackendProducts();
+    }, [fetchBackendProducts]);
+
     const addToCart = (product) => {
-        // KONDISI 1: Belum pilih cabang toko
         if (!selectedStoreId || selectedStoreId === "") {
             setWarningMessage("Produk tidak bisa ditambahkan ke keranjang, Anda harus memilih cabang terlebih dahulu!");
             setIsWarningOpen(true);
             return;
         }
 
-        // KONDISI 2: Stok kosong / habis di cabang bersangkutan
         if (product.stock <= 0) {
             setWarningMessage(`Stok barang "${product.name}" tidak bisa ditambahkan, karena stok belum tersedia.`);
             setIsWarningOpen(true);
@@ -123,7 +114,6 @@ export const useSalesPOS = () => {
         setCart((prevCart) => {
             const existingItem = prevCart.find((item) => item.id === product.id);
             if (existingItem) {
-                // KONDISI 3: Cek jika penambahan qty di keranjang melebihi stok yang ada
                 if (existingItem.quantity >= product.stock) {
                     setWarningMessage(`Gagal menambah jumlah! Stok tersedia hanya ${product.stock} ${product.unit}.`);
                     setIsWarningOpen(true);
@@ -138,6 +128,26 @@ export const useSalesPOS = () => {
         });
     };
 
+
+    // Ref buat nyimpen cabang sebelumnya, biar bisa bedain "ganti cabang" vs "load pertama kali"
+    const renderCabang = useRef(true);
+
+// Reset keranjang setiap kali cabang toko diganti
+    useEffect(() => {
+        if (renderCabang.current) {
+            renderCabang.current = false;
+            return; // skip di render pertama, jangan clear cart yang emang masih kosong
+        }
+
+        if (cart.length > 0) {
+            setCart([]);
+            setWarningMessage("Cabang toko diganti, keranjang belanja akan otomatis kosong karena stok bisa berbeda tiap cabang.");
+            setIsWarningOpen(true);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedStoreId]);
+
+
     const updateQuantity = (productId, amount) => {
         const targetProduct = products.find(p => p.id === productId);
         setCart((prevCart) =>
@@ -145,7 +155,6 @@ export const useSalesPOS = () => {
                 .map((item) => {
                     if (item.id === productId) {
                         const nextQty = item.quantity + amount;
-                        // Validasi batas atas saat menaikkan qty lewat tombol + di keranjang
                         if (amount > 0 && targetProduct && nextQty > targetProduct.stock) {
                             setWarningMessage(`Stok tidak mencukupi! Maksimal pembelian ${targetProduct.stock} ${targetProduct.unit}.`);
                             setIsWarningOpen(true);
@@ -166,11 +175,52 @@ export const useSalesPOS = () => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    const handleProcessPayment = () => {
+    // ==========================================
+    // INTEGRASI CREATE PENJUALAN KE BACKEND
+    // ==========================================
+    const handleProcessPayment = async () => {
         if (cart.length === 0) return;
-        setIsSuccessOpen(true);
-        setCart([]);
-        setCustomerName("");
+
+        if (!selectedStoreId) {
+            setWarningMessage("Anda harus memilih cabang toko sebelum memproses pembayaran!");
+            setIsWarningOpen(true);
+            return;
+        }
+
+        setIsProcessing(true);
+
+        const payload = {
+            storeId: selectedStoreId,
+            customerName: customerName,
+            items: cart.map((item) => ({
+                productId: item.id,
+                quantity: item.quantity,
+                sellPrice: item.price,
+                totalPrice: item.price * item.quantity,
+            })),
+        };
+
+        try {
+            const response = await salesService.create(payload);
+
+            if (response && response.success !== false) {
+                setIsSuccessOpen(true);
+                setCart([]);
+                setCustomerName("");
+                // Refresh daftar produk supaya stok terbaru (habis dikurangi) langsung kelihatan
+                fetchBackendProducts();
+            } else {
+                setWarningMessage(response?.message || "Transaksi gagal diproses. Silakan coba lagi.");
+                setIsWarningOpen(true);
+            }
+        } catch (error) {
+            const backendMessage = error?.response?.data?.message;
+            // warning jika tidak memliki cabang
+            setWarningMessage(backendMessage || "Terjadi kesalahan saat memproses transaksi. Cek koneksi atau stok barang.");
+            setIsWarningOpen(true);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     return {
@@ -178,7 +228,8 @@ export const useSalesPOS = () => {
         selectedStoreId, setSelectedStoreId, storeOptions, cart, customerName, setCustomerName,
         isSuccessOpen, setIsSuccessOpen, addToCart, updateQuantity, removeFromCart, subtotal,
         totalItems, handleProcessPayment, currentPage, setCurrentPage, totalPages, rowsPerPage, setRowsPerPage,
-        // Lempar state warning baru ke UI
-        isWarningOpen, setIsWarningOpen, warningMessage
+        isWarningOpen, setIsWarningOpen, warningMessage,
+        // Export state processing biar tombol bisa di-disable pas loading
+        isProcessing,
     };
 };

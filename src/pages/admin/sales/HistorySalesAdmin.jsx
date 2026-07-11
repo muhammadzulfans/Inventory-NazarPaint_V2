@@ -5,25 +5,27 @@ import TableHistorySalesAdmin from "../../../components/tables/AdminLayouts/Tabl
 import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 import { useSalesManagement } from "../../../hooks/admin/useSalesManagement.js";
 import { FiSearch, FiFilter } from "react-icons/fi";
 
 // Import Komponen Detail Modal Baru
 import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+import EditSaleModal from "../../../components/modals/EditSaleModal.jsx";
 
 const HistorySalesAdmin = () => {
     const {
         salesData, isLoading, error,
         search, setSearch,
-        type, setType,
         storeId, setStoreId, storeOptions,
+        dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         handleEdit,
         deleteSale,
         isDeleteOpen, setIsDeleteOpen,
         isDeleting,
         isSuccessOpen, setIsSuccessOpen, successMessage,
+        editSale, setEditSale,handleUpdate, isUpdating,
         triggerDelete, confirmDelete
     } = useSalesManagement();
 
@@ -56,12 +58,10 @@ const HistorySalesAdmin = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
-                    <FilterDropdown
-                        icon={FiFilter}
-                        label="Tipe Kategori"
-                        value={type}
-                        onChange={(val) => setType(val)}
-                        options={[{ value: "", label: "Pilih Tipe" }, ...catTypes]}
+                    <DateRangeField
+                        // label="Durasi"
+                        value={dateRange}
+                        onChange={setDateRange}
                     />
                     <FilterDropdown
                         icon={FiFilter}
@@ -96,6 +96,14 @@ const HistorySalesAdmin = () => {
             </div>
 
             {/* MODALS SECTION */}
+            <EditSaleModal
+                isOpen={!!editSale}
+                onClose={() => setEditSale(null)}
+                sale={editSale}
+                onSave={handleUpdate}
+                isSaving={isUpdating}
+            />
+
             <TransactionDetailModal
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
@@ -106,7 +114,7 @@ const HistorySalesAdmin = () => {
                 isOpen={isDeleteOpen}
                 onClose={() => { setIsDeleteOpen(false); }}
                 onConfirm={confirmDelete}
-                itemName={deleteSale?.namaBarang || "transaksi ini"}
+                itemName={deleteSale?.orderNumber || deleteSale?.customerName || "transaksi ini"}
                 itemType="Transaksi"
                 isLoading={isDeleting}
             />

@@ -15,6 +15,7 @@ export const useSalesManagement = () => {
     const [type, setType] = useState("");
     const [storeId, setStoreId] = useState("");
     const [storeOptions, setStoreOptions] = useState([]);
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     // Pagination State
     const [pagination, setPagination] = useState({
@@ -30,6 +31,11 @@ export const useSalesManagement = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    // State Warning / Validasi
+    const [setIsWarningOpen] = useState(false);
+    const [warningMessage, setWarningMessage] = useState("");
 
     // FETCH 1: Ambil data cabang untuk dropdown
     useEffect(() => {
@@ -53,6 +59,8 @@ export const useSalesManagement = () => {
                 search: debouncedSearch,
                 type,
                 storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 page: pagination.page,
                 limit: pagination.limit
             });
@@ -71,7 +79,7 @@ export const useSalesManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, storeId, pagination.page, pagination.limit]);
+    }, [debouncedSearch, type, storeId, dateRange, pagination.page, pagination.limit]);
 
     // EFFECT 1: Handle Debounce Search (Penundaan ketik 500ms)
     useEffect(() => {
@@ -85,7 +93,7 @@ export const useSalesManagement = () => {
     // EFFECT 2: Reset page ke 1 setiap kali filter cabang atau tipe diubah
     useEffect(() => {
         setPagination(prev => ({ ...prev, page: 1 }));
-    }, [storeId, type]);
+    }, [storeId, type, dateRange]);
 
     // EFFECT 3: Jalankan fetchSales saat dependensi siap
     useEffect(() => {
@@ -116,11 +124,11 @@ export const useSalesManagement = () => {
     // HANDLER CRUD: Trigger Edit
     const handleEdit = (item) => {
         setEditSale(item);
-        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     // HANDLER CRUD: Update
     const handleUpdate = async (saleId, payload) => {
+        setIsUpdating(true);
         try {
             await salesService.update(saleId, payload);
             setEditSale(null);
@@ -129,6 +137,8 @@ export const useSalesManagement = () => {
             await fetchSales();
         } catch (err) {
             alert("Gagal memperbarui: " + (err.response?.data?.message || err.message));
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -142,14 +152,16 @@ export const useSalesManagement = () => {
     const confirmDelete = async () => {
         setIsDeleting(true);
         try {
-            await salesService.delete(deleteSale.saleId);
+            await salesService.delete(deleteSale.id);
             setIsDeleteOpen(false);
             setDeleteSale(null);
             setSuccessMessage("Transaksi berhasil dihapus!");
             setIsSuccessOpen(true);
             await fetchSales();
         } catch (err) {
-            alert("Gagal menghapus: " + (err.response?.data?.message || err.message));
+            setWarningMessage(err?.message || "Transaksi gagal diproses. Silakan coba lagi.");
+            setIsWarningOpen(true);
+            // alert("Gagal menghapus: " + (err.response?.data?.message || err.message));
         } finally {
             setIsDeleting(false);
         }
@@ -160,11 +172,13 @@ export const useSalesManagement = () => {
         search, setSearch,
         type, setType,
         storeId, setStoreId, storeOptions,
+        dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         editSale, setEditSale,
         deleteSale, setDeleteSale,
         isDeleteOpen, setIsDeleteOpen,
         isDeleting,
+        isUpdating,
         isSuccessOpen, setIsSuccessOpen, successMessage,
         handleTambah, handleEdit, handleUpdate, triggerDelete, confirmDelete
     };

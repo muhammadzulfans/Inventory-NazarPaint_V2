@@ -12,7 +12,8 @@ const KeranjangItem = ({
                            subtotal,
                            onUpdateQuantity,
                            onRemoveFromCart,
-                           onProcessPayment
+                           onProcessPayment,
+                           isProcessing,
                        }) => {
     return (
         <div className="w-full rounded-2xl shadow-[0_4px_4px_rgba(0,0,0,0.2)] bg-card flex flex-col overflow-hidden">
@@ -73,7 +74,7 @@ const KeranjangItem = ({
                     disabled={cart.length === 0}
                     className="w-full h-12 flex items-center justify-center bg-button hover:bg-button2 disabled:bg-gray-200 disabled:text-gray-400 rounded-xl text-sm font-inter font-semibold text-black transition shadow-sm"
                 >
-                    Proses Pembayaran
+                    {isProcessing ? "Memproses..." : "Proses Pembayaran"}
                 </button>
             </div>
         </div>

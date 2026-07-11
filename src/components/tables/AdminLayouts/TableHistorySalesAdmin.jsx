@@ -6,28 +6,22 @@ const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
     // Karena kolom sekarang berbasis per transaksi (bukan per item barang),
     // kita olah datanya langsung dari object parent 'sale'
     const rows = data.map((sale) => {
-        // Hitung total quantity dari semua item dalam satu order ini
-        const totalQtyInSale = (sale.items || []).reduce((sum, item) => sum + (item.quantity ?? 0), 0);
-
-        // Hitung total harga dari semua item dalam satu order ini (jika di data parent belum ada totalnya)
+        const itemCount = sale.itemCount ?? (sale.items || []).length;
         const totalPriceInSale = (sale.items || []).reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
-
         return {
             id: sale.orderNumber,
-            customerName: sale.customerName || "-", // Sesuaikan key property nama customer di API-mu
-            totalItems: totalQtyInSale,
+            customerName: sale.customerName || "-",
+            itemCount,
             totalHarga: totalPriceInSale,
             tanggal: sale.date
-                ? new Date(sale.date).toLocaleDateString("id-ID", {
-                    day: "numeric", month: "short", year: "numeric",
-                })
+                ? new Date(sale.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
                 : "-",
-            rawPayload: sale // Menyimpan data asli untuk dilempar ke callback fungsi action
+            rawPayload: sale
         };
     });
 
     // Menghitung grand total untuk baris paling bawah (footer)
-    const grandTotalQty = rows.reduce((t, r) => t + r.totalItems, 0);
+    const grandTotalItem = rows.reduce((t, r) => t + r.itemCount, 0);
     const grandTotalHarga = rows.reduce((t, r) => t + r.totalHarga, 0);
 
     return (
@@ -56,7 +50,7 @@ const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
                     <tr key={index} className="border-b border-cardBG hover:bg-gray-50/50 transition-colors">
                         <td className="p-3 text-center font-medium">{row.id}</td>
                         <td className="p-3">{row.customerName}</td>
-                        <td className="p-3 text-center">{row.totalItems} Kg</td>
+                        <td className="p-3 text-center">{row.itemCount} Item</td>
                         <td className="p-3 text-center">
                             {row.totalHarga.toLocaleString("id-ID") ? (
                                 <span
@@ -71,7 +65,7 @@ const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
                         <td className="p-3 text-center">{row.tanggal}</td>
 
                         {/* KOLOM PREVIEW */}
-                        <td className="p-3 text-center">
+                        <td className="p-3 flex justify-center items-center">
                             <button className="text-blue-500" onClick={() => onPreview && onPreview(row.rawPayload)}>
                                 <HiOutlineEye className="size-7 p-1 border border-blue-500 rounded-md hover:bg-blue-50 transition" />
                             </button>
@@ -93,8 +87,9 @@ const TableHistorySalesAdmin = ({ data = [], onPreview, onEdit, onDelete }) => {
             )}
             {/* BARIS TOTAL FOOTER */}
             <tr className="font-inter font-bold text-base border-b bg-gray-50/30 text-center">
-                <td className="px-3 py-6 text-left" colSpan={2}>Total</td>
-                <td className="p-3 font-inter">{grandTotalQty} Kg</td>
+                <td className="p-5 text-center">Total</td>
+                <td></td>
+                <td className="p-3 font-inter ">{grandTotalItem} Item</td>
                 <td className="p-3 font-inter text-green-600">
                     Rp. {grandTotalHarga.toLocaleString("id-ID")}
                 </td>
