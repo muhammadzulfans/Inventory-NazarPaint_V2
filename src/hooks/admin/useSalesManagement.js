@@ -15,6 +15,7 @@ export const useSalesManagement = () => {
     const [type, setType] = useState("");
     const [storeId, setStoreId] = useState("");
     const [storeOptions, setStoreOptions] = useState([]);
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     // Pagination State
     const [pagination, setPagination] = useState({
@@ -58,6 +59,8 @@ export const useSalesManagement = () => {
                 search: debouncedSearch,
                 type,
                 storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 page: pagination.page,
                 limit: pagination.limit
             });
@@ -76,7 +79,7 @@ export const useSalesManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, storeId, pagination.page, pagination.limit]);
+    }, [debouncedSearch, type, storeId, dateRange, pagination.page, pagination.limit]);
 
     // EFFECT 1: Handle Debounce Search (Penundaan ketik 500ms)
     useEffect(() => {
@@ -90,7 +93,7 @@ export const useSalesManagement = () => {
     // EFFECT 2: Reset page ke 1 setiap kali filter cabang atau tipe diubah
     useEffect(() => {
         setPagination(prev => ({ ...prev, page: 1 }));
-    }, [storeId, type]);
+    }, [storeId, type, dateRange]);
 
     // EFFECT 3: Jalankan fetchSales saat dependensi siap
     useEffect(() => {
@@ -169,6 +172,7 @@ export const useSalesManagement = () => {
         search, setSearch,
         type, setType,
         storeId, setStoreId, storeOptions,
+        dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         editSale, setEditSale,
         deleteSale, setDeleteSale,

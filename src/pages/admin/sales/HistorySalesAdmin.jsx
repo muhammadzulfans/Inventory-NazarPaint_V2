@@ -5,7 +5,7 @@ import TableHistorySalesAdmin from "../../../components/tables/AdminLayouts/Tabl
 import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 import { useSalesManagement } from "../../../hooks/admin/useSalesManagement.js";
 import { FiSearch, FiFilter } from "react-icons/fi";
 
@@ -17,8 +17,8 @@ const HistorySalesAdmin = () => {
     const {
         salesData, isLoading, error,
         search, setSearch,
-        type, setType,
         storeId, setStoreId, storeOptions,
+        dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         handleEdit,
         deleteSale,
@@ -58,12 +58,10 @@ const HistorySalesAdmin = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
-                    <FilterDropdown
-                        icon={FiFilter}
-                        label="Tipe Kategori"
-                        value={type}
-                        onChange={(val) => setType(val)}
-                        options={[{ value: "", label: "Pilih Tipe" }, ...catTypes]}
+                    <DateRangeField
+                        // label="Durasi"
+                        value={dateRange}
+                        onChange={setDateRange}
                     />
                     <FilterDropdown
                         icon={FiFilter}
