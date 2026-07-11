@@ -44,7 +44,8 @@ const SalesAdmin = () => {
         // Ambil state warning dari custom hook
         isWarningOpen,
         setIsWarningOpen,
-        warningMessage
+        warningMessage,
+        isProcessing
     } = useSalesPOS();
 
     return (
@@ -134,6 +135,7 @@ const SalesAdmin = () => {
                         onUpdateQuantity={updateQuantity}
                         onRemoveFromCart={removeFromCart}
                         onProcessPayment={handleProcessPayment}
+                        isProcessing={isProcessing}
                     />
                 </div>
             </div>

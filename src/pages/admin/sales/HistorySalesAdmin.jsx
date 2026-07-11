@@ -11,6 +11,7 @@ import { FiSearch, FiFilter } from "react-icons/fi";
 
 // Import Komponen Detail Modal Baru
 import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+import EditSaleModal from "../../../components/modals/EditSaleModal.jsx";
 
 const HistorySalesAdmin = () => {
     const {
@@ -24,6 +25,7 @@ const HistorySalesAdmin = () => {
         isDeleteOpen, setIsDeleteOpen,
         isDeleting,
         isSuccessOpen, setIsSuccessOpen, successMessage,
+        editSale, setEditSale,handleUpdate, isUpdating,
         triggerDelete, confirmDelete
     } = useSalesManagement();
 
@@ -96,6 +98,14 @@ const HistorySalesAdmin = () => {
             </div>
 
             {/* MODALS SECTION */}
+            <EditSaleModal
+                isOpen={!!editSale}
+                onClose={() => setEditSale(null)}
+                sale={editSale}
+                onSave={handleUpdate}
+                isSaving={isUpdating}
+            />
+
             <TransactionDetailModal
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
@@ -106,7 +116,7 @@ const HistorySalesAdmin = () => {
                 isOpen={isDeleteOpen}
                 onClose={() => { setIsDeleteOpen(false); }}
                 onConfirm={confirmDelete}
-                itemName={deleteSale?.namaBarang || "transaksi ini"}
+                itemName={deleteSale?.orderNumber || deleteSale?.customerName || "transaksi ini"}
                 itemType="Transaksi"
                 isLoading={isDeleting}
             />
