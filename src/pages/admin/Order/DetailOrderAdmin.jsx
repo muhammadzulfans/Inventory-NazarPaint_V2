@@ -2,32 +2,31 @@ import { useOrderManagement } from "../../../hooks/admin/useOrderManagement.js";
 
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import TableOrderAdmin from "../../../components/tables/AdminLayouts/TableOrderAdmin.jsx";
+import TableDetailOrderAdmin from "../../../components/tables/AdminLayouts/TableDetailOrderAdmin.jsx";
 import FormCreateOrder from "./FormCreateOrder.jsx";
 import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 
+import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 import { FiSearch, FiChevronDown, FiFilter } from "react-icons/fi";
 
 const DetailOrderAdmin = () => {
     const {
-        orderData, isLoading, error,
+        orderData, error,
         search, setSearch,
         type, setType,
         storeId, setStoreId, storeOptions,
         pagination, handlePageChange, handleRowsPerPageChange,
-        editOrder, setEditOrder,
         deleteOrder, setDeleteOrder,
         isDeleteOpen, setIsDeleteOpen,
         isDeleting,
         isSuccessOpen, setIsSuccessOpen, successMessage,
         isStatusOpen, setIsStatusOpen, isUpdatingStatus,
-        handleTambah, handleEdit, handleUpdate, triggerDelete, confirmDelete,
+        handleEdit, triggerDelete, confirmDelete,
         triggerStatusChange, confirmStatusChange
-    } = useOrderManagement();
+    } = useOrderManagement({ fixedStatus: "RECEIVED" });
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white">
@@ -65,7 +64,7 @@ const DetailOrderAdmin = () => {
                         {error ? (
                             <p className="text-center py-10 text-red-400">{error}</p>
                         ) : (
-                            <TableOrderAdmin
+                            <TableDetailOrderAdmin
                                 data={orderData}
                                 onEdit={handleEdit}
                                 onDelete={triggerDelete}
@@ -83,14 +82,14 @@ const DetailOrderAdmin = () => {
                 </div>
 
                 {/* FORM */}
-                <div className="w-1/4 flex-shrink-0">
-                    <FormCreateOrder
-                        onSimpan={handleTambah}
-                        onUpdate={handleUpdate}
-                        editOrder={editOrder}
-                        onBatalEdit={() => setEditOrder(null)}
-                    />
-                </div>
+                {/*<div className="w-1/4 flex-shrink-0">*/}
+                {/*    <FormCreateOrder*/}
+                {/*        onSimpan={handleTambah}*/}
+                {/*        onUpdate={handleUpdate}*/}
+                {/*        editOrder={editOrder}*/}
+                {/*        onBatalEdit={() => setEditOrder(null)}*/}
+                {/*    />*/}
+                {/*</div>*/}
             </div>
 
             {/* MODALS */}
