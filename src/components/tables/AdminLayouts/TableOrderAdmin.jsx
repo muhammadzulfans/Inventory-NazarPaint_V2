@@ -1,118 +1,186 @@
-import { HiOutlinePencilSquare } from "react-icons/hi2";
-import { PiTrashBold } from "react-icons/pi";
+import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { HiChevronDown, HiChevronRight } from "react-icons/hi2";
+import React, { useState } from "react";
 
-const TableOrderAdmin = ({ data = [], onEdit, onDelete, onStatusChange }) => {
-    // Flatten data langsung di table, plek ketiplek kayak TableHistorySalesAdmin
-    const rows = data.flatMap((order) =>
-        (order.items || []).map((item) => ({
-            purchaseId: order.id,
-            storeId: order.storeId,
+const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChange }) => {
+    const [expandedIds, setExpandedIds] = useState(new Set());
+
+    const toggleExpand = (key) => {
+        setExpandedIds((prev) => {
+            const next = new Set(prev);
+            next.has(key) ? next.delete(key) : next.add(key);
+            return next;
+        });
+    };
+
+    // Mengolah data berbasis per-transaksi (order), bukan per-item (flatten)
+    // Persis seperti TableHistorySalesAdmin
+    const rows = data.map((order) => {
+        const items = order.items || [];
+        // Menghitung total quantity (item) dan total harga dalam 1 transaksi
+        const itemCount = items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
+        const totalPriceInOrder = items.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
+
+        return {
+            key: order.id || order.orderNumber || "-",
+            id: order.orderNumber || "-",
             storeName: order.store?.name || "-",
-            date: order.date,
-            productId: item.productId,
-            kode: item.product?.code || "-",
-            namaBarang: item.product?.name || "-",
-            type: item.product?.type || "-",
-            quantity: item.quantity ?? 0,
-            basePrice: item.basePrice ?? 0,
-            hargaTotal: item.totalPrice ?? 0,
+            itemCount: itemCount,
+            totalHarga: totalPriceInOrder,
             status: order.status,
             tanggal: order.date
-                ? new Date(order.date).toLocaleDateString("id-ID", {
-                    day: "numeric", month: "short", year: "numeric",
-                })
+                ? new Date(order.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
                 : "-",
-        }))
-    );
+            items, // dipakai untuk sub-baris expand
+            rawPayload: order // Menyimpan data asli untuk dilempar ke fungsi onEdit/onDelete/onPreview
+        };
+    });
 
-    const totalQty = rows.reduce((t, r) => t + r.quantity, 0);
-    const totalHarga = rows.reduce((t, r) => t + r.hargaTotal, 0);
+    // Menghitung grand total untuk baris paling bawah (footer)
+    const grandTotalItem = rows.reduce((t, r) => t + r.itemCount, 0);
+    const grandTotalHarga = rows.reduce((t, r) => t + r.totalHarga, 0);
 
     return (
         <table className="w-full text-sm font-inter font-normal">
             <thead className="text-black text-center">
             <tr className="bg-card">
-                <th className="p-3 border-l border-cardBG">Kode Barang</th>
-                <th className="p-3 border-l border-cardBG">Nama Barang</th>
-                <th className="p-3 border-l border-cardBG">Tipe Barang</th>
-                <th className="p-3 border-l border-cardBG">Total Produk</th>
-                <th className="p-3 border-l border-cardBG">Harga Satuan</th>
-                <th className="p-3 border-l border-cardBG">Harga Total</th>
+                <th className="p-3 border-l border-cardBG">ID Pembelian</th>
+                <th className="p-3 border-l border-cardBG">Nama Toko</th>
+                <th className="p-3 border-l border-cardBG">Jumlah Item</th>
+                <th className="p-3 border-l border-cardBG">Total Harga</th>
                 <th className="p-3 border-l border-cardBG">Tanggal</th>
-                <th className="p-3 border-x border-cardBG">Status</th>
+                <th className="p-3 border-l border-cardBG">Status</th>
+                <th className="p-3 border-l border-cardBG">Preview</th>
                 <th className="p-3 border-x border-cardBG">Aksi</th>
             </tr>
             </thead>
             <tbody className="text-black">
             {rows.length === 0 ? (
                 <tr>
-                    <td colSpan={9} className="text-center py-10 text-gray-400">
+                    {/* total kolom sekarang ada 8 */}
+                    <td colSpan={8} className="text-center py-10 text-gray-400">
                         Belum ada transaksi pembelian
                     </td>
                 </tr>
             ) : (
-                rows.map((item, index) => (
-                    <tr key={index} className="border-b border-cardBG hover:bg-gray-50/50 transition-colors">
-                        <td className="p-3">{item.kode}</td>
-                        <td className="p-3 font-medium">{item.namaBarang}</td>
-                        <td className="p-3">
-                            {item.type !== "-" && (
-                                <span className="uppercase text-xs font-semibold bg-gray-100 px-2.5 py-1 rounded-md">
-                                    {item.type}
-                                </span>
-                            )}
-                        </td>
-                        <td className="p-3">{item.quantity} Kg</td>
-                        <td className="p-3">Rp. {item.basePrice.toLocaleString("id-ID")}</td>
-                        <td className="p-3 font-medium text-green-600">
-                            Rp. {item.hargaTotal.toLocaleString("id-ID")}
-                        </td>
-                        <td className="p-3">{item.tanggal}</td>
-                        <td className="p-3 text-center">
-                            {item.status === "PENDING" ? (
-                                <button
-                                    onClick={() => onStatusChange(item)}
-                                    className="uppercase text-xs font-semibold bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md hover:bg-yellow-200 transition-all cursor-pointer"
-                                    title="Klik untuk terima pesanan"
-                                >
-                                    {item.status}
-                                </button>
-                            ) : (
-                                <span className="uppercase text-xs font-semibold bg-green-100 text-green-700 px-3 py-1.5 rounded-md">
-                                    {item.status}
-                                </span>
-                            )}
-                        </td>
-                        <td className="p-3">
-                            <div className="flex justify-between items-center gap-1">
-                                <button
-                                    className={`text-pen ${item.status === "RECEIVED" ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
-                                    onClick={() => item.status === "PENDING" && onEdit(item)}
-                                    disabled={item.status === "RECEIVED"}
-                                >
-                                    <HiOutlinePencilSquare className="size-7 p-1 border border-current rounded-md transition" />
-                                </button>
-                                <button
-                                    className={`text-trash ${item.status === "RECEIVED" ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
-                                    onClick={() => item.status === "PENDING" && onDelete(item)}
-                                    disabled={item.status === "RECEIVED"}
-                                >
-                                    <PiTrashBold className="size-7 p-1 border border-current rounded-md transition" />
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                ))
+                rows.map((row) => {
+                    const isExpandable = row.items.length > 1;
+                    const isExpanded = expandedIds.has(row.key);
+
+                    return (
+                        <React.Fragment key={row.key}>
+                            <tr className="border-b border-cardBG hover:bg-gray-50/50 transition-colors">
+                                <td className="p-3 font-medium">
+                                    <div className="flex items-center justify-center gap-2">
+                                        {isExpandable ? (
+                                            <button
+                                                onClick={() => toggleExpand(row.key)}
+                                                className="text-gray-500 hover:text-black transition-colors shrink-0"
+                                            >
+                                                {isExpanded ? <HiChevronDown size={18} /> : <HiChevronRight size={18} />}
+                                            </button>
+                                        ) : (
+                                            <span className="w-[18px] shrink-0" />
+                                        )}
+                                        <span>{row.id}</span>
+                                    </div>
+                                </td>
+                                <td className="p-3">{row.storeName}</td>
+                                <td className="p-3 text-center">{row.itemCount} Item</td>
+                                <td className="p-3 text-center">
+                                    {row.totalHarga ? (
+                                        <span className="text-xs font-semibold bg-green-100 px-2.5 py-1 rounded-md">
+                                            Rp. {row.totalHarga.toLocaleString("id-ID")}
+                                        </span>
+                                    ) : "-"}
+                                </td>
+                                <td className="p-3 text-center">{row.tanggal}</td>
+
+                                {/* KOLOM STATUS (Dipertahankan dari tabel order asli) */}
+                                <td className="p-3 text-center">
+                                    {row.status === "PENDING" ? (
+                                        <button
+                                            onClick={() => onStatusChange && onStatusChange(row.rawPayload)}
+                                            className="uppercase text-xs font-semibold bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md hover:bg-yellow-200 transition-all cursor-pointer"
+                                            title="Klik untuk terima pesanan"
+                                        >
+                                            {row.status}
+                                        </button>
+                                    ) : (
+                                        <span className="uppercase text-xs font-semibold bg-green-100 text-green-700 px-3 py-1.5 rounded-md">
+                                            {row.status}
+                                        </span>
+                                    )}
+                                </td>
+
+                                {/* KOLOM PREVIEW (Ditambahkan dari tabel sales) */}
+                                <td className="p-3 flex justify-center items-center">
+                                    <button className="text-blue-500" onClick={() => onPreview && onPreview(row.rawPayload)}>
+                                        <FiEye className="size-7 p-1 border border-blue-500 rounded-md hover:bg-blue-50 transition" />
+                                    </button>
+                                </td>
+
+                                {/* KOLOM AKSI */}
+                                <td className="p-3">
+                                    <div className="flex justify-center items-center gap-2">
+                                        <button
+                                            className={`text-pen ${row.status === "RECEIVED" ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
+                                            onClick={() => row.status === "PENDING" && onEdit && onEdit(row.rawPayload)}
+                                            disabled={row.status === "RECEIVED"}
+                                        >
+                                            <FiEdit className="size-7 p-1 border border-current rounded-md transition" />
+                                        </button>
+                                        <button
+                                            className={`text-trash ${row.status === "RECEIVED" ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
+                                            onClick={() => row.status === "PENDING" && onDelete && onDelete(row.rawPayload)}
+                                            disabled={row.status === "RECEIVED"}
+                                        >
+                                            <FiTrash2 className="size-7 p-1 border border-current rounded-md transition" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {/* SUB-BARIS: sisa item lainnya, style konsisten sama kolom di atas */}
+                            {isExpanded && row.items.slice(1).map((item, idx) => {
+                                const product = item.product || {};
+                                const itemHarga = item.totalPrice ?? 0;
+                                return (
+                                    <tr key={idx} className="border-b border-cardBG bg-gray-50/40">
+                                        <td className="p-3 text-center text-xs text-gray-500">
+                                            {product.name || "-"} ({product.code || "-"})
+                                        </td>
+                                        <td className="p-3"></td>
+                                        <td className="p-3 text-center">{item.quantity ?? 0} {product.unit || "Kg"}</td>
+                                        <td className="p-3 text-center">
+                                            {itemHarga ? (
+                                                <span className="text-xs font-semibold bg-green-100 px-2.5 py-1 rounded-md">
+                                                    Rp. {itemHarga.toLocaleString("id-ID")}
+                                                </span>
+                                            ) : "-"}
+                                        </td>
+                                        <td className="p-3"></td>
+                                        <td className="p-3"></td>
+                                        <td className="p-3"></td>
+                                        <td className="p-3"></td>
+                                    </tr>
+                                );
+                            })}
+                        </React.Fragment>
+                    );
+                })
             )}
-            <tr className="font-inter font-bold text-lg border-b bg-gray-50/30">
-                <td className="px-3 py-6">Jumlah</td>
-                <td></td><td></td>
-                <td className="p-3 font-inter text-sm">{totalQty} Kg</td>
+
+            {/* BARIS TOTAL FOOTER */}
+            <tr className="font-inter font-bold text-base border-b bg-gray-50/30 text-center">
+                <td className="p-5 text-center">Total</td>
                 <td></td>
-                <td className="p-3 font-inter text-sm text-green-600">
-                    Rp. {totalHarga.toLocaleString("id-ID")}
+                <td className="p-3 font-inter">{grandTotalItem} Item</td>
+                <td className="p-3 font-inter text-green-600">
+                    Rp. {grandTotalHarga.toLocaleString("id-ID")}
                 </td>
-                <td></td><td></td><td></td>
+                {/* Sisa kolom dikosongkan agar sejajar (Tanggal, Status, Preview, Aksi) */}
+                <td></td><td></td><td></td><td></td>
             </tr>
             </tbody>
         </table>

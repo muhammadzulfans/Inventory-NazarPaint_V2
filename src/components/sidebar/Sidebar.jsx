@@ -194,16 +194,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     )}
                 </div>
 
-                {user?.role === "OWNER" && (
-                    <SidebarButton
-                        icon={<LuNotebookPen />}
-                        label="Pembelian"
-                        isOpen={isOpen}
-                        isActive={location.pathname === `${prefix}/order`}
-                        onClick={() => navigate(`${prefix}/order`)}
-                    />
-                )}
-
 
                 {user?.role === "OWNER" && (
                     <SidebarButton
