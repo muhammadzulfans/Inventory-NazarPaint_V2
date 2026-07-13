@@ -152,8 +152,8 @@ const DateRangeField = ({ label, value, onChange, className = "" }) => {
                                 className={`h-9 w-9 mx-auto flex items-center justify-center text-sm font-inter rounded-full transition-colors
                                     ${!inMonth ? "text-gray-300" : "text-black"}
                                     ${date > today ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}
-                                    ${isStart || isEnd ? "bg-buttonBlue text-white font-semibold" : ""}
-                                    ${inRange ? "bg-blue-50 rounded-none" : ""}
+                                    ${isStart || isEnd ? "bg-button text-black font-semibold" : ""}
+                                    ${inRange ? "bg-yellow-100 rounded-none" : ""}
                                     ${!disabled && !isStart && !isEnd && !inRange ? "hover:bg-gray-100" : ""}
                                 `}
                             >
@@ -171,7 +171,7 @@ const DateRangeField = ({ label, value, onChange, className = "" }) => {
     return (
         <div className={`relative font-inter ${className}`} ref={wrapperRef}>
             {label && (
-                <label className="block text-xs font-bold text-buttonBlue mb-1.5">
+                <label className="block text-xs font-bold text-button mb-1.5">
                     {label}
                 </label>
             )}
@@ -184,7 +184,7 @@ const DateRangeField = ({ label, value, onChange, className = "" }) => {
                         ? `${formatShort(value.startDate)} – ${formatShort(value.endDate)}`
                         : "Pilih rentang tanggal"}
                 </span>
-                <FiCalendar className="text-buttonBlue size-5 shrink-0" />
+                <FiCalendar className="text-gray-500 size-5 shrink-0" />
             </div>
 
             {isOpen && (
@@ -205,7 +205,7 @@ const DateRangeField = ({ label, value, onChange, className = "" }) => {
                     </div>
 
                     {showLimitInfo && (
-                        <div className="flex items-start justify-between gap-2 bg-blue-50 text-buttonBlue text-xs rounded-xl p-3 mb-4">
+                        <div className="flex items-start justify-between gap-2 bg-blue-50 text-gray-500 text-xs rounded-xl p-3 mb-4">
                             <span>
                                 Periode maksimal yang dapat dipilih hanya {MAX_RANGE_DAYS} hari.
                             </span>
@@ -227,7 +227,7 @@ const DateRangeField = ({ label, value, onChange, className = "" }) => {
                         type="button"
                         onClick={handleConfirm}
                         disabled={!tempStart || !tempEnd}
-                        className="w-full py-3 bg-buttonBlue disabled:opacity-40 text-white rounded-full font-inter font-semibold text-sm transition"
+                        className="w-full py-3 bg-button disabled:opacity-50 text-black rounded-full font-inter font-semibold text-sm transition"
                     >
                         Pilih
                     </button>
