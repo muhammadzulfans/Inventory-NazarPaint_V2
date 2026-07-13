@@ -53,7 +53,7 @@ const DetailSalesAdmin = () => {
                         label="Tipe Kategori"
                         value={type}
                         onChange={(val) => setType(val)}
-                        options={[{ value: "", label: "Pilih Tipe" }, ...catTypes]}
+                        options={[{ value: "", label: "Semua Tipe" }, ...catTypes]}
                     />
                     <FilterDropdown
                         icon={FiFilter}

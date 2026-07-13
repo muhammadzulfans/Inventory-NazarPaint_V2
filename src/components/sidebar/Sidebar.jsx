@@ -207,15 +207,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
 
                 {/* LOGIKA ROLE: Hanya tampil jika Admin */}
-                {user?.role === "OWNER" && (
-                    <SidebarButton
-                        icon={<TiUserAddOutline />} // Ganti icon jika ada icon user/manajemen
-                        label="Tambah Akun"
-                        isOpen={isOpen}
-                        isActive={location.pathname === `${prefix}/createAkun`}
-                        onClick={() => navigate(`${prefix}/createAkun`)}
-                    />
-                )}
+                {/*{user?.role === "OWNER" && (*/}
+                {/*    <SidebarButton*/}
+                {/*        icon={<TiUserAddOutline />} // Ganti icon jika ada icon user/manajemen*/}
+                {/*        label="Tambah Akun"*/}
+                {/*        isOpen={isOpen}*/}
+                {/*        isActive={location.pathname === `${prefix}/createAkun`}*/}
+                {/*        onClick={() => navigate(`${prefix}/createAkun`)}*/}
+                {/*    />*/}
+                {/*)}*/}
 
                 {/*{user?.role === "OWNER" && (*/}
                 {/*    <SidebarButton*/}
@@ -228,15 +228,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 {/*)}*/}
 
 
-                {user?.role === "OWNER" && (
-                        <SidebarButton
-                        icon={<MdOutlineStorefront />}
-                        label="Pilih Toko"
-                        isOpen={isOpen}
-                        isActive={location.pathname === `${prefix}/switchToko`}
-                        onClick={() => navigate(`${prefix}/switchToko`)}
-                    />
-                )}
+                {/*{user?.role === "OWNER" && (*/}
+                {/*        <SidebarButton*/}
+                {/*        icon={<MdOutlineStorefront />}*/}
+                {/*        label="Pilih Toko"*/}
+                {/*        isOpen={isOpen}*/}
+                {/*        isActive={location.pathname === `${prefix}/switchToko`}*/}
+                {/*        onClick={() => navigate(`${prefix}/switchToko`)}*/}
+                {/*    />*/}
+                {/*)}*/}
             </nav>
 
             {/* PROFILE & LOGOUT */}
