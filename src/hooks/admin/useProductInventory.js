@@ -3,9 +3,7 @@ import { productService } from "../../api/services/productService.js"; // Sesuai
 import { storeService } from "../../api/services/storeService.js";
 
 export const useProductInventory = () => {
-    // ==========================================
     // 1. FILTER & TABLE STATES
-    // ==========================================
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [search, setSearch] = useState("");
@@ -13,6 +11,7 @@ export const useProductInventory = () => {
     const [type, setType] = useState("");
     const [storeId, setStoreId] = useState("");
     const [storeOptions, setStoreOptions] = useState([]); // options untuk dropdown cabang
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     const [pagination, setPagination] = useState({
         page: 1,
@@ -20,9 +19,7 @@ export const useProductInventory = () => {
         totalPages: 1,
     });
 
-    // ==========================================
     // 2. CRUD & MODAL STATES (BARU DITAMBAHKAN)
-    // ==========================================
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
 
@@ -34,9 +31,7 @@ export const useProductInventory = () => {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
 
-    // ==========================================
     // 3. FETCH LOGIC
-    // ==========================================
     // Fetch cabang sekali saat mount
     useEffect(() => {
         storeService.getAll()
@@ -56,6 +51,8 @@ export const useProductInventory = () => {
             search: debouncedSearch,
             type,
             storeId,
+            startDate: dateRange.startDate,
+            endDate: dateRange.endDate,
             page: pagination.page,
             limit: pagination.limit
         });
@@ -91,7 +88,7 @@ export const useProductInventory = () => {
             }
         }
         setIsLoading(false);
-    }, [debouncedSearch, type, storeId, pagination.page, pagination.limit]);
+    }, [debouncedSearch, type, storeId, dateRange, pagination.page, pagination.limit]);
 
     // EFFECT 1: Handle Debounce Search
     useEffect(() => {
@@ -106,7 +103,7 @@ export const useProductInventory = () => {
     // EFFECT 2: Reset page saat storeId atau type berubah
     useEffect(() => {
         setPagination(prev => ({ ...prev, page: 1 }));
-    }, [storeId, type]);
+    }, [storeId, type, dateRange]);
 
     // EFFECT 3: Trigger Fetch Data
     useEffect(() => {
@@ -115,9 +112,7 @@ export const useProductInventory = () => {
         });
     }, [fetchProducts]);
 
-    // ==========================================
     // 4. PAGINATION HANDLERS
-    // ==========================================
     const handlePageChange = (newPage) => {
         setPagination(prev => ({ ...prev, page: newPage }));
     };
@@ -125,10 +120,6 @@ export const useProductInventory = () => {
     const handleRowsPerPageChange = (newLimit) => {
         setPagination(prev => ({ ...prev, limit: newLimit, page: 1 }));
     };
-
-    // ==========================================
-    // 5. CRUD HANDLERS (BARU DITAMBAHKAN)
-    // ==========================================
 
     // Handler Buka Modal Tambah/Edit
     const openModal = (type, item = null) => {
@@ -202,26 +193,15 @@ export const useProductInventory = () => {
         }
     };
 
-    // ==========================================
     // 6. RETURN SEMUA STATES & FUNCTIONS
-    // ==========================================
     return {
         // Table & Filter States
-        products,
-        isLoading,
-        setIsLoading,
-        search,
-        setSearch,
-        type,
-        setType,
-        storeId,
-        setStoreId,
-        storeOptions,
-        pagination,
-        setPagination,
-        fetchProducts,
-        handlePageChange,
-        handleRowsPerPageChange,
+        products, isLoading, setIsLoading,
+        search, setSearch,
+        type, setType,
+        storeId, setStoreId, storeOptions,
+        dateRange, setDateRange,
+        pagination, setPagination, fetchProducts, handlePageChange, handleRowsPerPageChange,
 
         // CRUD States
         isSuccessOpen, setIsSuccessOpen, successMessage,

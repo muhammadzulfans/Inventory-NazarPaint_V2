@@ -12,24 +12,20 @@ import { FaArrowTrendDown, FaPlus } from "react-icons/fa6";
 import { AiOutlineProduct } from "react-icons/ai";
 import { MdOutlineStore } from "react-icons/md";
 import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
+import DateRangeField from "../../../components/forms/DateRangeField.jsx";
+import React from "react";
 
 const InventoryAdmin = () => {
     const navigate = useNavigate();
 
     // Panggil fungsi dan state dari custom hook
     const {
-        products,
-        isLoading,
-        search,
-        setSearch,
-        type,
-        setType,
-        storeId,
-        setStoreId,
-        storeOptions,
-        pagination,
-        handlePageChange,
-        handleRowsPerPageChange
+        products, isLoading,
+        search, setSearch,
+        type, setType,
+        storeId, setStoreId, storeOptions,
+        dateRange, setDateRange,
+        pagination, handlePageChange, handleRowsPerPageChange
     } = useProductInventory();
 
     return (
@@ -73,10 +69,10 @@ const InventoryAdmin = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
-                    <SearchFilter
-                        leftIcon={<FiFilter className="text-gray-400 size-5" />}
-                        label={<span className="text-sm text-gray-700 font-poppins">Durasi Tgl 25 mei 2026-30 mei 2026</span>}
-                        rightIcon={<FiChevronDown className="text-gray-500 size-6" />}
+                    <DateRangeField
+                        // label="Durasi"
+                        value={dateRange}
+                        onChange={setDateRange}
                     />
                     <FilterDropdown
                         icon={FiFilter}
