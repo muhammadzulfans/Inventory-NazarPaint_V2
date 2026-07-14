@@ -8,8 +8,11 @@ import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import TableStockOpnameAdmin from "../../../components/tables/AdminLayouts/TableStockOpnameAdmin.jsx";
 import StockOpnameDetailModal from "../../../components/modals/StockOpnameDetailModal.jsx";
+import WarningModal from "../../../components/modals/WarningModal.jsx";
+import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import { FaPlus } from "react-icons/fa6";
 import { FiSearch, FiFilter } from "react-icons/fi";
+import EditStockOpnameModal from "../../../components/modals/EditStockOpnameModal.jsx";
 
 const StockOpnameAdmin = () => {
     const navigate = useNavigate();
@@ -19,10 +22,17 @@ const StockOpnameAdmin = () => {
         storeId, setStoreId, storeOptions,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
+        isOwner,
+        isFinalizeOpen, setIsFinalizeOpen, isFinalizing, triggerFinalize, confirmFinalize,
+        handleEditSubmit, // baru
+        isSuccessOpen, setIsSuccessOpen, successMessage,
     } = useStockOpnameManagement();
 
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [selectedOpname, setSelectedOpname] = useState(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState(null);
+    const [isSavingEdit, setIsSavingEdit] = useState(false);
 
     const handlePreview = (opname) => {
         setSelectedOpname(opname);
@@ -30,15 +40,28 @@ const StockOpnameAdmin = () => {
     };
 
     const handleEdit = (opname) => {
-        navigate("/admin/kelolaStockOpname", { state: { editOpname: opname } });
+        setEditTarget(opname);
+        setIsEditOpen(true);
+    };
+
+    const handleSaveEdit = async (opname, items) => {
+        setIsSavingEdit(true);
+        try {
+            await handleEditSubmit(opname, items);
+            setIsEditOpen(false);
+        } catch (err) {
+            alert("Gagal memperbarui: " + (err.response?.data?.message || err.message));
+        } finally {
+            setIsSavingEdit(false);
+        }
     };
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white">
             <div className="mb-14 flex justify-between">
                 <div>
-                    <h1 className="text-3xl font-inter font-medium text-black">Stock Opname Produk</h1>
-                    <p className="text-sm text-gray-500 mt-1 font-inter">Riwayat hasil stock opname seluruh cabang</p>
+                    <h1 className="text-3xl font-inter font-medium text-black">Stock Opname</h1>
+                    <p className="text-sm font-inter text-black">Riwayat hasil stock opname seluruh cabang</p>
                 </div>
                 <button
                     onClick={() => navigate('/admin/kelolaStockOpname')}
@@ -54,13 +77,12 @@ const StockOpnameAdmin = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
                     <SearchFilter
                         leftIcon={<FiSearch className="text-gray-400 size-5 cursor-pointer" />}
-                        label="Cari ID / produk..."
+                        label="Cari..."
                         isInput
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                     <DateRangeField
-                        // label="Durasi"
                         value={dateRange}
                         onChange={setDateRange} />
                     <FilterDropdown
@@ -80,6 +102,8 @@ const StockOpnameAdmin = () => {
                             data={opnameData}
                             onPreview={handlePreview}
                             onEdit={handleEdit}
+                            onFinalize={triggerFinalize}
+                            isOwner={isOwner}
                         />
                     )}
                     <TablePagination
@@ -96,6 +120,35 @@ const StockOpnameAdmin = () => {
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
                 opname={selectedOpname}
+            />
+
+            <WarningModal
+                isOpen={isFinalizeOpen}
+                onClose={() => setIsFinalizeOpen(false)}
+                onConfirm={confirmFinalize}
+                title="Selesaikan Stock Opname?"
+                message={
+                    <>
+                        Stok sistem akan disesuaikan mengikuti hasil hitung fisik. <br /><br />
+                        <span className="text-red-500 font-medium">Aksi ini tidak bisa dibatalkan.</span>
+                    </>
+                }
+                confirmText="Ya, Selesaikan"
+                isLoading={isFinalizing}
+            />
+
+            <SuccessModal
+                isOpen={isSuccessOpen}
+                onClose={() => setIsSuccessOpen(false)}
+                message={successMessage}
+            />
+
+            <EditStockOpnameModal
+                isOpen={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                opname={editTarget}
+                onSave={handleSaveEdit}
+                isSaving={isSavingEdit}
             />
         </div>
     );

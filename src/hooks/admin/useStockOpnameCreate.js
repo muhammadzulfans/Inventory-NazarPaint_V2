@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { storeService } from "../../api/services/storeService.js";
 import { productService } from "../../api/services/productService.js";
+import { stockOpnameService } from "../../api/services/stockOpnameService.js";
 
 export const useStockOpnameCreate = () => {
     const location = useLocation();
@@ -9,7 +10,7 @@ export const useStockOpnameCreate = () => {
 
     const [storeOptions, setStoreOptions] = useState([]);
     const [selectedStore, setSelectedStore] = useState(editOpname?.storeId || "");
-    const [editingId, setEditingId] = useState(editOpname?.id || null);
+    const [editingId] = useState(editOpname?.id || null);
 
     const [products, setProducts] = useState([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
@@ -64,11 +65,9 @@ export const useStockOpnameCreate = () => {
                         };
                     });
                     setProducts(mapped);
-                    // Jangan reset rowData kalau lagi mode edit dan baru pertama load
                     if (!editOpname) setRowData({});
                     setPagination((prev) => ({
-                        ...prev,
-                        page: 1,
+                        ...prev, page: 1,
                         totalPages: Math.max(1, Math.ceil(mapped.length / prev.limit)),
                     }));
                 }
@@ -120,16 +119,11 @@ export const useStockOpnameCreate = () => {
                 const v = rowData[p.id]?.stokFisik;
                 return v !== undefined && v !== "";
             })
-            .map((p) => {
-                const stokFisik = Number(rowData[p.id].stokFisik);
-                const selisih = stokFisik - p.stokSistem;
-                return {
-                    productId: p.id, kode: p.kode, namaBarang: p.namaBarang,
-                    type: p.type, unit: p.unit,
-                    stokSistem: p.stokSistem, stokFisik, selisih,
-                    catatan: rowData[p.id]?.catatan?.trim() || "",
-                };
-            });
+            .map((p) => ({
+                productId: p.id,
+                stokFisik: Number(rowData[p.id].stokFisik),
+                catatan: rowData[p.id]?.catatan?.trim() || undefined,
+            }));
     };
 
     const handleSubmit = async () => {
@@ -138,32 +132,37 @@ export const useStockOpnameCreate = () => {
         const items = buildItemsToSubmit();
         if (items.length === 0) { alert("Isi minimal 1 stok fisik produk sebelum menyimpan."); return; }
 
-        const missingNote = items.find((it) => it.selisih !== 0 && !it.catatan);
+        // Validasi catatan wajib jika ada selisih
+        const missingNote = items.find((it) => {
+            const product = products.find((p) => p.id === it.productId);
+            const selisih = it.stokFisik - (product?.stokSistem ?? 0);
+            return selisih !== 0 && !it.catatan;
+        });
         if (missingNote) {
-            alert(`Produk "${missingNote.namaBarang}" memiliki selisih, catatan wajib diisi.`);
+            const product = products.find((p) => p.id === missingNote.productId);
+            alert(`Produk "${product?.namaBarang}" memiliki selisih, catatan wajib diisi.`);
             return;
         }
 
         setIsSubmitting(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            console.log(editingId ? "Update Stock Opname (dummy):" : "Create Stock Opname (dummy):", {
-                id: editingId,
-                storeId: selectedStore,
-                date: new Date().toISOString(),
-                status: "DRAFT",
-                items,
-            });
+            const payload = { storeId: selectedStore, items };
 
-            setSuccessMessage(
-                editingId
-                    ? "Draft stock opname berhasil diperbarui!"
-                    : `Hasil opname untuk ${items.length} produk berhasil disimpan sebagai draft!`
-            );
+            if (editingId) {
+                // Backend tidak punya endpoint update — edit dilakukan dengan
+                // menghapus draft lama lalu membuat draft baru dengan data terkini.
+                await stockOpnameService.delete(editingId);
+                await stockOpnameService.create(payload);
+                setSuccessMessage("Draft stock opname berhasil diperbarui!");
+            } else {
+                await stockOpnameService.create(payload);
+                setSuccessMessage(`Hasil opname untuk ${items.length} produk berhasil disimpan sebagai draft!`);
+            }
+
             setIsSuccessOpen(true);
             if (!editingId) setRowData({});
         } catch (err) {
-            alert("Gagal menyimpan hasil opname.");
+            alert("Gagal menyimpan hasil opname: " + (err.response?.data?.message || err.message));
         } finally {
             setIsSubmitting(false);
         }
