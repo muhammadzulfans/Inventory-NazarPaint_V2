@@ -8,7 +8,7 @@ const FormCreateOrder = ({
                               hasItems, isEditingItem, onCancelEditItem,
                           }) => {
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-card rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center gap-3 mb-6">
                 <h2 className="text-md font-semibold text-gray-800">
                     {isEditingItem ? "Edit Item Pesanan" : "Tambah Item ke Pesanan"}

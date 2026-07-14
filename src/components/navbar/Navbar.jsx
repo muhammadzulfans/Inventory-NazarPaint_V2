@@ -33,7 +33,7 @@ const Navbar = () => {
             return "Persediaan";
         }
         if (path.endsWith("/kelolaInventory")) {
-            return "Persediaan";
+            return "Persediaan > Kelola Produk";
         }
         if (path.endsWith("/sales")) {
             return "Penjualan > Penjualan POS";
@@ -47,9 +47,19 @@ const Navbar = () => {
         if (path.endsWith("/order")) {
             return "Pembelian";
         }
+        if (path.endsWith("/detail-order")) {
+            return "Pembelian > Detail Order";
+        }
         if (path.endsWith("/mutasi")) {
             return "Mutasi Barang";
         }
+        if (path.endsWith("/stock-opname")) {
+            return "Stock Opname";
+        }
+        if (path.endsWith("/kelolaStockOpname")) {
+            return "Stock Opname > Kelola Stock Opname";
+        }
+
         if (path.endsWith("/createAkun")) {
             return "Tambah Akun Karyawan";
         }
@@ -58,9 +68,6 @@ const Navbar = () => {
         }
         if (path.endsWith("/switchToko")) {
             return "Pilih Toko Cabang";
-        }
-        if (path.endsWith("/KelolaInventory")) {
-            return "Kelola Produk";
         }
 
         // Judul bawaan jika tidak ada path yang cocok

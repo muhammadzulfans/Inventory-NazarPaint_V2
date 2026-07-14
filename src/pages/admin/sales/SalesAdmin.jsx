@@ -51,7 +51,7 @@ const SalesAdmin = () => {
     return (
         <div className="px-8 pt-6 pb-10 bg-white min-h-full w-full">
             <div className="mb-8">
-                <h1 className="text-3xl font-inter font-medium text-black">Kelola Transaksi Penjualan</h1>
+                <h1 className="text-3xl font-inter font-medium text-black">Transaksi Penjualan</h1>
                 <p className="text-sm text-gray-500 mt-1 font-inter">Kelola manajemen data transaksi penjualan POS Anda.</p>
             </div>
 

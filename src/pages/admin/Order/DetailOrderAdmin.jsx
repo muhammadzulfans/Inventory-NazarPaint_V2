@@ -11,6 +11,7 @@ import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 
 import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 import { FiSearch, FiChevronDown, FiFilter } from "react-icons/fi";
+import React from "react";
 
 const DetailOrderAdmin = () => {
     const {
@@ -31,7 +32,8 @@ const DetailOrderAdmin = () => {
     return (
         <div className="px-8 pt-6 pb-10 bg-white">
             <div className="mb-8">
-                <h1 className="text-3xl font-inter font-medium text-black">Kelola Transaksi Pembelian</h1>
+                <h1 className="text-3xl font-inter font-medium text-black">Detail Transaksi Pembelian</h1>
+                <p className="text-sm font-inter text-black">Manajemen data transaksi pembelian Anda.</p>
             </div>
             <div className="flex gap-10 items-start">
                 {/* TABEL */}
