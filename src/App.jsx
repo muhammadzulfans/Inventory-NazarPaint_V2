@@ -26,6 +26,8 @@ import Profile from "./pages/admin/ProfileAdmin.jsx";
 import DetailSalesAdmin from "./pages/admin/sales/DetailSalesAdmin.jsx";
 import HistorySalesAdmin from "./pages/admin/sales/HistorySalesAdmin.jsx";
 import DetailOrderAdmin from "./pages/admin/Order/DetailOrderAdmin.jsx";
+import StockOpnameAdmin from "./pages/admin/stockOpname/StockOpnameAdmin.jsx";
+import KelolaStockOpnameAdmin from "./pages/admin/stockOpname/KelolaStockOpnameAdmin.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -44,16 +46,18 @@ function App() {
                 >
                     <Route index element={<DashboardAdmin />} />
                     <Route path="inventory" element={<InventoryAdmin />} />
+                    <Route path="KelolaInventory" element={<KelolaInventoryAdmin />} />
                     <Route path="sales" element={<SalesAdmin />} />
                     <Route path="history-sales" element={<HistorySalesAdmin />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="detail-sales" element={<DetailSalesAdmin />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="order" element={<OrderAdmin />} />
                     <Route path="detail-order" element={<DetailOrderAdmin />} />
                     <Route path="mutasi" element={<MutasiAdmin />} />
-                    <Route path="createAkun" element={<CreateAkun />} />
+                    <Route path="stock-opname" element={<StockOpnameAdmin />} />
+                    <Route path="KelolaStockOpname" element={<KelolaStockOpnameAdmin />} />
                     <Route path="prediksi" element={<PrediksiAdmin />} />
+                    <Route path="createAkun" element={<CreateAkun />} />
                     <Route path="switchToko" element={<SwitchToko />} />
-                    <Route path="KelolaInventory" element={<KelolaInventoryAdmin />} />
                     <Route path="profile" element={<Profile />} />
                 </Route>
 

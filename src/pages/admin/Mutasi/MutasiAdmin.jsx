@@ -7,6 +7,7 @@ import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import { FiFilter, FiSearch } from "react-icons/fi";
+import React from "react";
 
 const MutasiAdmin = () => {
     const {
@@ -32,7 +33,8 @@ const MutasiAdmin = () => {
         <div className="px-8 pt-6 pb-10 bg-white">
             {/* HEADER */}
             <div className="mb-8">
-                <h1 className="text-3xl font-inter font-medium text-black">Kelola Mutasi Produk</h1>
+                <h1 className="text-3xl font-inter font-medium text-black">Mutasi Produk</h1>
+                <p className="text-sm text-gray-500 mt-1 font-inter">Kelola manajemen data mutasi Anda.</p>
             </div>
 
             <div className="flex gap-10 items-start">

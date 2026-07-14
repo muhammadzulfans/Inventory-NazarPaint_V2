@@ -70,7 +70,7 @@ const TableDetailOrderAdmin = ({ data = [] }) => {
                 </tr>
             ) : (
                 rows.map((row) => {
-                    const isExpandable = row.items.length > 1;
+                    const isExpandable = row.items.length;
                     const isExpanded = expandedIds.has(row.key);
 
                     return (

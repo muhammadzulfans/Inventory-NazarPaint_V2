@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useOrderCreate } from "../../../hooks/admin/useOrderCreate.js";
 import { useOrderManagement } from "../../../hooks/admin/useOrderManagement.js";
 
@@ -55,7 +55,11 @@ const OrderAdmin = () => {
     };
 
     return (
-        <div className="px-8 pt-6 pb-10 bg-[#f4f5f7] min-h-screen text-black font-inter">
+        <div className="px-8 pt-6 pb-10 bg-white text-black font-inter">
+            <div className="mb-8">
+                <h1 className="text-3xl font-inter font-medium text-black">Transaksi Pembelian</h1>
+                <p className="text-sm font-inter text-black">Kelola manajemen data transaksi pembelian Anda.</p>
+            </div>
             <div className="flex flex-col lg:flex-row gap-6 items-start">
 
                 {/* SISI KIRI */}
@@ -71,7 +75,7 @@ const OrderAdmin = () => {
                     />
 
                     {/* RIWAYAT PEMESANAN */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div className="bg-card rounded-2xl shadow-sm border border-gray-100 p-6">
                         <h2 className="text-sm font-bold text-gray-800 mb-4">Riwayat Pemesanan</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

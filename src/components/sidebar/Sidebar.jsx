@@ -7,14 +7,12 @@ import useAuthStore from "../../store/authStore.js"; // Import store
 
 import { RxHamburgerMenu } from "react-icons/rx";
 import { FiChevronsLeft, FiChevronDown, FiChevronUp } from "react-icons/fi";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { GrHomeRounded } from "react-icons/gr";
+import { LuClipboardCheck, LuLayoutDashboard } from "react-icons/lu";
 import { PiShoppingCartSimpleBold } from "react-icons/pi";
 import { LuNotebookPen } from "react-icons/lu";
-import { MdOutlineStorefront } from "react-icons/md";
 import { BiLogOut } from "react-icons/bi";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
-import { TiUserAddOutline } from "react-icons/ti";
+import { BsBoxSeam } from "react-icons/bs";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
     const navigate = useNavigate();
@@ -77,7 +75,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     onClick={() => navigate(prefix)}
                 />
                 <SidebarButton
-                    icon={<GrHomeRounded />}
+                    icon={<BsBoxSeam strokeWidth={0.2}/>}
                     label="Persediaan"
                     isOpen={isOpen}
                     isActive={location.pathname === `${prefix}/inventory`}
@@ -205,6 +203,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     />
                 )}
 
+                <SidebarButton
+                    icon={<LuClipboardCheck />}
+                    label="Stock Opname"
+                    isOpen={isOpen}
+                    isActive={location.pathname === `${prefix}/stock-opname`}
+                    onClick={() => navigate(`${prefix}/stock-opname`)}
+                />
 
                 {/* LOGIKA ROLE: Hanya tampil jika Admin */}
                 {/*{user?.role === "OWNER" && (*/}
