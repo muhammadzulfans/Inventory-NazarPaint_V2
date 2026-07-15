@@ -28,6 +28,8 @@ import HistorySalesAdmin from "./pages/admin/sales/HistorySalesAdmin.jsx";
 import DetailOrderAdmin from "./pages/admin/Order/DetailOrderAdmin.jsx";
 import StockOpnameAdmin from "./pages/admin/stockOpname/StockOpnameAdmin.jsx";
 import KelolaStockOpnameAdmin from "./pages/admin/stockOpname/KelolaStockOpnameAdmin.jsx";
+import HistorySalesKaryawan from "./pages/karyawan/sales/HistorySalesKaryawan.jsx";
+import DetailSalesKaryawan from "./pages/karyawan/sales/DetailSalesKaryawan.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -69,8 +71,8 @@ function App() {
                     <Route index element={<DashboardKaryawan />} />
                     <Route path="inventory" element={<InventoryKaryawan />} />
                     <Route path="sales" element={<SalesKaryawan />} />
-                    <Route path="history-sales" element={<HistorySalesAdmin />} /> {/* ROUTE BARU ADMIN */}
-                    <Route path="detail-sales" element={<DetailSalesAdmin />} /> {/* ROUTE BARU ADMIN */}
+                    <Route path="history-sales" element={<HistorySalesKaryawan />} /> {/* ROUTE BARU ADMIN */}
+                    <Route path="detail-sales" element={<DetailSalesKaryawan />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="profile" element={<Profile />} />
                 </Route>
 
