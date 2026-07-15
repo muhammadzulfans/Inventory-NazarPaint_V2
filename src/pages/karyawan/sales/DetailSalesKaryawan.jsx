@@ -1,32 +1,24 @@
 import React from "react";
+
+// Import custom hooks logic baru khusus detail
+import { useDetailSalesManagementKaryawan } from "../../../hooks/karyawan/useDetailSalesManagementKaryawan.js";
+
+// Import React icons
 import { FiSearch, FiFilter } from "react-icons/fi";
+
+// Import Table dan Komponen Detail Modal Baru
+import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import TableDetailSalesAdmin from "../../../components/tables/AdminLayouts/TableDetailSalesAdmin.jsx";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 
-// IMPORT CUSTOM HOOK LOGIC BARU KHUSUS DETAIL
-import { useDetailSalesManagement } from "../../../hooks/admin/useDetailSalesManagement.js";
-
-// IMPORT TABEL DETAIL BARU
-import TableDetailSalesAdmin from "../../../components/tables/AdminLayouts/TableDetailSalesAdmin.jsx";
-
-const DetailSalesAdmin = () => {
+const DetailSalesKaryawan = () => {
     const {
-        detailSalesData,
-        isLoading,
-        error,
-        search,
-        setSearch,
-        type,
-        setType,
-        storeId,
-        setStoreId,
-        storeOptions,
-        pagination,
-        handlePageChange,
-        handleRowsPerPageChange
-    } = useDetailSalesManagement();
+        detailSalesData, isLoading, error,
+        search, setSearch, type, setType,
+        pagination, handlePageChange, handleRowsPerPageChange,
+    } = useDetailSalesManagementKaryawan();
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white min-h-full">
@@ -55,13 +47,6 @@ const DetailSalesAdmin = () => {
                         onChange={(val) => setType(val)}
                         options={[{ value: "", label: "Semua Tipe" }, ...catTypes]}
                     />
-                    <FilterDropdown
-                        icon={FiFilter}
-                        label="Ganti Cabang Toko"
-                        value={storeId}
-                        onChange={(val) => setStoreId(val)}
-                        options={storeOptions}
-                    />
                 </div>
 
                 {/* AREA DATA */}
@@ -72,7 +57,7 @@ const DetailSalesAdmin = () => {
                         <TableDetailSalesAdmin
                             data={detailSalesData}
                             isLoading={isLoading}
-                            showCostColumns={true}
+                            showCostColumns={false}
                         />
                     )}
                     <TablePagination
@@ -88,4 +73,4 @@ const DetailSalesAdmin = () => {
     );
 };
 
-export default DetailSalesAdmin;
+export default DetailSalesKaryawan;
