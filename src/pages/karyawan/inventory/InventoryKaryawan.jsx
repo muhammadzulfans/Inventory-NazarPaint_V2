@@ -57,7 +57,7 @@ const InventoryKaryawan = () => {
                     <h2 className="text-2xl font-inter font-medium">Data Stok Produk</h2>
                 </div>
 
-                <div className="grid grid-cols-2 gap-10 items-center mb-8">
+                <div className="grid grid-cols-3 gap-10 items-center mb-8">
                     <SearchFilter
                         leftIcon={<FiSearch className="text-gray-400 size-5 cursor-pointer" />}
                         label="Cari..."

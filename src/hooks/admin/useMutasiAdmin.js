@@ -1,14 +1,40 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { mutasiService } from "../../api/services/mutasiService.js";
 import { storeService } from "../../api/services/storeService.js";
 import { productService } from "../../api/services/productService.js";
 
+const flattenMutasiRows = (mutasiList) =>
+    mutasiList.flatMap((mutasi) =>
+        (mutasi.items || []).map((item, itemIndex) => ({
+            mutasiId: mutasi.id,
+            mutasiRaw: mutasi,
+            status: mutasi.status || "PENDING",
+            cabangPengirim: mutasi.fromStore?.name || "-",
+            cabangPenerima: mutasi.toStore?.name || "-",
+            fromStoreId: mutasi.fromStoreId,
+            toStoreId: mutasi.toStoreId,
+            note: mutasi.note || "",
+            tanggal: mutasi.date,
+            tanggalDisplay: mutasi.date
+                ? new Date(mutasi.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+                : "-",
+            kode: item.product?.code || "-",
+            namaBarang: item.product?.name || "-",
+            type: item.product?.type || "-",
+            quantity: item.quantity ?? 0,
+            // Kg/Pcs diturunkan dari tipe produk, bukan dari field unit backend
+            unit: item.product?.type === "ACCESSORIES" ? "Pcs" : "Kg",
+            isFirst: itemIndex === 0,
+        }))
+    );
+
 export const useMutasiAdmin = () => {
-    const [data, setData] = useState([]);
+    const [allRows, setAllRows] = useState([]); // hasil flatten dari SELURUH data (limit besar)
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     const [search, setSearch] = useState("");
+    const [type, setType] = useState("");
     const [filterStoreId, setFilterStoreId] = useState("");
 
     const [pagination, setPagination] = useState({
@@ -20,17 +46,18 @@ export const useMutasiAdmin = () => {
     const [storeOptions, setStoreOptions] = useState([]);
     const [productOptions, setProductOptions] = useState([]);
 
-    // State edit
     const [editMutasi, setEditMutasi] = useState(null);
 
-    // State delete
     const [deleteMutasi, setDeleteMutasi] = useState(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // State success
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+
+    const [statusTarget, setStatusTarget] = useState(null);
+    const [isStatusOpen, setIsStatusOpen] = useState(false);
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
     useEffect(() => {
         storeService.getAll()
@@ -45,7 +72,7 @@ export const useMutasiAdmin = () => {
                 const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
                 setProductOptions(
                     list.map((p) => ({
-                        label: `[${p.code}] ${p.name} — ${p.type}`,
+                        label: `[${p.code}] ${p.name} – ${p.type}`,
                         value: p.id,
                         code: p.code,
                         name: p.name,
@@ -57,30 +84,27 @@ export const useMutasiAdmin = () => {
             .catch(() => {});
     }, []);
 
+    // Fetch batch besar (bukan per-page), flatten dilakukan di sini,
+    // pagination 10 baris/halaman dihitung manual dengan slice()
     const fetchMutasi = useCallback(async () => {
         setLoading(true);
         setError("");
         try {
             const res = await mutasiService.getAll({
                 search,
+                type,
                 storeId: filterStoreId,
-                page: pagination.page,
-                limit: pagination.limit,
+                page: 1,
+                limit: 1000,
             });
-            setData(res.data || []);
-            if (res.pagination) {
-                setPagination((prev) => ({
-                    ...prev,
-                    totalPages: res.pagination.totalPages || 1,
-                    page: res.pagination.page || prev.page,
-                }));
-            }
+            const flat = flattenMutasiRows(res.data || []);
+            setAllRows(flat);
         } catch (err) {
             setError("Gagal memuat data mutasi.");
         } finally {
             setLoading(false);
         }
-    }, [search, filterStoreId, pagination.page, pagination.limit]);
+    }, [search, type, filterStoreId]);
 
     useEffect(() => {
         fetchMutasi();
@@ -88,9 +112,21 @@ export const useMutasiAdmin = () => {
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [search, filterStoreId]);
+    }, [search, type, filterStoreId]);
 
-    // CREATE
+    // Recompute totalPages tiap kali data mentah / limit berubah
+    useEffect(() => {
+        setPagination((prev) => ({
+            ...prev,
+            totalPages: Math.max(1, Math.ceil(allRows.length / prev.limit)),
+        }));
+    }, [allRows]);
+
+    const paginatedRows = useMemo(() => {
+        const start = (pagination.page - 1) * pagination.limit;
+        return allRows.slice(start, start + pagination.limit);
+    }, [allRows, pagination.page, pagination.limit]);
+
     const handleCreate = async (payload) => {
         try {
             await mutasiService.create(payload);
@@ -104,13 +140,11 @@ export const useMutasiAdmin = () => {
         }
     };
 
-    // EDIT — set editMutasi → form pre-fill
     const handleEdit = (mutasi) => {
         setEditMutasi(mutasi);
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    // DELETE
     const handleTriggerDelete = (mutasi) => {
         setDeleteMutasi(mutasi);
         setIsDeleteOpen(true);
@@ -140,7 +174,6 @@ export const useMutasiAdmin = () => {
         setPagination((prev) => ({ ...prev, limit: newLimit, page: 1 }));
     };
 
-    // TAMBAHKAN FUNGSI UPDATE INI:
     const handleUpdate = async (payload) => {
         if (!editMutasi?.id) return { success: false };
         try {
@@ -148,8 +181,8 @@ export const useMutasiAdmin = () => {
             if (res.success) {
                 setSuccessMessage("Mutasi berhasil diperbarui!");
                 setIsSuccessOpen(true);
-                setEditMutasi(null); // Penting: Reset form kembali ke mode Tambah (Create)
-                await fetchMutasi(); // Refresh data tabel
+                setEditMutasi(null);
+                await fetchMutasi();
                 return { success: true };
             }
         } catch (err) {
@@ -158,9 +191,37 @@ export const useMutasiAdmin = () => {
         }
     };
 
+    const triggerStatusChange = (mutasi) => {
+        setStatusTarget(mutasi);
+        setIsStatusOpen(true);
+    };
+
+    const confirmStatusChange = async () => {
+        setIsUpdatingStatus(true);
+        try {
+            if (statusTarget.status === "PENDING") {
+                await mutasiService.send(statusTarget.id);
+            } else if (statusTarget.status === "ON_GOING") {
+                await mutasiService.receive(statusTarget.id);
+            }
+            setIsStatusOpen(false);
+            setStatusTarget(null);
+            setSuccessMessage("Status mutasi berhasil diperbarui!");
+            setIsSuccessOpen(true);
+            await fetchMutasi();
+        } catch (err) {
+            alert("Gagal mengubah status: " + (err.response?.data?.message || err.message));
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    };
+
+    const canChangeStatus = () => true;
+
     return {
-        data, loading, error,
+        data: paginatedRows, loading, error,
         search, setSearch,
+        type, setType,
         filterStoreId, setFilterStoreId,
         storeOptions, productOptions,
         pagination, handlePageChange, handleRowsPerPageChange,
@@ -170,5 +231,8 @@ export const useMutasiAdmin = () => {
         handleTriggerDelete, handleConfirmDelete,
         deleteMutasi, isDeleteOpen, isDeleting, setIsDeleteOpen, setDeleteMutasi,
         isSuccessOpen, successMessage, setIsSuccessOpen,
+        triggerStatusChange, confirmStatusChange,
+        isStatusOpen, setIsStatusOpen, isUpdatingStatus, statusTarget,
+        canChangeStatus,
     };
 };

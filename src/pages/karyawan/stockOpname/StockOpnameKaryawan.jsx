@@ -48,7 +48,7 @@ const StockOpnameKaryawan = () => {
             <div className="bg-card pt-7 pb-9 px-7 shadow-[0_4px_4px_rgba(0,0,0,0.2)]">
                 <h2 className="text-2xl font-inter font-medium mb-6">Data Hasil Stock Opname</h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
                     <SearchFilter
                         leftIcon={<FiSearch className="text-gray-400 size-5 cursor-pointer" />}
                         label="Cari..."
@@ -56,7 +56,10 @@ const StockOpnameKaryawan = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
-                    <DateRangeField value={dateRange} onChange={setDateRange} />
+                    <DateRangeField
+                        value={dateRange}
+                        onChange={setDateRange}
+                    />
                 </div>
 
                 <div className="overflow-x-auto bg-white">

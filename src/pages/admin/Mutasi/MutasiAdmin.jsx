@@ -8,11 +8,14 @@ import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import { FiFilter, FiSearch } from "react-icons/fi";
 import React from "react";
+import WarningModal from "../../../components/modals/WarningModal.jsx";
+import {catTypes} from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 
 const MutasiAdmin = () => {
     const {
         data, loading, error,
         search, setSearch,
+        type,setType,
         filterStoreId, setFilterStoreId,
         storeOptions, productOptions,
         pagination, handlePageChange, handleRowsPerPageChange,
@@ -22,6 +25,9 @@ const MutasiAdmin = () => {
         handleTriggerDelete, handleConfirmDelete,
         deleteMutasi, isDeleteOpen, isDeleting, setIsDeleteOpen, setDeleteMutasi,
         isSuccessOpen, successMessage, setIsSuccessOpen,
+        triggerStatusChange, confirmStatusChange,
+        isStatusOpen, setIsStatusOpen, isUpdatingStatus, statusTarget,
+        canChangeStatus,
     } = useMutasiAdmin();
 
     const filterStoreOptions = [
@@ -51,10 +57,10 @@ const MutasiAdmin = () => {
                         />
                         <FilterDropdown
                             icon={FiFilter}
-                            label="Ganti Cabang Toko"
-                            value={filterStoreId}
-                            onChange={setFilterStoreId}
-                            options={filterStoreOptions}
+                            label="Type Cat"
+                            value={type}
+                            onChange={(val) => setType(val)}
+                            options={[{ value: "", label: "Semua Tipe" }, ...catTypes]}
                         />
                         <FilterDropdown
                             icon={FiFilter}
@@ -75,6 +81,8 @@ const MutasiAdmin = () => {
                                 data={data}
                                 onEdit={handleEdit}
                                 onDelete={handleTriggerDelete}
+                                onStatusChange={triggerStatusChange}
+                                canChangeStatus={canChangeStatus}
                             />
                         )}
                         <TablePagination
@@ -106,6 +114,19 @@ const MutasiAdmin = () => {
                 itemName={deleteMutasi?.label || "mutasi ini"}
                 itemType="Mutasi"
                 isLoading={isDeleting}
+            />
+            <WarningModal
+                isOpen={isStatusOpen}
+                onClose={() => setIsStatusOpen(false)}
+                onConfirm={confirmStatusChange}
+                title={statusTarget?.status === "PENDING" ? "Kirim Mutasi?" : "Konfirmasi Barang Diterima?"}
+                message={
+                    statusTarget?.status === "PENDING"
+                        ? "Stok akan dikurangi dari cabang pengirim. Aksi ini tidak bisa dibatalkan."
+                        : "Stok akan ditambahkan ke cabang penerima. Aksi ini tidak bisa dibatalkan."
+                }
+                confirmText={statusTarget?.status === "PENDING" ? "Ya, Kirim" : "Ya, Sudah Diterima"}
+                isLoading={isUpdatingStatus}
             />
             <SuccessModal
                 isOpen={isSuccessOpen}
