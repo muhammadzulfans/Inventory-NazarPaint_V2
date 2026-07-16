@@ -26,9 +26,10 @@ const DashboardAdmin = () => {
 
     // Di sini kita petakan 'Total Stok Order' langsung ke stockRecap.totalStokMasuk (hasil transaksi purchases)
     const rekapRows = [
-        ['Total Stok Order', `${stockRecap.totalStokMasuk} Kg`],
-        ['Total Stok Keluar', `${stockRecap.totalStokKeluar} Kg`],
-        ['Total Stok Akhir', `${stockRecap.totalStokAkhir} Kg`],
+        ['Total Stok Order (Belum Diterima)', `${stockRecap.totalStokOrder} Unit`],
+        ['Total Stok Masuk (Bulan Ini)', `${stockRecap.totalStokMasuk} Unit`],
+        ['Total Stok Keluar (Bulan Ini)', `${stockRecap.totalStokKeluar} Unit`],
+        ['Total Stok Akhir', `${stockRecap.totalStokAkhir} Unit`],
         ['Jumlah Total Penghasilan Kotor', formatRupiah(endOfMonthRecap.sales.thisMonth.totalAmount)],
         ['Jumlah Total Penghasilan Bersih', formatRupiah(endOfMonthRecap.netProfit.thisMonth)],
     ];
