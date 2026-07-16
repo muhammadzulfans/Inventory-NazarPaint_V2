@@ -1,83 +1,97 @@
+import { useProductInventoryKaryawan } from "../../../hooks/karyawan/useProductInventoryKaryawan.js";
+import { useStockOverviewKaryawan } from "../../../hooks/karyawan/useStockOverviewKaryawan.js";
+import Card from "../../../components/ui/Card.jsx";
+import SearchFilter from "../../../components/ui/SearchFilter.jsx";
+import TableAdmin from "../../../components/tables/AdminLayouts/TableAdmin.jsx";
+import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
+import TablePagination from "../../../components/ui/TablePagination.jsx";
+import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 import { FaArrowTrendDown } from "react-icons/fa6";
 import { AiOutlineProduct } from "react-icons/ai";
-import { FaArrowTrendUp } from "react-icons/fa6";
-import { MdOutlineStoreMallDirectory } from "react-icons/md";
-import { MdOutlineStore } from "react-icons/md";
-import { FaPlus } from "react-icons/fa6";
-import Card from "../../../components/ui/Card.jsx";
-import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
-import SearchFilter from "../../../components/ui/SearchFilter.jsx";
-import TablePagination from "../../../components/ui/TablePagination.jsx";
-import {inventoryTableData} from "../../../dummy/dataKaryawan/InventoryTableData.js";
-import TableKaryawan from "../../../components/tables/KaryawanLayouts/TableKaryawan.jsx";
-
+import { FiSearch, FiFilter } from "react-icons/fi";
+import React from "react";
 
 const InventoryKaryawan = () => {
+    const {
+        products, isLoading,
+        search, setSearch,
+        type, setType,
+        storeId,
+        pagination, handlePageChange, handleRowsPerPageChange
+    } = useProductInventoryKaryawan();
+
+    const { overview, isLoading: isLoadingOverview } = useStockOverviewKaryawan();
+
     return (
         <div className="px-8 pt-6 pb-10 bg-white">
             {/* HEADER */}
-            <div className="mb-14">
-                <h1 className="text-3xl font-inter font-medium text-black">
-                    Persediaan
-                </h1>
-                <p className="text-sm font-inter text-black">
-                    Kelola produk anda
-                </p>
+            <div className="mb-14 flex justify-between">
+                <div>
+                    <h1 className="text-3xl font-inter font-medium text-black">Persediaan</h1>
+                    <p className="text-sm font-inter text-black">Data stok produk cabang Anda</p>
+                </div>
             </div>
 
-
-            {/* CARD */}
+            {/* CARDS — data asli dari cabang Anda (bulan berjalan) */}
             <div className="grid grid-cols-3 gap-16 mb-14">
                 <Card
                     title="Stok Hampir Habis"
-                    value="19 Kg"
+                    value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Produk`}
                     icon={<FaArrowTrendDown className="size-7 m-3.5" />}
                 />
                 <Card
-                    title="Total Mutasi Keluar"
-                    value="49 Kg"
+                    title="Total Mutasi Keluar (Bulan Ini)"
+                    value={isLoadingOverview ? "..." : `${overview?.stokKeluar ?? 0} Unit`}
                     icon={<AiOutlineProduct className="size-8 m-3" />}
                 />
                 <Card
-                    title="Total Mutasi Masuk"
-                    value="32 Kg"
+                    title="Total Mutasi Masuk (Bulan Ini)"
+                    value={isLoadingOverview ? "..." : `${overview?.stokMasuk ?? 0} Unit`}
                     icon={<AiOutlineProduct className="size-7 m-3.5" />}
                 />
             </div>
 
-
-            {/* DATA STOK PRODUK ) */}
+            {/* DATA STOK PRODUK */}
             <div className="bg-card pt-7 pb-9 px-7 shadow-[0_4px_4px_rgba(0,0,0,0.2)]">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-inter font-medium">
-                        Data Stok Produk
-                    </h2>
-                    <button className="bg-button text-sm px-6 py-3 rounded-2xl font-medium flex items-center gap-3 shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
-                        <FaPlus /> Tambah Produk
-                    </button>
+                    <h2 className="text-2xl font-inter font-medium">Data Stok Produk</h2>
                 </div>
 
-                {/* FILTER */}
-                <div className="flex justify-between gap-8 items-center mb-8">
+                <div className="grid grid-cols-2 gap-10 items-center mb-8">
                     <SearchFilter
-                        leftIcon={<FiSearch className="text-gray-400 size-5" />}
+                        leftIcon={<FiSearch className="text-gray-400 size-5 cursor-pointer" />}
                         label="Cari..."
                         isInput
-                        className="w-3/4"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                     />
-
-                    <SearchFilter
-                        leftIcon={<FiFilter className="text-gray-400 size-5" />}
+                    <FilterDropdown
+                        icon={FiFilter}
                         label="Type Cat"
-                        rightIcon={<FiChevronDown className="text-gray-500 size-6" />}
-                        className="w-1/4"
+                        value={type}
+                        onChange={(val) => setType(val)}
+                        options={[{ value: "", label: "Semua Tipe" }, ...catTypes]}
                     />
-
                 </div>
 
                 <div className="overflow-x-auto bg-white">
-                    <TableKaryawan data={inventoryTableData} />
-                    <TablePagination />
+                    <TableAdmin
+                        data={products}
+                        isLoading={isLoading}
+                        isEditable={false}
+                        showBasePrice={false}
+                        storeId={storeId}
+                    />
+                    <TablePagination
+                        currentPage={pagination.page}
+                        totalPages={pagination.totalPages}
+                        rowsPerPage={pagination.limit}
+                        onPageChange={handlePageChange}
+                        onRowsPerPageChange={handleRowsPerPageChange}
+                    />
+                    <div className="mt-4 text-sm font-inter text-gray-500 font-medium">
+                        Total: <span className="text-black font-semibold">{products.length}</span> produk tersedia
+                    </div>
                 </div>
             </div>
         </div>

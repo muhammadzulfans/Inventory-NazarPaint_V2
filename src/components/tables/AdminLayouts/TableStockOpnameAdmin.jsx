@@ -46,6 +46,7 @@ const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwn
                     const isExpandable = row.items.length > 1;
                     const isExpanded = expandedIds.has(row.id);
                     const isDraft = row.status === "DRAFT";
+                    const canEdit = isDraft && isOwner; // edit = delete+create, DELETE cuma boleh OWNER
 
                     return (
                         <React.Fragment key={row.id}>
@@ -108,9 +109,10 @@ const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwn
                                 </td>
                                 <td className="p-3 text-center">
                                     <button
-                                        className={`text-pen ${!isDraft ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
-                                        onClick={() => isDraft && onEdit && onEdit(row)}
-                                        disabled={!isDraft}
+                                        className={`text-pen ${!canEdit ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
+                                        onClick={() => canEdit && onEdit && onEdit(row)}
+                                        disabled={!canEdit}
+                                        title={!canEdit && isDraft ? "Hanya Owner yang bisa mengedit" : undefined}
                                     >
                                         <HiOutlinePencilSquare className="size-7 p-1 border border-current rounded-md transition" />
                                     </button>

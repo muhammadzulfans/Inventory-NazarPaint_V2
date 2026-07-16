@@ -2,7 +2,7 @@ import React from "react";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { PiTrashBold } from "react-icons/pi";
 
-const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false, storeId }) => {
+const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false, storeId, showBasePrice = true }) => {
     const formatDate = (isoString) => {
         if (!isoString) return "-";
         try {
@@ -15,19 +15,32 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
     const formatRupiah = (val) =>
         val != null ? `Rp ${Number(val).toLocaleString("id-ID")}` : "-";
 
-    // Hitung total stok semua produk
-    const totalStokKeseluruhan = data.reduce((acc, item) => {
+    // Satuan ditentukan dari tipe produk, bukan field unit
+    const getUnit = (item) => {
+        const type = (item.type || "").toUpperCase();
+        return (type === "ACCESSORIES" || type === "AKSESORIS") ? "Pcs" : "Kg";
+    };
+
+    const getDisplayStock = (item) => {
         if (storeId) {
-            // Gunakan toString() dan convert ke lowercase biar kalau ada beda tipe data tetep ketemu
             const storeStock = item.stockPerStore?.find(
                 s => String(s.store.id).toLowerCase() === String(storeId).toLowerCase()
             );
-            return acc + (storeStock ? storeStock.quantity : 0);
+            return storeStock ? storeStock.quantity : 0;
         }
-        return acc + (item.totalStock ?? 0);
-    }, 0);
+        return item.totalStock ?? 0;
+    };
 
-    const maxCols = isEditable ? 8 : 7;
+    const totalStokKg = data
+        .filter((item) => getUnit(item) === "Kg")
+        .reduce((acc, item) => acc + getDisplayStock(item), 0);
+    const totalStokPcs = data
+        .filter((item) => getUnit(item) === "Pcs")
+        .reduce((acc, item) => acc + getDisplayStock(item), 0);
+    const hasKg = data.some((item) => getUnit(item) === "Kg");
+    const hasPcs = data.some((item) => getUnit(item) === "Pcs");
+
+    const maxCols = 4 + (showBasePrice ? 1 : 0) + 2 + (isEditable ? 1 : 0);
 
     return (
         <table className="w-full text-sm font-inter font-normal">
@@ -37,7 +50,7 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                 <th className="p-3 border-l border-cardBG">Nama Barang</th>
                 <th className="p-3 border-l border-cardBG">Tipe Barang</th>
                 <th className="p-3 border-l border-cardBG">Total Stok</th>
-                <th className="p-3 border-l border-cardBG">Harga Pokok</th>
+                {showBasePrice && <th className="p-3 border-l border-cardBG">Harga Pokok</th>}
                 <th className="p-3 border-l border-cardBG">Harga Jual</th>
                 <th className="p-3 border-l border-cardBG">Pembaruan Terakhir</th>
                 {isEditable && <th className="p-3 border-x border-cardBG">Aksi</th>}
@@ -48,7 +61,6 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                 <tr>
                     <td colSpan={maxCols} className="text-center py-10 text-txtNav font-medium">
                         <div className="flex items-center justify-center gap-3">
-                            {/* Spinner Biru Tailwind Murni - Menggunakan utility border standar */}
                             <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                             <span>Menghubungkan ke server...</span>
                         </div>
@@ -62,22 +74,13 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                 </tr>
             ) : (
                 data.map((item, index) => {
-                    let displayStock = item.totalStock ?? 0;
-                    if (storeId) {
-                        const storeStock = item.stockPerStore?.find(
-                            s => String(s.store.id).toLowerCase() === String(storeId).toLowerCase()
-                        );
-                        displayStock = storeStock ? storeStock.quantity : 0;
-                    }
+                    const displayStock = getDisplayStock(item);
 
                     return (
                         <tr key={item.id || index}
                             className="border-b border-cardBG hover:bg-gray-50/50 transition-colors">
-                            {/* code → dari backend */}
                             <td className="p-3">{item.code ?? "-"}</td>
-                            {/* name → dari backend */}
                             <td className="p-3 font-medium">{item.name ?? "-"}</td>
-                            {/* type → dari backend */}
                             <td className="p-3">
                                 {item.type ? (
                                     <span
@@ -86,13 +89,10 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                                         </span>
                                 ) : "-"}
                             </td>
-                            {/* totalStock → dari backend */}
                             <td className="p-3 font-semibold text-green-700">
-                                {item.totalStock ?? 0} {item.unit ?? "Kg"}
+                                {displayStock} {getUnit(item)}
                             </td>
-                            {/* basePrice → dari backend */}
-                            <td className="p-3">{formatRupiah(item.basePrice)}</td>
-                            {/* sellPrice → dari backend */}
+                            {showBasePrice && <td className="p-3">{formatRupiah(item.basePrice)}</td>}
                             <td className="p-3 font-medium text-green-600">{formatRupiah(item.sellPrice)}</td>
                             <td className="p-3">{formatDate(item.updatedAt)}</td>
                             {isEditable && (
@@ -118,10 +118,18 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                     <td className="px-3 py-6">Jumlah</td>
                     <td></td>
                     <td></td>
-                    <td className="p-3 font-inter text-sm text-green-700">
-                        {totalStokKeseluruhan} Kg
+                    <td className="flex flex-row justify-between  py-8 font-inter text-sm text-green-700">
+                        {hasKg &&
+                            <div>
+                                {totalStokKg} Kg
+                            </div>
+                        }
+                        {hasPcs &&
+                            <div>
+                                {totalStokPcs} Pcs
+                            </div>}
                     </td>
-                    <td></td>
+                    {showBasePrice && <td></td>}
                     <td></td>
                     <td></td>
                     {isEditable && <td></td>}

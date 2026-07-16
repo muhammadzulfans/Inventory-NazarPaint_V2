@@ -86,7 +86,7 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
                                     </div>
                                 </td>
                                 <td className="p-3">{row.storeName}</td>
-                                <td className="p-3 text-center">{row.itemCount} Item</td>
+                                <td className="p-3 text-center">{row.items.length} Item</td>
                                 <td className="p-3 text-center">
                                     {row.totalHarga ? (
                                         <span className="text-xs font-semibold bg-green-100 px-2.5 py-1 rounded-md">

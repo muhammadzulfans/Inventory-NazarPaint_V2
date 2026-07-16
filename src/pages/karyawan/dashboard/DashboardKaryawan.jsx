@@ -11,7 +11,11 @@ const formatRupiah = (angka) =>
         : 'Rp 0';
 
 const DashboardKaryawan = () => {
-    const { dashboardData, isLoading, weeklyChartData, monthlyChartData } = useDashboardAdmin();
+    const { dashboardData,
+        isLoading,
+        weeklyChartData,
+        monthlyChartData
+    } = useDashboardAdmin();
 
     if (isLoading) {
         return (
