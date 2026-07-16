@@ -73,6 +73,8 @@ function App() {
                     <Route path="sales" element={<SalesKaryawan />} />
                     <Route path="history-sales" element={<HistorySalesKaryawan />} /> {/* ROUTE BARU ADMIN */}
                     <Route path="detail-sales" element={<DetailSalesKaryawan />} /> {/* ROUTE BARU ADMIN */}
+                    <Route path="stock-opname" element={<StockOpnameAdmin />} />
+                    <Route path="KelolaStockOpname" element={<KelolaStockOpnameAdmin />} />
                     <Route path="profile" element={<Profile />} />
                 </Route>
 

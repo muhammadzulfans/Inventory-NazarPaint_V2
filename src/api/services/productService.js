@@ -11,6 +11,17 @@ export const productService = {
             return { success: false, data: [] };
         }
     },
+    
+    getStocksByStore: async (params = {}) => {
+        try {
+            // Nembak ke endpoint /stocks, bukan /products
+            const response = await api.get("/stocks", { params });
+            return response.data;
+        } catch (error) {
+            console.error("Error Get Stocks:", error);
+            return { success: false, data: [] };
+        }
+    },
 
     // GET produk by ID
     getProductById: async (id) => {
