@@ -195,15 +195,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 )}
 
 
-                {user?.role === "OWNER" && (
-                    <SidebarButton
-                        icon={<HiOutlineSwitchHorizontal/>}
-                        label="Mutasi"
-                        isOpen={isOpen}
-                        isActive={location.pathname === `${prefix}/mutasi`}
-                        onClick={() => navigate(`${prefix}/mutasi`)}
-                    />
-                )}
+                <SidebarButton
+                    icon={<HiOutlineSwitchHorizontal/>}
+                    label="Mutasi"
+                    isOpen={isOpen}
+                    isActive={location.pathname === `${prefix}/mutasi`}
+                    onClick={() => navigate(`${prefix}/mutasi`)}
+                />
 
                 <SidebarButton
                     icon={<LuClipboardCheck />}

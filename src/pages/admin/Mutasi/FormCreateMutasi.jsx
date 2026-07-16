@@ -5,9 +5,6 @@ import DateField from "../../../components/forms/DateField.jsx";
 
 const emptyItem = () => ({ productId: "", kode: "", namaBarang: "", type: "", quantity: "" });
 
-// editMutasi   = data mutasi dari tabel (null = mode create)
-// onSimpan     = handler create
-// onBatalEdit  = reset ke mode create
 const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, onBatalEdit }) => {
     const isEditMode = !!editMutasi;
 
@@ -128,12 +125,6 @@ const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, 
                 label="Tanggal Mutasi"
                 value={form.tanggal}
                 onChange={setForm_("tanggal")}
-            />
-            <InputField
-                label="Catatan (opsional)"
-                placeholder="Contoh: Transfer stok rutin"
-                value={form.note}
-                onChange={(e) => setForm_("note")(e.target.value)}
             />
 
             {/* ITEMS — multi-item dinamis */}

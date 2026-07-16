@@ -32,6 +32,7 @@ import HistorySalesKaryawan from "./pages/karyawan/sales/HistorySalesKaryawan.js
 import DetailSalesKaryawan from "./pages/karyawan/sales/DetailSalesKaryawan.jsx";
 import KelolaStockOpnameKaryawan from "./pages/karyawan/stockOpname/KelolaStockOpnameKaryawan.jsx";
 import StockOpnameKaryawan from "./pages/karyawan/stockOpname/StockOpnameKaryawan.jsx";
+import MutasiKaryawan from "./pages/karyawan/mutasi/MutasiKaryawan.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -52,8 +53,8 @@ function App() {
                     <Route path="inventory" element={<InventoryAdmin />} />
                     <Route path="KelolaInventory" element={<KelolaInventoryAdmin />} />
                     <Route path="sales" element={<SalesAdmin />} />
-                    <Route path="history-sales" element={<HistorySalesAdmin />} /> {/* ROUTE BARU ADMIN */}
-                    <Route path="detail-sales" element={<DetailSalesAdmin />} /> {/* ROUTE BARU ADMIN */}
+                    <Route path="history-sales" element={<HistorySalesAdmin />} />
+                    <Route path="detail-sales" element={<DetailSalesAdmin />} />
                     <Route path="order" element={<OrderAdmin />} />
                     <Route path="detail-order" element={<DetailOrderAdmin />} />
                     <Route path="mutasi" element={<MutasiAdmin />} />
@@ -73,8 +74,9 @@ function App() {
                     <Route index element={<DashboardKaryawan />} />
                     <Route path="inventory" element={<InventoryKaryawan />} />
                     <Route path="sales" element={<SalesKaryawan />} />
-                    <Route path="history-sales" element={<HistorySalesKaryawan />} /> {/* ROUTE BARU ADMIN */}
-                    <Route path="detail-sales" element={<DetailSalesKaryawan />} /> {/* ROUTE BARU ADMIN */}
+                    <Route path="history-sales" element={<HistorySalesKaryawan />} />
+                    <Route path="detail-sales" element={<DetailSalesKaryawan />} />
+                    <Route path="mutasi" element={<MutasiKaryawan />} />
                     <Route path="stock-opname" element={<StockOpnameKaryawan />} />
                     <Route path="KelolaStockOpname" element={<KelolaStockOpnameKaryawan />} />
                     <Route path="profile" element={<Profile />} />
