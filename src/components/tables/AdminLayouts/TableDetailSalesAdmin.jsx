@@ -102,6 +102,7 @@ const TableDetailSalesAdmin = ({ data = [], showCostColumns = true }) => {
                     {showCostColumns && <td></td>}
                     <td className="p-3 text-green-600">Rp {grandTotalHargaJual.toLocaleString("id-ID")}</td>
                     {showCostColumns && <td className="p-3 text-black">Rp {grandTotalHargaBeli.toLocaleString("id-ID")}</td>}
+                    <td></td>
                     {showCostColumns && <td className="p-3 text-blue-600">Rp {grandTotalProfit.toLocaleString("id-ID")}</td>}
                     <td></td>
                 </tr>

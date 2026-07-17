@@ -1,8 +1,21 @@
-import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { FiEdit, FiEye, FiXCircle } from "react-icons/fi";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi2";
 import React, { useState } from "react";
 
-const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChange }) => {
+// Mapping label tampilan ? raw value backend TETAP PENDING/RECEIVED/CANCELLED
+const STATUS_LABEL = {
+    PENDING: "ORDER",
+    RECEIVED: "RECEIVED",
+    CANCELLED: "REJECTED",
+};
+
+const STATUS_BADGE_CLASS = {
+    PENDING: "bg-yellow-100 text-yellow-700",
+    RECEIVED: "bg-green-100 text-green-700",
+    CANCELLED: "bg-red-100 text-red-700",
+};
+
+const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onReject }) => {
     const [expandedIds, setExpandedIds] = useState(new Set());
 
     const toggleExpand = (key) => {
@@ -13,11 +26,8 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
         });
     };
 
-    // Mengolah data berbasis per-transaksi (order), bukan per-item (flatten)
-    // Persis seperti TableHistorySalesAdmin
     const rows = data.map((order) => {
         const items = order.items || [];
-        // Menghitung total quantity (item) dan total harga dalam 1 transaksi
         const itemCount = items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
         const totalPriceInOrder = items.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
 
@@ -27,16 +37,15 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
             storeName: order.store?.name || "-",
             itemCount: itemCount,
             totalHarga: totalPriceInOrder,
-            status: order.status,
+            status: order.status, // raw value: PENDING / RECEIVED / CANCELLED
             tanggal: order.date
                 ? new Date(order.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
                 : "-",
-            items, // dipakai untuk sub-baris expand
-            rawPayload: order // Menyimpan data asli untuk dilempar ke fungsi onEdit/onDelete/onPreview
+            items,
+            rawPayload: order
         };
     });
 
-    // Menghitung grand total untuk baris paling bawah (footer)
     const grandTotalItem = rows.reduce((t, r) => t + r.itemCount, 0);
     const grandTotalHarga = rows.reduce((t, r) => t + r.totalHarga, 0);
 
@@ -57,7 +66,6 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
             <tbody className="text-black">
             {rows.length === 0 ? (
                 <tr>
-                    {/* total kolom sekarang ada 8 */}
                     <td colSpan={8} className="text-center py-10 text-gray-400">
                         Belum ada transaksi pembelian
                     </td>
@@ -66,6 +74,7 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
                 rows.map((row) => {
                     const isExpandable = row.items.length > 1;
                     const isExpanded = expandedIds.has(row.key);
+                    const isPending = row.status === "PENDING";
 
                     return (
                         <React.Fragment key={row.key}>
@@ -96,52 +105,54 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
                                 </td>
                                 <td className="p-3 text-center">{row.tanggal}</td>
 
-                                {/* KOLOM STATUS (Dipertahankan dari tabel order asli) */}
+                                {/* KOLOM STATUS */}
                                 <td className="p-3 text-center">
-                                    {row.status === "PENDING" ? (
+                                    {isPending ? (
                                         <button
                                             onClick={() => onStatusChange && onStatusChange(row.rawPayload)}
-                                            className="uppercase text-xs font-semibold bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md hover:bg-yellow-200 transition-all cursor-pointer"
+                                            className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md hover:opacity-80 transition-all cursor-pointer ${STATUS_BADGE_CLASS[row.status]}`}
                                             title="Klik untuk terima pesanan"
                                         >
-                                            {row.status}
+                                            {STATUS_LABEL[row.status]}
                                         </button>
                                     ) : (
-                                        <span className="uppercase text-xs font-semibold bg-green-100 text-green-700 px-3 py-1.5 rounded-md">
-                                            {row.status}
+                                        <span className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md ${STATUS_BADGE_CLASS[row.status]}`}>
+                                            {STATUS_LABEL[row.status] || row.status}
                                         </span>
                                     )}
                                 </td>
 
-                                {/* KOLOM PREVIEW (Ditambahkan dari tabel sales) */}
+                                {/* KOLOM PREVIEW */}
                                 <td className="p-3 flex justify-center items-center">
                                     <button className="text-blue-500" onClick={() => onPreview && onPreview(row.rawPayload)}>
                                         <FiEye className="size-7 p-1 border border-blue-500 rounded-md hover:bg-blue-50 transition" />
                                     </button>
                                 </td>
 
-                                {/* KOLOM AKSI */}
+                                {/* KOLOM AKSI: Edit + Reject saja, Delete di-hide sementara */}
                                 <td className="p-3">
                                     <div className="flex justify-center items-center gap-2">
                                         <button
-                                            className={`text-pen ${row.status === "RECEIVED" ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
-                                            onClick={() => row.status === "PENDING" && onEdit && onEdit(row.rawPayload)}
-                                            disabled={row.status === "RECEIVED"}
+                                            className={`text-pen ${!isPending ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
+                                            onClick={() => isPending && onEdit && onEdit(row.rawPayload)}
+                                            disabled={!isPending}
+                                            title={!isPending ? "Hanya bisa diedit saat status ORDER" : "Edit pesanan"}
                                         >
                                             <FiEdit className="size-7 p-1 border border-current rounded-md transition" />
                                         </button>
                                         <button
-                                            className={`text-trash ${row.status === "RECEIVED" ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
-                                            onClick={() => row.status === "PENDING" && onDelete && onDelete(row.rawPayload)}
-                                            disabled={row.status === "RECEIVED"}
+                                            className={`text-red-600 ${!isPending ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
+                                            onClick={() => isPending && onReject && onReject(row.rawPayload)}
+                                            disabled={!isPending}
+                                            title={!isPending ? "Hanya bisa ditolak saat status ORDER" : "Tolak/batalkan pesanan"}
                                         >
-                                            <FiTrash2 className="size-7 p-1 border border-current rounded-md transition" />
+                                            <FiXCircle className="size-7 p-1 border border-current rounded-md transition" />
                                         </button>
+                                        {/* Tombol Delete di-hide sementara per request */}
                                     </div>
                                 </td>
                             </tr>
 
-                            {/* SUB-BARIS: sisa item lainnya, style konsisten sama kolom di atas */}
                             {isExpanded && row.items.slice(1).map((item, idx) => {
                                 const product = item.product || {};
                                 const itemHarga = item.totalPrice ?? 0;
@@ -171,7 +182,6 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
                 })
             )}
 
-            {/* BARIS TOTAL FOOTER */}
             <tr className="font-inter font-bold text-base border-b bg-gray-50/30 text-center">
                 <td className="p-5 text-center">Total</td>
                 <td></td>
@@ -179,7 +189,6 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onDelete, onStatusChang
                 <td className="p-3 font-inter text-green-600">
                     Rp. {grandTotalHarga.toLocaleString("id-ID")}
                 </td>
-                {/* Sisa kolom dikosongkan agar sejajar (Tanggal, Status, Preview, Aksi) */}
                 <td></td><td></td><td></td><td></td>
             </tr>
             </tbody>

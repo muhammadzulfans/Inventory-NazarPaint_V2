@@ -78,7 +78,6 @@ const HistorySalesKaryawan = () => {
                             onPreview={handlePreview}
                             onEdit={handleEdit}
                             onDelete={triggerDelete}
-                            onDelete={triggerDelete}
                             showDeleteAction={false}
                             isEditAllowed={canEditSale}
                         />
