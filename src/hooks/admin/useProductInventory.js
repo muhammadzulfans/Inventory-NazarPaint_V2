@@ -131,12 +131,14 @@ export const useProductInventory = () => {
                 tipeBarang: item.type || "",
                 hargaPokok: item.basePrice || "",
                 hargaJual: item.sellPrice || "",
+                hexColor: item.hexColor || "", // ambil langsung dari backend, no more tebak-tebakan
             });
         } else {
             setSelectedProduct({
                 id: null,
                 kodeBarang: "", namaBarang: "",
-                tipeBarang: "", hargaPokok: "", hargaJual: ""
+                tipeBarang: "", hargaPokok: "", hargaJual: "",
+                hexColor: "",
             });
         }
         setModalConfig({ isOpen: true, type });

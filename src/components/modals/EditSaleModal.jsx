@@ -3,7 +3,6 @@ import {FiTrash2, FiPlus, FiShoppingBag} from "react-icons/fi";
 import Modal from "./Modal.jsx";
 import InputField from "../forms/InputField.jsx";
 import { productService } from "../../api/services/productService.js";
-import { getColorHexByCode } from "../../utils/productColor.js";
 import FilterDropdown from "../ui/FilterDropdown.jsx";
 
 const formatRupiah = (number) =>
@@ -163,7 +162,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                             <p className="text-sm text-gray-400 text-center py-4">Belum ada item.</p>
                         ) : (
                             items.map((item) => {
-                                const hex = getColorHexByCode(item.code, item.type);
+                                const hex = product.hexColor || (product.type === "ACCESSORIES" ? "#808080" : "#9ca3af"); // langsung dari backend
                                 return (
                                     <div
                                         key={item.productId}

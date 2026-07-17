@@ -13,7 +13,9 @@ import { AiOutlineProduct } from "react-icons/ai";
 import { MdOutlineStore } from "react-icons/md";
 import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
-import React from "react";
+import React, {useState} from "react";
+import ModalPrediksiStok from "../../../components/modals/ModalPrediksiStok.jsx";
+import {useStockOverviewAdmin} from "../../../hooks/admin/useStockOverviewAdmin.js";
 
 const InventoryAdmin = () => {
     const navigate = useNavigate();
@@ -27,6 +29,19 @@ const InventoryAdmin = () => {
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange
     } = useProductInventory();
+
+    const {
+        overview
+    } = useStockOverviewAdmin();
+
+    const [previewProduct, setPreviewProduct] = useState(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+
+    const handlePreview = (item) => {
+        setPreviewProduct(item);
+        setIsPreviewOpen(true);
+    };
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white">
@@ -48,10 +63,28 @@ const InventoryAdmin = () => {
 
             {/* CARDS */}
             <div className="grid grid-cols-4 gap-16 mb-14">
-                <Card title="Stok Hampir Habis" value="19 Kg" icon={<FaArrowTrendDown className="size-7 m-3.5" />} />
-                <Card title="Total Mutasi Keluar" value="49 Kg" icon={<AiOutlineProduct className="size-8 m-3" />} />
-                <Card title="Total Mutasi Masuk" value="32 Kg" icon={<AiOutlineProduct className="size-7 m-3.5" />} />
-                <Card title="Jumlah Cabang" value="3" icon={<MdOutlineStore className="size-8 m-3" />} />
+                <Card
+                    title="Stok Hampir Habis"
+                    value={`${overview?.lowStockCount ?? 0} Item`}
+                    icon={<FaArrowTrendDown className="size-7 m-3.5" />}
+                />
+                <Card
+                    title="Total Mutasi Keluar"
+                    value={`${overview?.stokKeluar ?? 0} Unit`}
+                    icon={<AiOutlineProduct className="size-8 m-3" />}
+                />
+                <Card
+                    title="Total Mutasi Masuk"
+                    value={`${overview?.stokMasuk ?? 0} Unit`}
+                    icon={<AiOutlineProduct className="size-7 m-3.5" />}
+                />
+                <Card
+                    title="Jumlah Cabang"
+                    value="3"
+                    icon={<MdOutlineStore
+                        className="size-8 m-3"
+                    />}
+                />
             </div>
 
             {/* DATA STOK PRODUK */}
@@ -97,6 +130,7 @@ const InventoryAdmin = () => {
                         isLoading={isLoading}
                         isEditable={false}
                         storeId={storeId}
+                        onPreview={handlePreview}
                     />
                     <TablePagination
                         currentPage={pagination.page}
@@ -110,6 +144,11 @@ const InventoryAdmin = () => {
                     </div>
                 </div>
             </div>
+            <ModalPrediksiStok
+                isOpen={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                product={previewProduct}
+            />
         </div>
     );
 };

@@ -1,8 +1,9 @@
 import React from "react";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { PiTrashBold } from "react-icons/pi";
+import { FiBarChart2 } from "react-icons/fi";
 
-const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false, storeId, showBasePrice = true }) => {
+const TableAdmin = ({ data = [], onEdit, onDelete, onPreview, isLoading, isEditable = false, storeId, showBasePrice = true }) => {
     const formatDate = (isoString) => {
         if (!isoString) return "-";
         try {
@@ -15,7 +16,6 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
     const formatRupiah = (val) =>
         val != null ? `Rp ${Number(val).toLocaleString("id-ID")}` : "-";
 
-    // Satuan ditentukan dari tipe produk, bukan field unit
     const getUnit = (item) => {
         const type = (item.type || "").toUpperCase();
         return (type === "ACCESSORIES" || type === "AKSESORIS") ? "Pcs" : "Kg";
@@ -40,7 +40,8 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
     const hasKg = data.some((item) => getUnit(item) === "Kg");
     const hasPcs = data.some((item) => getUnit(item) === "Pcs");
 
-    const maxCols = 4 + (showBasePrice ? 1 : 0) + 2 + (isEditable ? 1 : 0);
+    const showPreview = typeof onPreview === "function";
+    const maxCols = 4 + (showBasePrice ? 1 : 0) + 2 + (showPreview ? 1 : 0) + (isEditable ? 1 : 0);
 
     return (
         <table className="w-full text-sm font-inter font-normal">
@@ -53,6 +54,7 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                 {showBasePrice && <th className="p-3 border-l border-cardBG">Harga Pokok</th>}
                 <th className="p-3 border-l border-cardBG">Harga Jual</th>
                 <th className="p-3 border-l border-cardBG">Pembaruan Terakhir</th>
+                {showPreview && <th className="p-3 border-l border-cardBG">Prediksi</th>}
                 {isEditable && <th className="p-3 border-x border-cardBG">Aksi</th>}
             </tr>
             </thead>
@@ -95,6 +97,19 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                             {showBasePrice && <td className="p-3">{formatRupiah(item.basePrice)}</td>}
                             <td className="p-3 font-medium text-green-600">{formatRupiah(item.sellPrice)}</td>
                             <td className="p-3">{formatDate(item.updatedAt)}</td>
+                            {showPreview && (
+                                <td className="p-3 text-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => onPreview(item)}
+                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition"
+                                        title="Lihat prediksi stok & order"
+                                    >
+                                        <FiBarChart2 size={14} />
+                                        Preview
+                                    </button>
+                                </td>
+                            )}
                             {isEditable && (
                                 <td className="p-3">
                                     <div className="flex justify-between items-center gap-1">
@@ -132,6 +147,7 @@ const TableAdmin = ({ data = [], onEdit, onDelete, isLoading, isEditable = false
                     {showBasePrice && <td></td>}
                     <td></td>
                     <td></td>
+                    {showPreview && <td></td>}
                     {isEditable && <td></td>}
                 </tr>
             )}

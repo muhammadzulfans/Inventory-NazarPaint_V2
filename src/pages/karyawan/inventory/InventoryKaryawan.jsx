@@ -36,7 +36,7 @@ const InventoryKaryawan = () => {
             <div className="grid grid-cols-3 gap-16 mb-14">
                 <Card
                     title="Stok Hampir Habis"
-                    value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Produk`}
+                    value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Item`}
                     icon={<FaArrowTrendDown className="size-7 m-3.5" />}
                 />
                 <Card

@@ -13,7 +13,7 @@ import TablePagination from "../../../components/ui/TablePagination.jsx";
 import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
 
 import { FaPlus } from "react-icons/fa6";
-import { FiChevronDown, FiFilter, FiSearch, FiHash, FiBox, FiTag } from "react-icons/fi";
+import {FiChevronDown, FiFilter, FiSearch, FiHash, FiBox, FiTag, FiDroplet} from "react-icons/fi";
 import { IoChevronBack } from "react-icons/io5";
 
 const KelolaInventoryAdmin = () => {
@@ -38,20 +38,23 @@ const KelolaInventoryAdmin = () => {
         e.preventDefault();
         const formData = new FormData(e.target);
 
+        const isAccessories = selectedProduct?.tipeBarang === "ACCESSORIES";
+
         const payload = {
-            id: selectedProduct?.id, // Kirim ID jika ini mode EDIT
+            id: selectedProduct?.id,
             code: formData.get("kodeBarang"),
             name: formData.get("namaBarang"),
             type: selectedProduct?.tipeBarang || "",
             basePrice: Number(formData.get("hargaPokok") || 0),
             sellPrice: Number(formData.get("hargaJual") || 0),
+            // ACCESSORIES selalu grey murni, tipe lain pakai hex pilihan admin
+            hexColor: isAccessories ? "#808080" : (selectedProduct?.hexColor || ""),
         };
 
         if (!payload.code) { alert("Kode barang wajib diisi."); return; }
         if (!payload.name) { alert("Nama barang wajib diisi."); return; }
         if (!payload.type) { alert("Tipe barang wajib dipilih."); return; }
 
-        // Lempar payload-nya ke hook untuk diurus ke database
         await handleSaveProduct(payload, modalConfig.type);
     };
 
@@ -152,6 +155,27 @@ const KelolaInventoryAdmin = () => {
                             options={catTypes}
                             onChange={(val) => setSelectedProduct({ ...selectedProduct, tipeBarang: val })}
                         />
+
+                        {/* Hex color hanya muncul untuk tipe selain ACCESSORIES */}
+                        {selectedProduct?.tipeBarang && selectedProduct.tipeBarang !== "ACCESSORIES" && (
+                            <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
+                                <InputField
+                                    label="Kode Warna (Hex)"
+                                    icon={FiDroplet}
+                                    placeholder="#22c55e"
+                                    value={selectedProduct?.hexColor || ""}
+                                    onChange={(e) => setSelectedProduct({ ...selectedProduct, hexColor: e.target.value })}
+                                />
+                                <input
+                                    type="color"
+                                    value={/^#[0-9A-Fa-f]{6}$/.test(selectedProduct?.hexColor || "") ? selectedProduct.hexColor : "#000000"}
+                                    onChange={(e) => setSelectedProduct({ ...selectedProduct, hexColor: e.target.value })}
+                                    className="w-12 h-12 rounded-lg border-2 border-line cursor-pointer shrink-0"
+                                    title="Pilih warna dari color picker"
+                                />
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-4 pt-2">
                             <InputField
                                 label="Harga Pokok" name="hargaPokok" type="number"
