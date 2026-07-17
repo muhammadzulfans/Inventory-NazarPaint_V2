@@ -13,9 +13,10 @@ export const catTypes = [
     ,
 ];
 
-
-export const DropdownOptions = [
-    { value: "Cabang Singkil", label: "Cabang Singkil" },
-    { value: "Cabang Balamoa", label: "Cabang Balamoa" },
-    { value: "Cabang Suradadi", label: "Cabang Suradadi" },
-];
+export const formatRupiah = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+    }).format(number);
+};

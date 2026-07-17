@@ -5,7 +5,7 @@ import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TableAdmin from "../../../components/tables/AdminLayouts/TableAdmin.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import { catTypes } from "../../../Data/DropdownOptions.jsx";
 import { FaArrowTrendDown } from "react-icons/fa6";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FiSearch, FiFilter } from "react-icons/fi";

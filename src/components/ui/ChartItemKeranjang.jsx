@@ -1,6 +1,6 @@
 import React from "react";
 import { FiPlus, FiMinus, FiTrash2 } from "react-icons/fi";
-import { formatRupiah } from "../../dummy/dataAdmin/Data/salesTableData.js";
+import { formatRupiah } from "../../Data/DropdownOptions.jsx";
 
 const ChartItemKeranjang = ({ item, onUpdateQuantity, onRemoveFromCart }) => {
     return (

@@ -10,7 +10,7 @@ import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import { catTypes } from "../../../Data/DropdownOptions.jsx";
 
 import { FaPlus } from "react-icons/fa6";
 import {FiChevronDown, FiFilter, FiSearch, FiHash, FiBox, FiTag, FiDroplet} from "react-icons/fi";

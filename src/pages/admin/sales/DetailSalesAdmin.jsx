@@ -3,7 +3,7 @@ import { FiSearch, FiFilter } from "react-icons/fi";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import { catTypes } from "../../../Data/DropdownOptions.jsx";
 
 // IMPORT CUSTOM HOOK LOGIC BARU KHUSUS DETAIL
 import { useDetailSalesManagement } from "../../../hooks/admin/useDetailSalesManagement.js";

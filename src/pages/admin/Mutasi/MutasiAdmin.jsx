@@ -9,7 +9,7 @@ import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import { FiFilter, FiSearch } from "react-icons/fi";
 import React from "react";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
-import {catTypes} from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import {catTypes} from "../../../Data/DropdownOptions.jsx";
 
 const MutasiAdmin = () => {
     const {
