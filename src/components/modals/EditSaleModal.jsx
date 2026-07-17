@@ -162,6 +162,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                             <p className="text-sm text-gray-400 text-center py-4">Belum ada item.</p>
                         ) : (
                             items.map((item) => {
+                                const product = item.product || {};
                                 const hex = product.hexColor || (product.type === "ACCESSORIES" ? "#808080" : "#9ca3af"); // langsung dari backend
                                 return (
                                     <div
