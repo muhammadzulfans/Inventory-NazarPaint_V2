@@ -15,6 +15,8 @@ import { catTypes } from "../../../Data/DropdownOptions.jsx";
 import { FaPlus } from "react-icons/fa6";
 import {FiChevronDown, FiFilter, FiSearch, FiHash, FiBox, FiTag, FiDroplet} from "react-icons/fi";
 import { IoChevronBack } from "react-icons/io5";
+import DateRangeField from "../../../components/forms/DateRangeField.jsx";
+import React from "react";
 
 const KelolaInventoryAdmin = () => {
     const navigate = useNavigate();
@@ -25,6 +27,7 @@ const KelolaInventoryAdmin = () => {
         search, setSearch,
         type, setType,
         storeId, setStoreId, storeOptions,
+        dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         // CRUD properties
         isSuccessOpen, setIsSuccessOpen, successMessage,
@@ -88,17 +91,17 @@ const KelolaInventoryAdmin = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
-                    <SearchFilter
-                        leftIcon={<FiFilter className="text-gray-400 size-5" />}
-                        label={<span className="text-sm text-gray-700 font-poppins">Durasi Tgl 25 mei 2026-30 mei 2026</span>}
-                        rightIcon={<FiChevronDown className="text-gray-500 size-6" />}
+                    <DateRangeField
+                        // label="Durasi"
+                        value={dateRange}
+                        onChange={setDateRange}
                     />
                     <FilterDropdown
                         icon={FiFilter}
                         label="Type Cat"
                         value={type}
                         onChange={(val) => setType(val)}
-                        options={[{ value: "", label: "Pilih Tipe" }, ...catTypes]}
+                        options={[{ value: "", label: "Semua Tipe" }, ...catTypes]}
                     />
                     <FilterDropdown
                         icon={FiFilter}
