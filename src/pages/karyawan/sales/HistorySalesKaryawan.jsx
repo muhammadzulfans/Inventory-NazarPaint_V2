@@ -14,7 +14,7 @@ import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
-import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+import TransactionDetailModalPreview from "../../../components/modals/TransactionDetailModalPreview.jsx";
 import EditSaleModal from "../../../components/modals/EditSaleModal.jsx";
 
 const HistorySalesKaryawan = () => {
@@ -101,7 +101,7 @@ const HistorySalesKaryawan = () => {
                 isSaving={isUpdating}
             />
 
-            <TransactionDetailModal
+            <TransactionDetailModalPreview
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
                 transaction={selectedTransaction}

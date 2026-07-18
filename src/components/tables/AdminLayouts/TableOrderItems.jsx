@@ -1,12 +1,18 @@
 import React from "react";
 import { FiTrash2 } from "react-icons/fi";
 
+const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
+
+
 const TableOrderItems = ({ orderItems, removeOrderItem, onEditItem, editingItemIndex, totalUnitItems, totalJenisProduk, totalOrderAmount }) => {
     return (
         <div className="bg-white text-black rounded-2xl shadow-[0_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col">
             <div className="flex justify-between items-center px-6 py-5">
                 <h2 className="font-inter font-medium text-lg">Daftar Item Pesanan</h2>
-                <span className="text-xs text-gray-500 font-medium">{totalJenisProduk} item</span>
+                <div className="justify-between gap-5 flex flex-row">
+                    <span className="text-xs text-gray-500 font-medium">{totalUnitItems} Unit</span>
+                    <span className="text-xs text-gray-500 font-medium">{totalJenisProduk} item</span>
+                </div>
             </div>
             <hr className="border-cardBG" />
 
@@ -38,7 +44,10 @@ const TableOrderItems = ({ orderItems, removeOrderItem, onEditItem, editingItemI
                                     <td className="p-4 text-center text-gray-500 font-medium">{idx + 1}</td>
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-7 h-7 bg-slate-300 rounded-full flex-shrink-0"></div>
+                                            <div
+                                                className="w-7 h-7 rounded-full flex-shrink-0 border border-gray-200"
+                                                style={{ backgroundColor: item.hexColor || "#9ca3af" }}
+                                            ></div>
                                             <div>
                                                 <p className="font-bold text-black text-sm">{item.namaBarang}</p>
                                                 <p className="text-xxs text-gray-500 font-medium capitalize">{item.type}</p>
@@ -46,7 +55,7 @@ const TableOrderItems = ({ orderItems, removeOrderItem, onEditItem, editingItemI
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="p-4 font-bold text-black">{item.quantity} Kg</td>
+                                    <td className="p-4 font-bold text-black">{item.quantity} {getUnit(item.type)}</td>
                                     <td className="p-4 font-bold text-black">Rp {item.basePrice.toLocaleString("id-ID")}</td>
                                     <td className="p-4 font-bold text-black">
                                         <span className="text-xs font-semibold text-black bg-green-100 px-2.5 py-1 rounded-md">
@@ -68,12 +77,11 @@ const TableOrderItems = ({ orderItems, removeOrderItem, onEditItem, editingItemI
                     </div>
 
                     <div className="px-6 py-4 border-t border-cardBG flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-bold font-inter text-black">
-                        <div className="flex gap-4">
-                            <p>Total Kuantitas: <span className="font-extrabold bg-gray-100 rounded-lg px-2 py-1">{totalUnitItems} Kg</span></p>
-                            <p>Total Item: <span className="font-extrabold bg-gray-100 rounded-lg px-2 py-1">{totalJenisProduk} Item</span></p>
-                        </div>
-                        <div className="text-sm">
-                            Total: <span className="font-extrabold text-black bg-green-100 px-2.5 py-1 rounded-md">Rp {totalOrderAmount.toLocaleString("id-ID")}</span>
+                        <div className="text-sm flex items-center gap-11">
+                            Total:
+                            <span className="font-extrabold text-right text-black bg-green-100 px-2.5 py-1 rounded-md">
+                                Rp {totalOrderAmount.toLocaleString("id-ID")}
+                            </span>
                         </div>
                     </div>
                 </div>

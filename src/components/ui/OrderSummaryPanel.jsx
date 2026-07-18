@@ -20,7 +20,7 @@ const OrderSummaryPanel = ({
             <div className="flex justify-between text-sm items-center">
                 <span className="text-gray-600 font-medium">Total Akhir Kuantitas</span>
                 <span className="font-semibold">
-                    {orderItems.length > 0 ? `( ${totalUnitItems} Kg )` : "Belum dipilih"}
+                    {orderItems.length > 0 ? `( ${totalUnitItems} Unit )` : "Belum dipilih"}
                 </span> 
             </div>
             <div className="flex justify-between text-sm items-center">

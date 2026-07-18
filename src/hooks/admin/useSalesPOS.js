@@ -78,7 +78,7 @@ export const useSalesPOS = () => {
                     name: item.name,
                     type: normalizedType,
                     price: item.sellPrice,
-                    unit: item.unit || "Kg",
+                    unit: normalizedType === "ACCESSORIES" ? "Pcs" : "Kg",
                     stock: currentStock,
                     hexColor: item.hexColor || (normalizedType === "ACCESSORIES" ? "#808080" : "#9ca3af"), // langsung dari backend, fallback aman kalau kosong
                     code: item.code || "-"

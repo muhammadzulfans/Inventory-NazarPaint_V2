@@ -13,7 +13,7 @@ import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import FormCreateOrder from "./FormCreateOrder.jsx";
-import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+import TransactionDetailModalPreview from "../../../components/modals/TransactionDetailModalPreview.jsx";
 
 const OrderAdmin = () => {
     const orderCreate = useOrderCreate();
@@ -154,7 +154,7 @@ const OrderAdmin = () => {
             </div>
 
             {/* 5. Ditambahkan komponen Modal Preview di paling bawah sini bro */}
-            <TransactionDetailModal
+            <TransactionDetailModalPreview
                 isOpen={isPreviewOpen}
                 onClose={() => {
                     setIsPreviewOpen(false);

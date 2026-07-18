@@ -9,7 +9,7 @@ export const useOrderCreate = () => {
 
     const emptyItemForm = {
         productId: "", quantity: "", basePrice: "",
-        kode: "", namaBarang: "", type: "", deskripsi: "",
+        kode: "", namaBarang: "", type: "", hexColor: "", deskripsi: "",
     };
     const [itemForm, setItemForm] = useState(emptyItemForm);
 
@@ -39,6 +39,7 @@ export const useOrderCreate = () => {
                         code: p.code,
                         name: p.name,
                         type: p.type,
+                        hexColor: p.hexColor || (p.type === "ACCESSORIES" ? "#808080" : "#9ca3af"), // tambahan
                         basePrice: p.basePrice || p.price || 0,
                     }))
                 );
@@ -53,6 +54,7 @@ export const useOrderCreate = () => {
             kode: found?.code || "",
             namaBarang: found?.name || "",
             type: found?.type || "",
+            hexColor: found?.hexColor || "",
             quantity: "",
             basePrice: found?.basePrice ? String(found.basePrice) : "",
             deskripsi: "Restock reguler bulanan",
@@ -68,6 +70,7 @@ export const useOrderCreate = () => {
             kode: item.kode,
             namaBarang: item.namaBarang,
             type: item.type,
+            hexColor: item.hexColor,
             quantity: String(item.quantity),
             basePrice: String(item.basePrice),
             deskripsi: item.deskripsi || "",
@@ -82,7 +85,7 @@ export const useOrderCreate = () => {
 
     // Dipanggil dari tombol form: nambah item baru ATAU update item yg lagi diedit
     const handleAddItemToList = () => {
-        const { productId, quantity, basePrice, kode, namaBarang, type, deskripsi } = itemForm;
+        const { productId, quantity, basePrice, kode, namaBarang, type, hexColor, deskripsi } = itemForm;
 
         if (!selectedStore) { alert("Pilih cabang toko terlebih dahulu bro!"); return; }
         if (!productId) { alert("Pilih produk terlebih dahulu!"); return; }
@@ -90,7 +93,7 @@ export const useOrderCreate = () => {
         if (!basePrice || Number(basePrice) <= 0) { alert("Harga satuan harus lebih besar dari 0!"); return; }
 
         const updatedItem = {
-            productId, kode, namaBarang, type,
+            productId, kode, namaBarang, type, hexColor,
             deskripsi: deskripsi || "Restock produk",
             quantity: Number(quantity),
             basePrice: Number(basePrice),
@@ -135,6 +138,7 @@ export const useOrderCreate = () => {
                 kode: it.product?.code || "",
                 namaBarang: it.product?.name || "",
                 type: it.product?.type || "",
+                hexColor: it.product?.hexColor || (it.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af"),
                 deskripsi: "Restock produk",
                 quantity: it.quantity,
                 basePrice: it.basePrice ?? it.sellPrice ?? 0,

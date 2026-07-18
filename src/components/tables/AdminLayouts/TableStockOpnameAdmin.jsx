@@ -9,6 +9,8 @@ const formatDate = (isoString) => {
     } catch { return "-"; }
 };
 
+const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
+
 const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwner }) => {
     const [expandedIds, setExpandedIds] = useState(new Set());
 
@@ -145,8 +147,8 @@ const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwn
                                                             <p className="text-gray-400">{item.product?.code} · {item.product?.type}</p>
                                                         </div>
                                                     </td>
-                                                    <td className="py-2.5 text-center">{item.stokSistem} {item.product?.unit}</td>
-                                                    <td className="py-2.5 text-center">{item.stokFisik} {item.product?.unit}</td>
+                                                    <td className="py-2.5 text-center">{item.stokSistem} {getUnit(item.product?.type)}</td>
+                                                    <td className="py-2.5 text-center">{item.stokFisik} {getUnit(item.product?.type)}</td>
                                                     <td className="py-2.5 text-center">
                                                         <span className={`font-semibold px-2 py-0.5 rounded-md ${
                                                             item.selisih === 0 ? "bg-gray-100 text-gray-600" :

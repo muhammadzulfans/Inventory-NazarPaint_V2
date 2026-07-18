@@ -46,7 +46,7 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
         };
     });
 
-    const grandTotalItem = rows.reduce((t, r) => t + r.itemCount, 0);
+    const grandTotalItem = rows.reduce((t, r) => t + r.items.length, 0);
     const grandTotalHarga = rows.reduce((t, r) => t + r.totalHarga, 0);
 
     return (
