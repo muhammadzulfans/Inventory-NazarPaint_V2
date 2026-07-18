@@ -12,7 +12,10 @@ const formatRupiah = (angka) =>
         : 'Rp 0';
 
 const DashboardAdmin = () => {
-    const { dashboardData, isLoading, weeklyChartData, monthlyChartData } = useDashboardAdmin();
+    const {
+        dashboardData, isLoading, weeklyChartData, monthlyChartData,
+        trueNetProfit, isLoadingProfit,
+    } = useDashboardAdmin();
 
     if (isLoading) {
         return (
@@ -26,12 +29,11 @@ const DashboardAdmin = () => {
 
     // Di sini kita petakan 'Total Stok Order' langsung ke stockRecap.totalStokMasuk (hasil transaksi purchases)
     const rekapRows = [
-        ['Total Stok Order (Belum Diterima)', `${stockRecap.totalStokOrder} Unit`],
-        ['Total Stok Masuk (Bulan Ini)', `${stockRecap.totalStokMasuk} Unit`],
-        ['Total Stok Keluar (Bulan Ini)', `${stockRecap.totalStokKeluar} Unit`],
+        ['Total Stok Pembelian/Masuk', `${stockRecap.totalStokMasuk} Unit`],
+        ['Total Stok Penjualan/Keluar', `${stockRecap.totalStokKeluar} Unit`],
         ['Total Stok Akhir', `${stockRecap.totalStokAkhir} Unit`],
         ['Jumlah Total Penghasilan Kotor', formatRupiah(endOfMonthRecap.sales.thisMonth.totalAmount)],
-        ['Jumlah Total Penghasilan Bersih', formatRupiah(endOfMonthRecap.netProfit.thisMonth)],
+        ['Jumlah Total Penghasilan Bersih', isLoadingProfit ? 'Menghitung...' : formatRupiah(trueNetProfit)],
     ];
 
     return (
@@ -44,12 +46,12 @@ const DashboardAdmin = () => {
             <div className="grid grid-cols-4 gap-16 mb-14">
                 <Card
                     title="Kategori Produk"
-                    value={`${productSummary.categories.length}`}
+                    value={`${productSummary.categories.length} Kategori`}
                     icon={<BsBoxSeam className="size-7 m-3.5" />}
                 />
                 <Card
                     title="Total Produk"
-                    value={`${productSummary.totalProduct}`}
+                    value={`${productSummary.totalProduct} Item`}
                     icon={<AiOutlineProduct className="size-8 m-3" />}
                 />
                 <Card
@@ -80,7 +82,7 @@ const DashboardAdmin = () => {
             </div>
 
             <div className="bg-card py-7 px-7 shadow-[0_4px_4px_rgba(0,0,0,0.2)]">
-                <h2 className="text-2xl font-inter font-medium mb-3">Data Rekap Akhir Bulan</h2>
+                <h2 className="text-2xl font-inter font-medium mb-3">Data Rekap Bulan Ini</h2>
                 <div className="space-y-4">
                     {rekapRows.map(([label, value], i) => (
                         <div

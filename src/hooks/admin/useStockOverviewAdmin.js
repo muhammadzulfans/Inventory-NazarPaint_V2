@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { dashboardService } from "../../api/services/dashboardService.js";
 
-export const useStockOverviewAdmin = () => {
+export const useStockOverviewAdmin = (storeId) => {
     const [overview, setOverview] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -9,7 +9,7 @@ export const useStockOverviewAdmin = () => {
         const fetchOverview = async () => {
             try {
                 setIsLoading(true);
-                const res = await dashboardService.getDashboard(); // tanpa storeId = global semua cabang (OWNER)
+                const res = await dashboardService.getDashboard(storeId);
                 if (res.success) {
                     setOverview({
                         lowStockCount: res.data.lowStockAlert?.totalAlert ?? 0,
@@ -17,6 +17,7 @@ export const useStockOverviewAdmin = () => {
                         stokMasuk: res.data.stockRecap?.totalStokMasuk ?? 0,
                         stokKeluar: res.data.stockRecap?.totalStokKeluar ?? 0,
                         stokAkhir: res.data.stockRecap?.totalStokAkhir ?? 0,
+                        storeCount: res.data.storeSummary?.length ?? 0,
                     });
                 }
             } catch (err) {
@@ -26,7 +27,7 @@ export const useStockOverviewAdmin = () => {
             }
         };
         fetchOverview();
-    }, []);
+    }, [storeId]); // re-fetch tiap kali storeId berubah
 
     return { overview, isLoading };
 };

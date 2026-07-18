@@ -15,7 +15,7 @@ import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 import React, {useState} from "react";
 import ModalPrediksiStok from "../../../components/modals/ModalPrediksiStok.jsx";
-import {useStockOverviewAdmin} from "../../../hooks/admin/useStockOverviewAdmin.js";
+import { useStockOverviewAdmin } from "../../../hooks/admin/useStockOverviewAdmin.js";
 
 const InventoryAdmin = () => {
     const navigate = useNavigate();
@@ -31,7 +31,7 @@ const InventoryAdmin = () => {
     } = useProductInventory();
 
     const {
-        overview
+        overview, isLoading: isLoadingOverview,
     } = useStockOverviewAdmin();
 
     const [previewProduct, setPreviewProduct] = useState(null);
@@ -65,25 +65,23 @@ const InventoryAdmin = () => {
             <div className="grid grid-cols-4 gap-16 mb-14">
                 <Card
                     title="Stok Hampir Habis"
-                    value={`${overview?.lowStockCount ?? 0} Item`}
+                    value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Item`}
                     icon={<FaArrowTrendDown className="size-7 m-3.5" />}
                 />
                 <Card
                     title="Total Mutasi Keluar"
-                    value={`${overview?.stokKeluar ?? 0} Unit`}
+                    value={isLoadingOverview ? "..." : `${overview?.stokKeluar ?? 0} Unit`}
                     icon={<AiOutlineProduct className="size-8 m-3" />}
                 />
                 <Card
                     title="Total Mutasi Masuk"
-                    value={`${overview?.stokMasuk ?? 0} Unit`}
+                    value={isLoadingOverview ? "..." : `${overview?.stokMasuk ?? 0} Unit`}
                     icon={<AiOutlineProduct className="size-7 m-3.5" />}
                 />
                 <Card
                     title="Jumlah Cabang"
-                    value="3"
-                    icon={<MdOutlineStore
-                        className="size-8 m-3"
-                    />}
+                    value={isLoadingOverview ? "..." : `${overview?.storeCount ?? 0}`}
+                    icon={<MdOutlineStore className="size-8 m-3" />}
                 />
             </div>
 

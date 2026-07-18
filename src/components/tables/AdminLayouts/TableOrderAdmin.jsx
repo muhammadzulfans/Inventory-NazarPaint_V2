@@ -1,6 +1,5 @@
 import { FiEdit, FiEye, FiXCircle } from "react-icons/fi";
-import { HiChevronDown, HiChevronRight } from "react-icons/hi2";
-import React, { useState } from "react";
+import React from "react";
 
 // Mapping label tampilan ? raw value backend TETAP PENDING/RECEIVED/CANCELLED
 const STATUS_LABEL = {
@@ -16,37 +15,25 @@ const STATUS_BADGE_CLASS = {
 };
 
 const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onReject }) => {
-    const [expandedIds, setExpandedIds] = useState(new Set());
-
-    const toggleExpand = (key) => {
-        setExpandedIds((prev) => {
-            const next = new Set(prev);
-            next.has(key) ? next.delete(key) : next.add(key);
-            return next;
-        });
-    };
-
     const rows = data.map((order) => {
         const items = order.items || [];
-        const itemCount = items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
         const totalPriceInOrder = items.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
 
         return {
             key: order.id || order.orderNumber || "-",
             id: order.orderNumber || "-",
             storeName: order.store?.name || "-",
-            itemCount: itemCount,
+            itemCount: items.length,
             totalHarga: totalPriceInOrder,
-            status: order.status, // raw value: PENDING / RECEIVED / CANCELLED
+            status: order.status,
             tanggal: order.date
                 ? new Date(order.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
                 : "-",
-            items,
             rawPayload: order
         };
     });
 
-    const grandTotalItem = rows.reduce((t, r) => t + r.items.length, 0);
+    const grandTotalItem = rows.reduce((t, r) => t + r.itemCount, 0);
     const grandTotalHarga = rows.reduce((t, r) => t + r.totalHarga, 0);
 
     return (
@@ -72,112 +59,68 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
                 </tr>
             ) : (
                 rows.map((row) => {
-                    const isExpandable = row.items.length > 1;
-                    const isExpanded = expandedIds.has(row.key);
                     const isPending = row.status === "PENDING";
 
                     return (
-                        <React.Fragment key={row.key}>
-                            <tr className="border-b border-cardBG hover:bg-gray-50/50 transition-colors">
-                                <td className="p-3 font-medium">
-                                    <div className="flex items-center justify-center gap-2">
-                                        {isExpandable ? (
-                                            <button
-                                                onClick={() => toggleExpand(row.key)}
-                                                className="text-gray-500 hover:text-black transition-colors shrink-0"
-                                            >
-                                                {isExpanded ? <HiChevronDown size={18} /> : <HiChevronRight size={18} />}
-                                            </button>
-                                        ) : (
-                                            <span className="w-[18px] shrink-0" />
-                                        )}
-                                        <span>{row.id}</span>
-                                    </div>
-                                </td>
-                                <td className="p-3">{row.storeName}</td>
-                                <td className="p-3 text-center">{row.items.length} Item</td>
-                                <td className="p-3 text-center">
-                                    {row.totalHarga ? (
-                                        <span className="text-xs font-semibold bg-green-100 px-2.5 py-1 rounded-md">
-                                            Rp. {row.totalHarga.toLocaleString("id-ID")}
-                                        </span>
-                                    ) : "-"}
-                                </td>
-                                <td className="p-3 text-center">{row.tanggal}</td>
+                        <tr key={row.key} className="border-b border-cardBG hover:bg-gray-50/50 transition-colors">
+                            <td className="p-3 font-medium text-center">{row.id}</td>
+                            <td className="p-3">{row.storeName}</td>
+                            <td className="p-3 text-center">{row.itemCount} Item</td>
+                            <td className="p-3 text-center">
+                                {row.totalHarga ? (
+                                    <span className="text-xs font-semibold bg-green-100 px-2.5 py-1 rounded-md">
+                                        Rp. {row.totalHarga.toLocaleString("id-ID")}
+                                    </span>
+                                ) : "-"}
+                            </td>
+                            <td className="p-3 text-center">{row.tanggal}</td>
 
-                                {/* KOLOM STATUS */}
-                                <td className="p-3 text-center">
-                                    {isPending ? (
-                                        <button
-                                            onClick={() => onStatusChange && onStatusChange(row.rawPayload)}
-                                            className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md hover:opacity-80 transition-all cursor-pointer ${STATUS_BADGE_CLASS[row.status]}`}
-                                            title="Klik untuk terima pesanan"
-                                        >
-                                            {STATUS_LABEL[row.status]}
-                                        </button>
-                                    ) : (
-                                        <span className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md ${STATUS_BADGE_CLASS[row.status]}`}>
-                                            {STATUS_LABEL[row.status] || row.status}
-                                        </span>
-                                    )}
-                                </td>
-
-                                {/* KOLOM PREVIEW */}
-                                <td className="p-3 flex justify-center items-center">
-                                    <button className="text-blue-500" onClick={() => onPreview && onPreview(row.rawPayload)}>
-                                        <FiEye className="size-7 p-1 border border-blue-500 rounded-md hover:bg-blue-50 transition" />
+                            {/* KOLOM STATUS */}
+                            <td className="p-3 text-center">
+                                {isPending ? (
+                                    <button
+                                        onClick={() => onStatusChange && onStatusChange(row.rawPayload)}
+                                        className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md hover:opacity-80 transition-all cursor-pointer ${STATUS_BADGE_CLASS[row.status]}`}
+                                        title="Klik untuk terima pesanan"
+                                    >
+                                        {STATUS_LABEL[row.status]}
                                     </button>
-                                </td>
+                                ) : (
+                                    <span className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md ${STATUS_BADGE_CLASS[row.status]}`}>
+                                        {STATUS_LABEL[row.status] || row.status}
+                                    </span>
+                                )}
+                            </td>
 
-                                {/* KOLOM AKSI: Edit + Reject saja, Delete di-hide sementara */}
-                                <td className="p-3">
-                                    <div className="flex justify-center items-center gap-2">
-                                        <button
-                                            className={`text-pen ${!isPending ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
-                                            onClick={() => isPending && onEdit && onEdit(row.rawPayload)}
-                                            disabled={!isPending}
-                                            title={!isPending ? "Hanya bisa diedit saat status ORDER" : "Edit pesanan"}
-                                        >
-                                            <FiEdit className="size-7 p-1 border border-current rounded-md transition" />
-                                        </button>
-                                        <button
-                                            className={`text-red-600 ${!isPending ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
-                                            onClick={() => isPending && onReject && onReject(row.rawPayload)}
-                                            disabled={!isPending}
-                                            title={!isPending ? "Hanya bisa ditolak saat status ORDER" : "Tolak/batalkan pesanan"}
-                                        >
-                                            <FiXCircle className="size-7 p-1 border border-current rounded-md transition" />
-                                        </button>
-                                        {/* Tombol Delete di-hide sementara per request */}
-                                    </div>
-                                </td>
-                            </tr>
+                            {/* KOLOM PREVIEW */}
+                            <td className="p-3 flex justify-center items-center">
+                                <button className="text-blue-500" onClick={() => onPreview && onPreview(row.rawPayload)}>
+                                    <FiEye className="size-7 p-1 border border-blue-500 rounded-md hover:bg-blue-50 transition" />
+                                </button>
+                            </td>
 
-                            {isExpanded && row.items.slice(1).map((item, idx) => {
-                                const product = item.product || {};
-                                const itemHarga = item.totalPrice ?? 0;
-                                return (
-                                    <tr key={idx} className="border-b border-cardBG bg-gray-50/40">
-                                        <td className="p-3 text-center text-xs text-gray-500">
-                                            {product.name || "-"} ({product.code || "-"})
-                                        </td>
-                                        <td className="p-3"></td>
-                                        <td className="p-3 text-center">{item.quantity ?? 0} {product.unit || "Kg"}</td>
-                                        <td className="p-3 text-center">
-                                            {itemHarga ? (
-                                                <span className="text-xs font-semibold bg-green-100 px-2.5 py-1 rounded-md">
-                                                    Rp. {itemHarga.toLocaleString("id-ID")}
-                                                </span>
-                                            ) : "-"}
-                                        </td>
-                                        <td className="p-3"></td>
-                                        <td className="p-3"></td>
-                                        <td className="p-3"></td>
-                                        <td className="p-3"></td>
-                                    </tr>
-                                );
-                            })}
-                        </React.Fragment>
+                            {/* KOLOM AKSI: Edit + Reject saja, Delete di-hide sementara */}
+                            <td className="p-3">
+                                <div className="flex justify-center items-center gap-2">
+                                    <button
+                                        className={`text-pen ${!isPending ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
+                                        onClick={() => isPending && onEdit && onEdit(row.rawPayload)}
+                                        disabled={!isPending}
+                                        title={!isPending ? "Hanya bisa diedit saat status ORDER" : "Edit pesanan"}
+                                    >
+                                        <FiEdit className="size-7 p-1 border border-current rounded-md transition" />
+                                    </button>
+                                    <button
+                                        className={`text-red-600 ${!isPending ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
+                                        onClick={() => isPending && onReject && onReject(row.rawPayload)}
+                                        disabled={!isPending}
+                                        title={!isPending ? "Hanya bisa ditolak saat status ORDER" : "Tolak/batalkan pesanan"}
+                                    >
+                                        <FiXCircle className="size-7 p-1 border border-current rounded-md transition" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                     );
                 })
             )}
