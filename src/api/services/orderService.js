@@ -27,6 +27,10 @@ export const orderService = {
         const response = await api.patch(`/purchases/${id}/receive`);
         return response.data;
     },
+    reject: async (id) => {
+        const response = await api.patch(`/purchases/${id}/cancel`);
+        return response.data;
+    },
     delete: async (id) => {
         const response = await api.delete(`/purchases/${id}`);
         return response.data;

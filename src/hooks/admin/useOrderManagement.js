@@ -28,6 +28,11 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
     const [isStatusOpen, setIsStatusOpen] = useState(false);
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
+    // State BARU untuk reject/batalkan PO
+    const [rejectOrder, setRejectOrder] = useState(null);
+    const [isRejectOpen, setIsRejectOpen] = useState(false);
+    const [isRejecting, setIsRejecting] = useState(false);
+
     useEffect(() => {
         storeService.getAll()
             .then((res) => {
@@ -48,7 +53,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
                 search: debouncedSearch,
                 type,
                 storeId,
-                status: fixedStatus, // kalau di-set (mis. 'RECEIVED'), selalu terkirim
+                status: fixedStatus,
                 page: pagination.page,
                 limit: pagination.limit
             });
@@ -102,7 +107,6 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
 
     const handleUpdate = async (purchaseId, payload) => {
         try {
-            // Tadi di sini kamu malah nulis updateStatus
             await orderService.update(purchaseId, payload);
             setEditOrder(null);
             setSuccessMessage("Transaksi berhasil diperbarui!");
@@ -144,9 +148,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
     const confirmStatusChange = async () => {
         setIsUpdatingStatus(true);
         try {
-            // UBAH statusOrder.purchaseId MENJADI statusOrder.id DI SINI BRO!
             await orderService.updateStatus(statusOrder.id);
-
             setIsStatusOpen(false);
             setStatusOrder(null);
             setSuccessMessage("Barang berhasil diterima, stok bertambah!");
@@ -156,6 +158,30 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
             alert("Gagal menerima barang: " + (err.response?.data?.message || err.message));
         } finally {
             setIsUpdatingStatus(false);
+        }
+    };
+
+    // Handler BARU untuk reject/batalkan PO ? hanya bisa dari status PENDING (raw backend value)
+    const triggerRejectChange = (item) => {
+        if (item.status === "PENDING") {
+            setRejectOrder(item);
+            setIsRejectOpen(true);
+        }
+    };
+
+    const confirmRejectChange = async () => {
+        setIsRejecting(true);
+        try {
+            await orderService.reject(rejectOrder.id);
+            setIsRejectOpen(false);
+            setRejectOrder(null);
+            setSuccessMessage("Pesanan berhasil ditolak.");
+            setIsSuccessOpen(true);
+            await fetchOrders();
+        } catch (err) {
+            alert("Gagal menolak pesanan: " + (err.response?.data?.message || err.message));
+        } finally {
+            setIsRejecting(false);
         }
     };
 
@@ -172,6 +198,9 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         isSuccessOpen, setIsSuccessOpen, successMessage,
         isStatusOpen, setIsStatusOpen, isUpdatingStatus,
         handleTambah, handleEdit, handleUpdate, triggerDelete, confirmDelete,
-        triggerStatusChange, confirmStatusChange
+        triggerStatusChange, confirmStatusChange,
+        // Reject exports
+        rejectOrder, isRejectOpen, setIsRejectOpen, isRejecting,
+        triggerRejectChange, confirmRejectChange,
     };
 };

@@ -12,15 +12,15 @@ import InventoryAdmin from './pages/admin/inventory/InventoryAdmin.jsx';
 import SalesAdmin from './pages/admin/sales/SalesAdmin.jsx';
 import MutasiAdmin from "./pages/admin/Mutasi/MutasiAdmin.jsx";
 import OrderAdmin from "./pages/admin/Order/OrderAdmin.jsx";
-import PrediksiAdmin from "./pages/admin/Prediksi/PrediksiAdmin.jsx";
+// import PrediksiAdmin from "./pages/admin/Prediksi/PrediksiAdmin.jsx";
 
 // Import Halaman Karyawan
 import DashboardKaryawan from './pages/karyawan/dashboard/DashboardKaryawan.jsx';
 import InventoryKaryawan from './pages/karyawan/inventory/InventoryKaryawan.jsx';
 import SalesKaryawan from './pages/karyawan/sales/SalesKaryawan.jsx';
 import MainLayout from './layouts/MainLayout';
-import CreateAkun from "./pages/admin/users/CreateAkun.jsx";
-import SwitchToko from "./pages/admin/switch/SwitchBranch.jsx";
+// import CreateAkun from "./pages/admin/users/CreateAkun.jsx";
+// import SwitchToko from "./pages/admin/switch/SwitchBranch.jsx";
 import KelolaInventoryAdmin from "./pages/admin/inventory/KelolaInventoryAdmin.jsx";
 import Profile from "./pages/admin/ProfileAdmin.jsx";
 import DetailSalesAdmin from "./pages/admin/sales/DetailSalesAdmin.jsx";
@@ -60,9 +60,9 @@ function App() {
                     <Route path="mutasi" element={<MutasiAdmin />} />
                     <Route path="stock-opname" element={<StockOpnameAdmin />} />
                     <Route path="KelolaStockOpname" element={<KelolaStockOpnameAdmin />} />
-                    <Route path="prediksi" element={<PrediksiAdmin />} />
-                    <Route path="createAkun" element={<CreateAkun />} />
-                    <Route path="switchToko" element={<SwitchToko />} />
+                    {/*<Route path="prediksi" element={<PrediksiAdmin />} />*/}
+                    {/*<Route path="createAkun" element={<CreateAkun />} />*/}
+                    {/*<Route path="switchToko" element={<SwitchToko />} />*/}
                     <Route path="profile" element={<Profile />} />
                 </Route>
 

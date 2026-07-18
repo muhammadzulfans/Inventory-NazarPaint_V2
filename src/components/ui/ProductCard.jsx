@@ -1,7 +1,6 @@
-// src/components/ui/ProductCard.jsx
 import React from "react";
 import { FiPlus } from "react-icons/fi";
-import { formatRupiah } from "../../dummy/dataAdmin/Data/salesTableData.js";
+import { formatRupiah } from "../../Data/DropdownOptions.jsx";
 
 const ProductCard = ({ product, onAddToCart }) => {
     return (

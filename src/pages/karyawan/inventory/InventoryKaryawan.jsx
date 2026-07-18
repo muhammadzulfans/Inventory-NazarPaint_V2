@@ -5,7 +5,7 @@ import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TableAdmin from "../../../components/tables/AdminLayouts/TableAdmin.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import { catTypes } from "../../../Data/DropdownOptions.jsx";
 import { FaArrowTrendDown } from "react-icons/fa6";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FiSearch, FiFilter } from "react-icons/fi";
@@ -36,7 +36,7 @@ const InventoryKaryawan = () => {
             <div className="grid grid-cols-3 gap-16 mb-14">
                 <Card
                     title="Stok Hampir Habis"
-                    value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Produk`}
+                    value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Item`}
                     icon={<FaArrowTrendDown className="size-7 m-3.5" />}
                 />
                 <Card

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { productService } from "../../api/services/productService.js";
 import { salesService } from "../../api/services/salesService.js";
-import { getColorHexByCode } from "../../utils/productColor.js";
 import useAuthStore from "../../store/authStore.js";
 
 export const PRODUCT_TYPES_BACKEND = [
@@ -56,7 +55,7 @@ export const useSalesPOSKaryawan = () => {
                     price: item.sellPrice,
                     unit: item.unit || "Kg",
                     stock: currentStock,
-                    hexColor: item.hexColor || getColorHexByCode(item.code, normalizedType),
+                    hexColor: item.hexColor || (normalizedType === "ACCESSORIES" ? "#808080" : "#9ca3af"), // langsung dari backend, fallback aman kalau kosong
                     code: item.code || "-",
                 };
             });

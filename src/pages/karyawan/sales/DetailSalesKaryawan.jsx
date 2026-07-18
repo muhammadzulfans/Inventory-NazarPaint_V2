@@ -7,7 +7,7 @@ import { useDetailSalesManagementKaryawan } from "../../../hooks/karyawan/useDet
 import { FiSearch, FiFilter } from "react-icons/fi";
 
 // Import Table dan Komponen Detail Modal Baru
-import { catTypes } from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import { catTypes } from "../../../Data/DropdownOptions.jsx";
 import TableDetailSalesAdmin from "../../../components/tables/AdminLayouts/TableDetailSalesAdmin.jsx";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";

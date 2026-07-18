@@ -102,8 +102,8 @@ const OrderAdmin = () => {
                                 <TableOrderAdmin
                                     data={orderMgmt.orderData}
                                     onEdit={handleEditFromHistory}
-                                    onDelete={orderMgmt.triggerDelete}
                                     onStatusChange={orderMgmt.triggerStatusChange}
+                                    onReject={orderMgmt.triggerRejectChange}
                                     onPreview={(orderData) => {
                                         setPreviewTransaction(orderData);
                                         setIsPreviewOpen(true);
@@ -185,6 +185,21 @@ const OrderAdmin = () => {
                 }
                 confirmText="Ya, Terima"
                 isLoading={orderMgmt.isUpdatingStatus}
+            />
+
+            <WarningModal
+                isOpen={orderMgmt.isRejectOpen}
+                onClose={() => orderMgmt.setIsRejectOpen(false)}
+                onConfirm={orderMgmt.confirmRejectChange}
+                title="Tolak Pesanan?"
+                message={
+                    <>
+                        Apakah Anda yakin ingin menolak/membatalkan pesanan ini? <br/><br/>
+                        <span className="text-red-500 font-medium">(Aksi ini tidak bisa dibatalkan, stok tidak akan bertambah)</span>
+                    </>
+                }
+                confirmText="Ya, Tolak"
+                isLoading={orderMgmt.isRejecting}
             />
 
             <SuccessModal

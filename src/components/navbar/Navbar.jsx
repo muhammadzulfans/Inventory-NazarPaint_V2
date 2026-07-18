@@ -59,18 +59,20 @@ const Navbar = () => {
         if (path.endsWith("/kelolaStockOpname")) {
             return "Stock Opname > Kelola Stock Opname";
         }
-
-        if (path.endsWith("/createAkun")) {
-            return "Tambah Akun Karyawan";
-        }
-        if (path.endsWith("/prediksi")) {
-            return "Prediksi Stok";
-        }
-        if (path.endsWith("/switchToko")) {
-            return "Pilih Toko Cabang";
+        if (path.endsWith("/profile")) {
+            return "Profile";
         }
 
-        // Judul bawaan jika tidak ada path yang cocok
+        // if (path.endsWith("/createAkun")) {
+        //     return "Tambah Akun Karyawan";
+        // }
+        // if (path.endsWith("/prediksi")) {
+        //     return "Prediksi Stok";
+        // }
+        // if (path.endsWith("/switchToko")) {
+        //     return "Pilih Toko Cabang";
+        // }
+
         return "NazarPaint";
     };
 

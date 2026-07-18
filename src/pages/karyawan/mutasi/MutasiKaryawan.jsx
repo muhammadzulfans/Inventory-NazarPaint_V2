@@ -8,7 +8,7 @@ import React from "react";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
-import {catTypes} from "../../../dummy/dataAdmin/DropdownOptions.jsx";
+import {catTypes} from "../../../Data/DropdownOptions.jsx";
 
 const MutasiKaryawan = () => {
     const {

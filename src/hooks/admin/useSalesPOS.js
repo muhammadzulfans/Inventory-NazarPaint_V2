@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { productService } from "../../api/services/productService.js";
 import { storeService } from "../../api/services/storeService.js";
 import { salesService } from "../../api/services/salesService.js";
-import { getColorHexByCode } from "../../utils/productColor.js";
 
 export const PRODUCT_TYPES_BACKEND = [
     { value: "ALL", label: "Semua Tipe" },
@@ -27,9 +26,8 @@ export const useSalesPOS = () => {
     const [isWarningOpen, setIsWarningOpen] = useState(false);
     const [warningMessage, setWarningMessage] = useState("");
 
-    // ==========================================
+
     // STATE BARU: Loading khusus proses checkout
-    // ==========================================
     const [isProcessing, setIsProcessing] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +80,7 @@ export const useSalesPOS = () => {
                     price: item.sellPrice,
                     unit: item.unit || "Kg",
                     stock: currentStock,
-                    hexColor: getColorHexByCode(item.code, normalizedType),
+                    hexColor: item.hexColor || (normalizedType === "ACCESSORIES" ? "#808080" : "#9ca3af"), // langsung dari backend, fallback aman kalau kosong
                     code: item.code || "-"
                 };
             });
@@ -175,9 +173,7 @@ export const useSalesPOS = () => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    // ==========================================
     // INTEGRASI CREATE PENJUALAN KE BACKEND
-    // ==========================================
     const handleProcessPayment = async () => {
         if (cart.length === 0) return;
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import ChartItemKeranjang from "./ChartItemKeranjang.jsx";
-import { formatRupiah } from "../../dummy/dataAdmin/Data/salesTableData.js";
+import { formatRupiah } from "../../Data/DropdownOptions.jsx";
 import InputField from "../../components/forms/InputField.jsx";
 
 const KeranjangItem = ({

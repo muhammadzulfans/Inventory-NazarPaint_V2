@@ -1,7 +1,6 @@
 import React from "react";
 import { FiCornerUpLeft } from "react-icons/fi";
 import Modal from "./Modal.jsx";
-import { getColorHexByCode } from "../../utils/productColor.js";
 
 const formatRupiah = (number) =>
     new Intl.NumberFormat("id-ID", {
@@ -50,7 +49,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                     <div className="space-y-3 max-h-48 overflow-y-auto pr-1 scrollbar-none">
                         {items.map((item) => {
                             const product = item.product || {};
-                            const hex = getColorHexByCode(product.code, product.type);
+                            const hex = product.hexColor || (product.type === "ACCESSORIES" ? "#808080" : "#9ca3af"); // langsung dari backend
                             return (
                                 <div
                                     key={item.id}
