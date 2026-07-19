@@ -1,24 +1,23 @@
+import React from "react";
 import { useOrderManagement } from "../../../hooks/admin/useOrderManagement.js";
 
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import TableDetailOrderAdmin from "../../../components/tables/AdminLayouts/TableDetailOrderAdmin.jsx";
-import FormCreateOrder from "./FormCreateOrder.jsx";
 import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
-import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 
-import { catTypes } from "../../../Data/DropdownOptions.jsx";
+import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import { FiSearch, FiChevronDown, FiFilter } from "react-icons/fi";
-import React from "react";
+import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 
 const DetailOrderAdmin = () => {
     const {
         orderData, error,
         totalSummary,
         search, setSearch,
-        type, setType,
+        dateRange, setDateRange,
         storeId, setStoreId, storeOptions,
         pagination, handlePageChange, handleRowsPerPageChange,
         deleteOrder, setDeleteOrder,
@@ -48,12 +47,9 @@ const DetailOrderAdmin = () => {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
-                        <FilterDropdown
-                            icon={FiFilter}
-                            label="Type Cat"
-                            value={type}
-                            onChange={(val) => setType(val)}
-                            options={[{ value: "", label: "Semua Tipe" }, ...catTypes]}
+                        <DateRangeField
+                            value={dateRange}
+                            onChange={setDateRange}
                         />
                         <FilterDropdown
                             icon={FiFilter}
@@ -85,16 +81,6 @@ const DetailOrderAdmin = () => {
                         />
                     </div>
                 </div>
-
-                {/* FORM */}
-                {/*<div className="w-1/4 flex-shrink-0">*/}
-                {/*    <FormCreateOrder*/}
-                {/*        onSimpan={handleTambah}*/}
-                {/*        onUpdate={handleUpdate}*/}
-                {/*        editOrder={editOrder}*/}
-                {/*        onBatalEdit={() => setEditOrder(null)}*/}
-                {/*    />*/}
-                {/*</div>*/}
             </div>
 
             {/* MODALS */}

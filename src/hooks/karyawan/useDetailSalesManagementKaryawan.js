@@ -14,6 +14,7 @@ export const useDetailSalesManagementKaryawan = () => {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [type, setType] = useState("");
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1 });
 
@@ -22,6 +23,8 @@ export const useDetailSalesManagementKaryawan = () => {
         setError("");
         try {
             const res = await salesService.getAll({
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 page: 1,
                 limit: 1000,
             });
@@ -88,7 +91,7 @@ export const useDetailSalesManagementKaryawan = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, pagination.page, pagination.limit]);
+    }, [debouncedSearch, type, dateRange, pagination.page, pagination.limit]);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -100,7 +103,7 @@ export const useDetailSalesManagementKaryawan = () => {
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [type]);
+    }, [type, dateRange]);
 
     useEffect(() => {
         fetchDetailSales();
@@ -112,6 +115,7 @@ export const useDetailSalesManagementKaryawan = () => {
     return {
         detailSalesData, isLoading, error,
         totalSummary,
+        dateRange, setDateRange,
         search, setSearch,
         type, setType,
         pagination, handlePageChange, handleRowsPerPageChange,

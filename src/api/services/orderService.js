@@ -1,11 +1,13 @@
 import api from '../axios';
 export const orderService = {
-    getAll: async ({ storeId, type, search, status, page = 1, limit = 10 } = {}) => {
+    getAll: async ({ storeId, type, search, status, startDate, endDate, page = 1, limit = 10 } = {}) => {
         const params = new URLSearchParams();
         if (storeId) params.append('storeId', storeId);
         if (type) params.append('type', type);
         if (search) params.append('search', search);
         if (status) params.append('status', status);
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
         params.append('page', page);
         params.append('limit', limit);
         const response = await api.get(`/purchases?${params.toString()}`);

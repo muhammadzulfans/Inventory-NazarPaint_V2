@@ -10,6 +10,7 @@ import { useDetailSalesManagement } from "../../../hooks/admin/useDetailSalesMan
 
 // IMPORT TABEL DETAIL BARU
 import TableDetailSalesAdmin from "../../../components/tables/AdminLayouts/TableDetailSalesAdmin.jsx";
+import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 
 const DetailSalesAdmin = () => {
     const {
@@ -24,6 +25,7 @@ const DetailSalesAdmin = () => {
         storeId,
         setStoreId,
         storeOptions,
+        dateRange, setDateRange,
         pagination,
         handlePageChange,
         handleRowsPerPageChange
@@ -41,13 +43,17 @@ const DetailSalesAdmin = () => {
                 <h2 className="text-2xl font-inter font-medium mb-6">Daftar Data Transaksi Penjualan</h2>
 
                 {/* FILTER CONTROLS */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center mb-8">
                     <SearchFilter
                         leftIcon={<FiSearch className="text-gray-400 size-5 cursor-pointer" />}
                         label="Cari transaksi..."
                         isInput
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <DateRangeField
+                        value={dateRange}
+                        onChange={setDateRange}
                     />
                     <FilterDropdown
                         icon={FiFilter}

@@ -18,6 +18,7 @@ export const useDetailSalesManagement = () => {
     const [type, setType] = useState("");
     const [storeId, setStoreId] = useState("");
     const [storeOptions, setStoreOptions] = useState([]);
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     // Pagination State
     const [pagination, setPagination] = useState({
@@ -46,6 +47,8 @@ export const useDetailSalesManagement = () => {
         try {
             const res = await salesService.getAll({
                 storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 page: 1,
                 limit: 1000,
             });
@@ -118,7 +121,7 @@ export const useDetailSalesManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, storeId, pagination.page, pagination.limit]);
+    }, [debouncedSearch, type, storeId, dateRange, pagination.page, pagination.limit]);
 
     // EFFECT 1: Debounce search
     useEffect(() => {
@@ -132,7 +135,7 @@ export const useDetailSalesManagement = () => {
     // EFFECT 2: Reset page saat filter berubah
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [storeId, type]);
+    }, [storeId, dateRange, type]);
 
     // EFFECT 3: Jalankan fetch
     useEffect(() => {
@@ -159,6 +162,7 @@ export const useDetailSalesManagement = () => {
         storeId,
         setStoreId,
         storeOptions,
+        dateRange, setDateRange,
         pagination,
         handlePageChange,
         handleRowsPerPageChange,

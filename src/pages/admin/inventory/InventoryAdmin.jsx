@@ -102,7 +102,6 @@ const InventoryAdmin = () => {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                     <DateRangeField
-                        // label="Durasi"
                         value={dateRange}
                         onChange={setDateRange}
                     />

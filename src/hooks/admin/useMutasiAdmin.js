@@ -34,7 +34,7 @@ export const useMutasiAdmin = () => {
     const [error, setError] = useState("");
 
     const [search, setSearch] = useState("");
-    const [type, setType] = useState("");
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
     const [filterStoreId, setFilterStoreId] = useState("");
 
     const totalSummary = useMemo(() => {
@@ -98,8 +98,9 @@ export const useMutasiAdmin = () => {
         try {
             const res = await mutasiService.getAll({
                 search,
-                type,
                 storeId: filterStoreId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 page: 1,
                 limit: 1000,
             });
@@ -110,7 +111,7 @@ export const useMutasiAdmin = () => {
         } finally {
             setLoading(false);
         }
-    }, [search, type, filterStoreId]);
+    }, [search, dateRange, filterStoreId]);
 
     useEffect(() => {
         fetchMutasi();
@@ -118,7 +119,7 @@ export const useMutasiAdmin = () => {
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [search, type, filterStoreId]);
+    }, [search, dateRange, filterStoreId]);
 
     // Recompute totalPages tiap kali data mentah / limit berubah
     useEffect(() => {
@@ -228,7 +229,7 @@ export const useMutasiAdmin = () => {
         data: paginatedRows, loading, error,
         totalSummary,
         search, setSearch,
-        type, setType,
+        dateRange, setDateRange,
         filterStoreId, setFilterStoreId,
         storeOptions, productOptions,
         pagination, handlePageChange, handleRowsPerPageChange,

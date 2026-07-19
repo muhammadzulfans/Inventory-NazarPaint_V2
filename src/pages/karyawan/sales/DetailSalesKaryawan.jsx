@@ -12,11 +12,13 @@ import TableDetailSalesAdmin from "../../../components/tables/AdminLayouts/Table
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
+import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 
 const DetailSalesKaryawan = () => {
     const {
         detailSalesData, isLoading, error,
         totalSummary,
+        dateRange, setDateRange,
         search, setSearch, type, setType,
         pagination, handlePageChange, handleRowsPerPageChange,
     } = useDetailSalesManagementKaryawan();
@@ -40,6 +42,10 @@ const DetailSalesKaryawan = () => {
                         isInput
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <DateRangeField
+                        value={dateRange}
+                        onChange={setDateRange}
                     />
                     <FilterDropdown
                         icon={FiFilter}

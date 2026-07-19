@@ -38,7 +38,6 @@ export const useMutasiKaryawan = () => {
     }, [allRows]);
 
     const [search, setSearch] = useState("");
-    const [type, setType] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
@@ -58,12 +57,10 @@ export const useMutasiKaryawan = () => {
         try {
             const res = await mutasiService.getAll({
                 search: debouncedSearch,
-                type,
                 startDate: dateRange.startDate,
                 endDate: dateRange.endDate,
                 page: 1,
                 limit: 1000,
-                // storeId TIDAK dikirim → backend otomatis filter fromStoreId/toStoreId = cabang karyawan
             });
             const flat = flattenMutasiRows(res.data || []);
             setAllRows(flat);
@@ -72,7 +69,7 @@ export const useMutasiKaryawan = () => {
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, type, dateRange]);
+    }, [debouncedSearch, dateRange]);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -84,7 +81,7 @@ export const useMutasiKaryawan = () => {
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [type, dateRange]);
+    }, [dateRange]);
 
     useEffect(() => {
         fetchMutasi();
@@ -140,7 +137,6 @@ export const useMutasiKaryawan = () => {
         data: paginatedRows, loading, error,
         totalSummary,
         search, setSearch,
-        type, setType,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         triggerStatusChange, confirmStatusChange,

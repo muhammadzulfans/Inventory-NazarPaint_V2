@@ -13,8 +13,8 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
 
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [type, setType] = useState("");
     const [storeId, setStoreId] = useState("");
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
     const [storeOptions, setStoreOptions] = useState([]);
 
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1 });
@@ -53,8 +53,9 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         try {
             const res = await orderService.getAll({
                 search: debouncedSearch,
-                type,
                 storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 status: fixedStatus,
                 page: pagination.page,
                 limit: pagination.limit
@@ -71,7 +72,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, storeId, fixedStatus, pagination.page, pagination.limit]);
+    }, [debouncedSearch, storeId, dateRange, fixedStatus, pagination.page, pagination.limit]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -83,7 +84,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
 
     useEffect(() => {
         setPagination(prev => ({ ...prev, page: 1 }));
-    }, [storeId, type]);
+    }, [storeId, dateRange]);
 
     useEffect(() => {
         fetchOrders();
@@ -192,8 +193,9 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         try {
             const res = await orderService.getAll({
                 search: debouncedSearch,
-                type,
                 storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 status: fixedStatus,
                 page: 1,
                 limit: 1000,
@@ -210,7 +212,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         } catch (err) {
             console.error("Fetch Order Total Summary Error:", err);
         }
-    }, [debouncedSearch, type, storeId, fixedStatus]);
+    }, [debouncedSearch, storeId, dateRange, fixedStatus]);
 
     useEffect(() => {
         fetchTotalSummary();
@@ -220,7 +222,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         orderData, isLoading, error, fetchOrders,
         totalSummary,
         search, setSearch,
-        type, setType,
+        dateRange, setDateRange,
         storeId, setStoreId, storeOptions,
         pagination, handlePageChange, handleRowsPerPageChange,
         editOrder, setEditOrder,

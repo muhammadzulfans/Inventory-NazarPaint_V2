@@ -5,7 +5,7 @@ export const mutasiService = {
         const params = new URLSearchParams();
         if (storeId) params.append('storeId', storeId);
         if (search) params.append('search', search);
-        if (type) params.append('type', type);          // <-- tambahan
+        if (type) params.append('type', type);
         if (startDate) params.append('startDate', startDate);
         if (endDate) params.append('endDate', endDate);
         params.append('page', page);
