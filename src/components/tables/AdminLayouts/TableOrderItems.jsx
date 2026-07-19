@@ -1,5 +1,6 @@
 import React from "react";
 import { FiTrash2 } from "react-icons/fi";
+import ProductVisual from "../../ui/Productvisual.jsx";
 
 const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
 
@@ -44,10 +45,11 @@ const TableOrderItems = ({ orderItems, removeOrderItem, onEditItem, editingItemI
                                     <td className="p-4 text-center text-gray-500 font-medium">{idx + 1}</td>
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
-                                            <div
-                                                className="w-7 h-7 rounded-full flex-shrink-0 border border-gray-200"
-                                                style={{ backgroundColor: item.hexColor || "#9ca3af" }}
-                                            ></div>
+                                            <ProductVisual
+                                                product={item}
+                                                size={28}
+                                                className="rounded-lg border border-gray-200"
+                                            />
                                             <div>
                                                 <p className="font-bold text-black text-sm">{item.namaBarang}</p>
                                                 <p className="text-xxs text-gray-500 font-medium capitalize">{item.type}</p>

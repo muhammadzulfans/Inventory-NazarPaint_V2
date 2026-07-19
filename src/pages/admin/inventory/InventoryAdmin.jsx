@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProductInventory } from "../../../hooks/admin/useProductInventory.js";
 
@@ -10,7 +10,6 @@ import TablePagination from "../../../components/ui/TablePagination.jsx";
 
 import { catTypes } from "../../../Data/DropdownOptions.jsx";
 import { FaArrowTrendDown, FaPlus } from "react-icons/fa6";
-import { AiOutlineProduct } from "react-icons/ai";
 import { MdOutlineStore } from "react-icons/md";
 import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
@@ -63,25 +62,15 @@ const InventoryAdmin = () => {
             </div>
 
             {/* CARDS */}
-            <div className="grid grid-cols-4 gap-16 mb-14">
+            <div className="grid grid-cols-2 gap-16 mb-14">
                 <Card
                     title="Stok Hampir Habis"
                     value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Item`}
                     icon={<FaArrowTrendDown className="size-7 m-3.5" />}
                 />
                 <Card
-                    title="Total Mutasi Keluar"
-                    value={isLoadingOverview ? "..." : `${overview?.stokKeluar ?? 0} Unit`}
-                    icon={<AiOutlineProduct className="size-8 m-3" />}
-                />
-                <Card
-                    title="Total Mutasi Masuk"
-                    value={isLoadingOverview ? "..." : `${overview?.stokMasuk ?? 0} Unit`}
-                    icon={<AiOutlineProduct className="size-7 m-3.5" />}
-                />
-                <Card
                     title="Jumlah Cabang"
-                    value={isLoadingOverview ? "..." : `${overview?.storeCount ?? 0}`}
+                    value={isLoadingOverview ? "..." : `${overview?.storeCount ?? 0} Toko Cabang`}
                     icon={<MdOutlineStore className="size-8 m-3" />}
                 />
             </div>

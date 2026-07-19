@@ -1,14 +1,16 @@
 import React from "react";
 import { FiPlus, FiMinus, FiTrash2 } from "react-icons/fi";
 import { formatRupiah } from "../../Data/DropdownOptions.jsx";
+import ProductVisual from "./Productvisual.jsx";
 
 const ChartItemKeranjang = ({ item, onUpdateQuantity, onRemoveFromCart }) => {
     return (
         <div className="flex items-center gap-3">
-            <div
-                className="w-10 h-10 rounded-lg flex-shrink-0 border border-gray-200"
-                style={{ backgroundColor: item.hexColor || "#9ca3af" }}
-            ></div>
+            <ProductVisual
+                product={item}
+                size={40}
+                className="rounded-lg border border-gray-200"
+            />
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-inter font-semibold text-black truncate">
                     {item.name}
@@ -43,5 +45,4 @@ const ChartItemKeranjang = ({ item, onUpdateQuantity, onRemoveFromCart }) => {
         </div>
     );
 };
-
 export default ChartItemKeranjang;

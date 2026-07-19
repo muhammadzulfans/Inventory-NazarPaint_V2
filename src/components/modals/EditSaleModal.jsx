@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {FiTrash2, FiPlus, FiShoppingBag} from "react-icons/fi";
+import { FiTrash2, FiPlus, FiShoppingBag } from "react-icons/fi";
 import Modal from "./Modal.jsx";
+import WarningModal from "./WarningModal.jsx";
 import InputField from "../forms/InputField.jsx";
 import { productService } from "../../api/services/productService.js";
 import FilterDropdown from "../ui/FilterDropdown.jsx";
+import ProductVisual from "../ui/Productvisual.jsx";
 
 const formatRupiah = (number) =>
     new Intl.NumberFormat("id-ID", {
@@ -21,21 +23,33 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
     const [selectedNewProductId, setSelectedNewProductId] = useState("");
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
+    // Snapshot data awal saat modal dibuka, dipakai untuk deteksi "ada perubahan atau tidak"
+    const [initialSnapshot, setInitialSnapshot] = useState("");
+
+    // Warning modal: validasi item kosong saat simpan
+    const [isValidationWarningOpen, setIsValidationWarningOpen] = useState(false);
+    // Warning modal: konfirmasi batal (hanya muncul kalau ada perubahan)
+    const [isCancelWarningOpen, setIsCancelWarningOpen] = useState(false);
+
     useEffect(() => {
         if (sale) {
-            setCustomerName(sale.customerName || "");
-            setItems(
-                (sale.items || []).map((it) => ({
-                    productId: it.productId,
-                    name: it.product?.name || "Produk",
-                    code: it.product?.code || "-",
-                    type: it.product?.type || "",
-                    unit: getUnit(it.product?.type),
-                    hexColor: it.product?.hexColor || (it.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af"), // tambahan
-                    sellPrice: it.sellPrice,
-                    quantity: it.quantity,
-                }))
-            );
+            const custName = sale.customerName || "";
+            const mappedItems = (sale.items || []).map((it) => ({
+                productId: it.productId,
+                name: it.product?.name || "Produk",
+                code: it.product?.code || "-",
+                type: it.product?.type || "",
+                unit: getUnit(it.product?.type),
+                hexColor: it.product?.hexColor || (it.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af"),
+                icon: it.product?.icon || null,
+                sellPrice: it.sellPrice,
+                quantity: it.quantity,
+            }));
+
+            setCustomerName(custName);
+            setItems(mappedItems);
+            // Simpan snapshot kondisi awal, dibandingkan nanti saat klik Batal
+            setInitialSnapshot(JSON.stringify({ customerName: custName, items: mappedItems }));
         }
     }, [sale]);
 
@@ -57,7 +71,8 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                         code: p.code || "-",
                         type: p.type,
                         unit: getUnit(p.type),
-                        hexColor: p.hexColor || (p.type === "ACCESSORIES" ? "#808080" : "#9ca3af"), // tambahan
+                        hexColor: p.hexColor || (p.type === "ACCESSORIES" ? "#808080" : "#9ca3af"),
+                        icon: p.icon || null,
                         sellPrice: p.sellPrice,
                         stock,
                     };
@@ -84,7 +99,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
     const handleAddItem = () => {
         if (!selectedNewProductId) return;
         const product = productOptions.find((p) => p.id === selectedNewProductId);
-        if (!product || product.stock <= 0) return; // extra guard, walau dropdown udah disable
+        if (!product || product.stock <= 0) return;
 
         setItems((prev) => {
             const existing = prev.find((it) => it.productId === product.id);
@@ -102,6 +117,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                     type: product.type,
                     unit: product.unit,
                     hexColor: product.hexColor,
+                    icon: product.icon,
                     sellPrice: product.sellPrice,
                     quantity: 1,
                 },
@@ -110,7 +126,6 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
         setSelectedNewProductId("");
     };
 
-    // Produk yang belum ada di daftar item, biar gak duplikat di dropdown tambah
     const availableToAdd = productOptions.filter(
         (p) => !items.some((it) => it.productId === p.id)
     );
@@ -124,9 +139,12 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
         .filter((it) => (it.unit || "").toLowerCase() === "pcs")
         .reduce((sum, it) => sum + it.quantity, 0);
 
+    // Cek apakah ada perubahan dibanding kondisi saat modal pertama dibuka
+    const isDirty = JSON.stringify({ customerName, items }) !== initialSnapshot;
+
     const handleSubmit = () => {
         if (items.length === 0) {
-            alert("Transaksi harus memiliki minimal 1 item barang.");
+            setIsValidationWarningOpen(true);
             return;
         }
         const payload = {
@@ -139,6 +157,22 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
             })),
         };
         onSave(sale.id, payload);
+    };
+
+    // Klik "Batal": kalau tidak ada perubahan, langsung tutup tanpa warning apapun
+    const handleCancelClick = () => {
+        if (!isDirty) {
+            onClose();
+            return;
+        }
+        setIsCancelWarningOpen(true);
+    };
+
+    // Aksi destruktif bersama: buang semua perubahan, tutup modal, balik ke Riwayat Transaksi
+    const discardChangesAndClose = () => {
+        setIsCancelWarningOpen(false);
+        setIsValidationWarningOpen(false);
+        onClose();
     };
 
     return (
@@ -168,17 +202,17 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                             <p className="text-sm text-gray-400 text-center py-4">Belum ada item.</p>
                         ) : (
                             items.map((item) => {
-                                const hex = item.hexColor || "#9ca3af";
                                 return (
                                     <div
                                         key={item.productId}
                                         className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
                                     >
                                         <div className="flex items-center gap-3 flex-1">
-                                            <div
-                                                className="w-10 h-10 rounded-lg shrink-0 border border-gray-200"
-                                                style={{ backgroundColor: hex }}
-                                            ></div>
+                                            <ProductVisual
+                                                product={item}
+                                                size={40}
+                                                className="rounded-lg border border-gray-200"
+                                            />
                                             <div>
                                                 <p className="text-sm font-semibold text-black">
                                                     {item.name} {item.code ? `(${item.code})` : ""}
@@ -225,8 +259,8 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                             disabled: p.stock <= 0,
                         }))}
                         className="flex-1 pb-8"
-                        triggerClassName="px-4 py-1"      // lebih compact
-                        optionClassName="py-1"          // list item lebih rapat
+                        triggerClassName="px-4 py-1"
+                        optionClassName="py-1"
                         maxHeight={200}
                     />
                     <button
@@ -261,7 +295,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                 <div className="flex gap-4 pt-2">
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleCancelClick}
                         className="flex-1 py-3 border-2 border-line rounded-xl text-sm font-inter font-semibold text-txtNav hover:bg-gray-50 transition"
                     >
                         Batal
@@ -275,6 +309,28 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                         {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
                     </button>
                 </div>
+
+                {/* Warning: item kosong saat mau simpan */}
+                <WarningModal
+                    isOpen={isValidationWarningOpen}
+                    onClose={() => setIsValidationWarningOpen(false)}
+                    onConfirm={discardChangesAndClose}
+                    title="Item Tidak Boleh Kosong"
+                    message="Transaksi harus memiliki minimal 1 item barang. Silakan tambahkan produk terlebih dahulu."
+                    cancelText="Lanjutkan Perubahan"
+                    confirmText="Batalkan Perubahan"
+                />
+
+                {/* Warning: konfirmasi batal, hanya muncul kalau ada perubahan */}
+                <WarningModal
+                    isOpen={isCancelWarningOpen}
+                    onClose={() => setIsCancelWarningOpen(false)}
+                    onConfirm={discardChangesAndClose}
+                    title="Batalkan Perubahan?"
+                    message="Anda memiliki perubahan yang belum disimpan. Apakah anda yakin ingin membatalkan?"
+                    cancelText="Lanjut Mengedit"
+                    confirmText="Batalkan Perubahan"
+                />
             </div>
         </Modal>
     );

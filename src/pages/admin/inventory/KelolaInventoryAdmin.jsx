@@ -17,6 +17,7 @@ import {FiChevronDown, FiFilter, FiSearch, FiHash, FiBox, FiTag, FiDroplet} from
 import { IoChevronBack } from "react-icons/io5";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 import React from "react";
+import IconPickerField from "../../../components/forms/IconPickerField.jsx";
 
 const KelolaInventoryAdmin = () => {
     const navigate = useNavigate();
@@ -29,6 +30,7 @@ const KelolaInventoryAdmin = () => {
         storeId, setStoreId, storeOptions,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
+        totalSummary,
         // CRUD properties
         isSuccessOpen, setIsSuccessOpen, successMessage,
         selectedProduct, setSelectedProduct, modalConfig, setModalConfig,
@@ -50,13 +52,14 @@ const KelolaInventoryAdmin = () => {
             type: selectedProduct?.tipeBarang || "",
             basePrice: Number(formData.get("hargaPokok") || 0),
             sellPrice: Number(formData.get("hargaJual") || 0),
-            // ACCESSORIES selalu grey murni, tipe lain pakai hex pilihan admin
             hexColor: isAccessories ? "#808080" : (selectedProduct?.hexColor || ""),
+            icon: isAccessories ? (selectedProduct?.icon || null) : null, // BARU
         };
 
         if (!payload.code) { alert("Kode barang wajib diisi."); return; }
         if (!payload.name) { alert("Nama barang wajib diisi."); return; }
         if (!payload.type) { alert("Tipe barang wajib dipilih."); return; }
+        if (isAccessories && !payload.icon) { alert("Pilih icon untuk produk aksesoris."); return; } // BARU
 
         await handleSaveProduct(payload, modalConfig.type);
     };
@@ -119,6 +122,10 @@ const KelolaInventoryAdmin = () => {
                         isEditable={true}
                         onEdit={(item) => openModal('EDIT', item)}
                         onDelete={triggerDelete}
+                        totalStokKg={totalSummary.totalStokKg}
+                        totalStokPcs={totalSummary.totalStokPcs}
+                        hasKg={totalSummary.hasKg}
+                        hasPcs={totalSummary.hasPcs}
                     />
                     <TablePagination
                         currentPage={pagination.page}
@@ -177,6 +184,15 @@ const KelolaInventoryAdmin = () => {
                                     title="Pilih warna dari color picker"
                                 />
                             </div>
+                        )}
+
+                        {/* Icon Picker hanya muncul untuk tipe ACCESSORIES */}
+                        {selectedProduct?.tipeBarang === "ACCESSORIES" && (
+                            <IconPickerField
+                                label="Pilih Icon Produk"
+                                value={selectedProduct?.icon || ""}
+                                onChange={(name) => setSelectedProduct({ ...selectedProduct, icon: name })}
+                            />
                         )}
 
                         <div className="grid grid-cols-2 gap-4 pt-2">

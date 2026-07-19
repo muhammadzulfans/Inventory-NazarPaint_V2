@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
+import { FiPlus, FiShoppingBag } from "react-icons/fi";
 import Modal from "./Modal.jsx";
-
+import FilterDropdown from "../ui/FilterDropdown.jsx";
+import { productService } from "../../api/services/productService.js";
+import ProductVisual from "../ui/Productvisual.jsx";
 
 const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
 
 const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => {
     const [rowData, setRowData] = useState({});
+    const [extraItems, setExtraItems] = useState([]); // item baru yang ditambahkan
+    const [productOptions, setProductOptions] = useState([]);
+    const [selectedNewProductId, setSelectedNewProductId] = useState("");
+    const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
     useEffect(() => {
         if (opname) {
@@ -17,8 +24,37 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
                 };
             });
             setRowData(initial);
+            setExtraItems([]);
         }
     }, [opname]);
+
+    useEffect(() => {
+        if (!isOpen || !opname) return;
+        setIsLoadingProducts(true);
+        productService.getAllProducts({ limit: 100 }).then((res) => {
+            if (res && res.success) {
+                const transformed = res.data.map((p) => {
+                    let stock = p.totalStock;
+                    if (opname.storeId) {
+                        const storeStock = p.stockPerStore?.find((s) => s.store.id === opname.storeId);
+                        stock = storeStock ? storeStock.quantity : 0;
+                    }
+                    return {
+                        id: p.id,
+                        name: p.name,
+                        code: p.code || "-",
+                        type: p.type,
+                        unit: getUnit(p.type),
+                        hexColor: p.hexColor || (p.type === "ACCESSORIES" ? "#808080" : "#9ca3af"),
+                        icon: p.icon || null,
+                        stokSistem: stock,
+                    };
+                });
+                setProductOptions(transformed);
+            }
+            setIsLoadingProducts(false);
+        });
+    }, [isOpen, opname]);
 
     if (!opname) return null;
 
@@ -29,14 +65,42 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
         }));
     };
 
-    const getSelisih = (item) => {
-        const stokFisik = rowData[item.productId]?.stokFisik;
+    const getSelisih = (stokSistem, productId) => {
+        const stokFisik = rowData[productId]?.stokFisik;
         if (stokFisik === undefined || stokFisik === "") return null;
-        return Number(stokFisik) - item.stokSistem;
+        return Number(stokFisik) - stokSistem;
+    };
+
+    const existingProductIds = new Set([
+        ...(opname.items || []).map((it) => it.productId),
+        ...extraItems.map((it) => it.productId),
+    ]);
+    const availableToAdd = productOptions.filter((p) => !existingProductIds.has(p.id));
+
+    const handleAddItem = () => {
+        if (!selectedNewProductId) return;
+        const product = productOptions.find((p) => p.id === selectedNewProductId);
+        if (!product) return;
+
+        setExtraItems((prev) => [...prev, product]);
+        setRowData((prev) => ({
+            ...prev,
+            [product.id]: { stokFisik: "", catatan: "" },
+        }));
+        setSelectedNewProductId("");
+    };
+
+    const handleRemoveExtraItem = (productId) => {
+        setExtraItems((prev) => prev.filter((it) => it.id !== productId));
+        setRowData((prev) => {
+            const copy = { ...prev };
+            delete copy[productId];
+            return copy;
+        });
     };
 
     const handleSubmit = () => {
-        const items = (opname.items || [])
+        const existingItems = (opname.items || [])
             .filter((it) => rowData[it.productId]?.stokFisik !== "")
             .map((it) => ({
                 productId: it.productId,
@@ -44,12 +108,22 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
                 catatan: rowData[it.productId]?.catatan?.trim() || undefined,
             }));
 
-        if (items.length === 0) {
+        const newItems = extraItems
+            .filter((it) => rowData[it.id]?.stokFisik !== "")
+            .map((it) => ({
+                productId: it.id,
+                stokFisik: Number(rowData[it.id].stokFisik),
+                catatan: rowData[it.id]?.catatan?.trim() || undefined,
+            }));
+
+        const allItems = [...existingItems, ...newItems];
+
+        if (allItems.length === 0) {
             alert("Isi minimal 1 stok fisik produk.");
             return;
         }
 
-        const missingNote = items.find((it) => {
+        const missingNote = existingItems.find((it) => {
             const original = opname.items.find((oi) => oi.productId === it.productId);
             const selisih = it.stokFisik - original.stokSistem;
             return selisih !== 0 && !it.catatan;
@@ -60,8 +134,7 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
             return;
         }
 
-        // Delegasikan pemanggilan API ke hook lewat prop onSave
-        onSave(opname, items);
+        onSave(opname, allItems);
     };
 
     return (
@@ -69,7 +142,6 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
             isOpen={isOpen}
             onClose={onClose}
             title="Edit Stock Opname"
-            // subtitle={opname.originalderNumber}
         >
             <div className="font-inter space-y-6">
                 <div className="text-sm">
@@ -79,19 +151,20 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
 
                 <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                     {(opname.items || []).map((item) => {
-                        const selisih = getSelisih(item);
                         const unit = getUnit(item.product?.type);
+                        const selisih = getSelisih(item.stokSistem, item.productId);
                         return (
                             <div key={item.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <div
-                                            className="w-3 h-3 rounded-full shrink-0 border border-gray-200"
-                                            style={{ backgroundColor: item.product?.hexColor || (item.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af") }}
-                                        ></div>
+                                        <ProductVisual
+                                            product={item.product}
+                                            size={40}
+                                            className="rounded-lg border border-gray-200"
+                                        />
                                         <div>
                                             <p className="text-sm font-semibold text-black">{item.product?.name}</p>
-                                            <p className="text-xs text-gray-700">{item.product?.code} – {item.product?.type}</p>
+                                            <p className="text-xs text-gray-700">{item.product?.code} • {item.product?.type}</p>
                                         </div>
                                     </div>
                                     <span className="text-xs text-black">
@@ -142,6 +215,104 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
                             </div>
                         );
                     })}
+
+                    {extraItems.map((product) => {
+                        const unit = getUnit(product.type);
+                        const selisih = getSelisih(product.stokSistem, product.id);
+                        return (
+                            <div key={product.id} className="p-3 bg-blue-50 rounded-xl border border-blue-100 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <ProductVisual
+                                            product={product}
+                                            size={40}
+                                            className="rounded-lg border border-gray-200"
+                                        />
+                                        <div>
+                                            <p className="text-sm font-semibold text-black">{product.name} <span className="text-[10px] text-blue-600 font-normal">(baru)</span></p>
+                                            <p className="text-xs text-gray-700">{product.code} • {product.type}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-black">
+                                            Stok Sistem: <b className="text-black">{product.stokSistem} {unit}</b>
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveExtraItem(product.id)}
+                                            className="text-xs text-red-600 hover:underline"
+                                        >
+                                            Hapus
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs text-black">Stok Fisik</label>
+                                        <input
+                                            type="number"
+                                            min={0}
+                                            value={rowData[product.id]?.stokFisik ?? ""}
+                                            onChange={(e) => handleFieldChange(product.id, "stokFisik", e.target.value)}
+                                            className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-buttonBlue"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-black">Selisih</label>
+                                        <div className="pt-2">
+                                            {selisih !== null ? (
+                                                <span className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                                                    selisih === 0 ? "bg-gray-100 text-gray-600" :
+                                                        selisih > 0 ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
+                                                }`}>
+                                                    {selisih > 0 ? "+" : ""}{selisih} {unit}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-300 text-xs">-</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs text-black">Catatan</label>
+                                    <input
+                                        type="text"
+                                        value={rowData[product.id]?.catatan ?? ""}
+                                        onChange={(e) => handleFieldChange(product.id, "catatan", e.target.value)}
+                                        placeholder={selisih !== null && selisih !== 0 ? "Wajib diisi (ada selisih)" : "Opsional"}
+                                        className="w-full border rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-buttonBlue"
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                    <FilterDropdown
+                        icon={FiShoppingBag}
+                        label={isLoadingProducts ? "Memuat produk..." : "+ Pilih produk untuk ditambahkan..."}
+                        value={selectedNewProductId}
+                        onChange={(val) => setSelectedNewProductId(val)}
+                        options={availableToAdd.map((p) => ({
+                            value: p.id,
+                            label: `${p.name} (${p.code})`,
+                        }))}
+                        className="flex-1 pb-8"
+                        triggerClassName="px-4 py-1"
+                        optionClassName="py-1"
+                        maxHeight={200}
+                    />
+                    <button
+                        type="button"
+                        onClick={handleAddItem}
+                        disabled={!selectedNewProductId}
+                        className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 rounded-lg text-sm font-medium flex items-center gap-1.5 transition"
+                    >
+                        <FiPlus size={16} /> Tambah
+                    </button>
                 </div>
 
                 <div className="flex gap-4 pt-2">

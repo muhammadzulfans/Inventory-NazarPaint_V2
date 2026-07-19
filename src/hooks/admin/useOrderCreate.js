@@ -14,12 +14,15 @@ export const useOrderCreate = () => {
     const [itemForm, setItemForm] = useState(emptyItemForm);
 
     const [orderItems, setOrderItems] = useState([]);
-    const [editingItemIndex, setEditingItemIndex] = useState(null); // index item di orderItems yg lagi diedit
-    const [editingPurchaseId, setEditingPurchaseId] = useState(null); // null = mode create, ada isi = mode edit nota
+    const [editingItemIndex, setEditingItemIndex] = useState(null);
+    const [editingPurchaseId, setEditingPurchaseId] = useState(null);
 
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Konfirmasi batal semua pesanan (ganti window.confirm)
+    const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 
     useEffect(() => {
         storeService.getAll()
@@ -39,8 +42,8 @@ export const useOrderCreate = () => {
                         code: p.code,
                         name: p.name,
                         type: p.type,
-                        hexColor: p.hexColor || (p.type === "ACCESSORIES" ? "#808080" : "#9ca3af"), // tambahan
                         basePrice: p.basePrice || p.price || 0,
+                        hexColor: p.hexColor || (p.type === "ACCESSORIES" ? "#808080" : "#9ca3af"),
                     }))
                 );
             })
@@ -61,7 +64,6 @@ export const useOrderCreate = () => {
         });
     };
 
-    // Klik item di "Daftar Item Pesanan" -> muat ke form "Tambah Item"
     const handleEditCartItem = (index) => {
         const item = orderItems[index];
         if (!item) return;
@@ -83,7 +85,6 @@ export const useOrderCreate = () => {
         setItemForm(emptyItemForm);
     };
 
-    // Dipanggil dari tombol form: nambah item baru ATAU update item yg lagi diedit
     const handleAddItemToList = () => {
         const { productId, quantity, basePrice, kode, namaBarang, type, hexColor, deskripsi } = itemForm;
 
@@ -101,7 +102,6 @@ export const useOrderCreate = () => {
         };
 
         if (editingItemIndex !== null) {
-            // MODE EDIT ITEM: replace di posisi yang sama
             setOrderItems((prev) => {
                 const copy = [...prev];
                 copy[editingItemIndex] = updatedItem;
@@ -109,7 +109,6 @@ export const useOrderCreate = () => {
             });
             setEditingItemIndex(null);
         } else {
-            // MODE TAMBAH BARU
             const existingItemIndex = orderItems.findIndex((item) => item.productId === productId);
             if (existingItemIndex > -1) {
                 const updatedItems = [...orderItems];
@@ -129,7 +128,6 @@ export const useOrderCreate = () => {
         if (editingItemIndex === idx) cancelEditCartItem();
     };
 
-    // Klik Edit di tabel Riwayat -> muat SELURUH item nota itu ke cart
     const loadOrderForEdit = (fullOrder) => {
         setSelectedStore(fullOrder.storeId);
         setOrderItems(
@@ -180,10 +178,15 @@ export const useOrderCreate = () => {
         setItemForm(emptyItemForm);
     };
 
+    // Ganti window.confirm dengan modal ? tombol Batal cuma trigger buka modal
     const handleCancelAll = () => {
-        if (window.confirm("Apakah anda yakin ingin membatalkan semua daftar pesanan ini?")) {
-            cancelEditOrder();
-        }
+        setIsCancelConfirmOpen(true);
+    };
+
+    // Dipanggil dari WarningModal saat user klik konfirmasi
+    const confirmCancelAll = () => {
+        cancelEditOrder();
+        setIsCancelConfirmOpen(false);
     };
 
     return {
@@ -197,6 +200,7 @@ export const useOrderCreate = () => {
         isSubmitting, setIsSubmitting,
         totalUnitItems, totalJenisProduk, totalOrderAmount,
         handleProductChange, handleAddItemToList, handleCancelAll,
+        isCancelConfirmOpen, setIsCancelConfirmOpen, confirmCancelAll,
         buildPayload, resetAfterSubmit,
     };
 };

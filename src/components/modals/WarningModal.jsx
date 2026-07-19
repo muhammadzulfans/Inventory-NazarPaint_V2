@@ -2,7 +2,7 @@ import React from "react";
 import { FiAlertCircle } from "react-icons/fi";
 import Modal from "./Modal";
 
-const WarningModal = ({ isOpen, onClose, onConfirm, title, message, isLoading, confirmText }) => {
+const WarningModal = ({ isOpen, onClose, onConfirm, title, message, isLoading, confirmText, cancelText }) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={title || "Konfirmasi"}>
             <div className="flex flex-col items-center text-center py-2">
@@ -21,7 +21,7 @@ const WarningModal = ({ isOpen, onClose, onConfirm, title, message, isLoading, c
                         onClick={onClose}
                         className="flex-1 py-3 border-2 border-line rounded-xl text-sm font-inter font-semibold text-txtNav hover:bg-gray-50 transition"
                     >
-                        Batal
+                        {cancelText || "Batal"}
                     </button>
                     <button
                         type="button"

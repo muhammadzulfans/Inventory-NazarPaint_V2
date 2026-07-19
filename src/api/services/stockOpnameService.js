@@ -21,6 +21,10 @@ export const stockOpnameService = {
         const response = await api.post('/stock-opnames', payload);
         return response.data;
     },
+    update: async (id, payload) => {
+        const response = await api.patch(`/stock-opnames/${id}`, payload);
+        return response.data;
+    },
     selesai: async (id) => {
         const response = await api.patch(`/stock-opnames/${id}/selesai`);
         return response.data;
