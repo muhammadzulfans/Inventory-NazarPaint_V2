@@ -1,3 +1,4 @@
+import React, {useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { useProductInventory } from "../../../hooks/admin/useProductInventory.js";
 
@@ -6,14 +7,13 @@ import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TableAdmin from "../../../components/tables/AdminLayouts/TableAdmin.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import { catTypes } from "../../../Data/DropdownOptions.jsx";
 
+import { catTypes } from "../../../Data/DropdownOptions.jsx";
 import { FaArrowTrendDown, FaPlus } from "react-icons/fa6";
 import { AiOutlineProduct } from "react-icons/ai";
 import { MdOutlineStore } from "react-icons/md";
 import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
-import React, {useState} from "react";
 import ModalPrediksiStok from "../../../components/modals/ModalPrediksiStok.jsx";
 import { useStockOverviewAdmin } from "../../../hooks/admin/useStockOverviewAdmin.js";
 
@@ -27,7 +27,8 @@ const InventoryAdmin = () => {
         type, setType,
         storeId, setStoreId, storeOptions,
         dateRange, setDateRange,
-        pagination, handlePageChange, handleRowsPerPageChange
+        pagination, handlePageChange, handleRowsPerPageChange,
+        totalSummary
     } = useProductInventory();
 
     const {
@@ -129,6 +130,10 @@ const InventoryAdmin = () => {
                         isEditable={false}
                         storeId={storeId}
                         onPreview={handlePreview}
+                        totalStokKg={totalSummary.totalStokKg}
+                        totalStokPcs={totalSummary.totalStokPcs}
+                        hasKg={totalSummary.hasKg}
+                        hasPcs={totalSummary.hasPcs}
                     />
                     <TablePagination
                         currentPage={pagination.page}

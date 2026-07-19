@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi2";
 
-const TableDetailOrderAdmin = ({ data = [] }) => {
+const TableDetailOrderAdmin = ({ data = [], totalItem = 0, totalHarga = 0 }) => {
     const [expandedIds, setExpandedIds] = useState(new Set());
 
     const toggleExpand = (key) => {
@@ -12,7 +12,6 @@ const TableDetailOrderAdmin = ({ data = [] }) => {
         });
     };
 
-    // Grouping per transaksi (order), bukan lagi flatten per item
     const rows = data.map((order) => {
         const items = order.items || [];
 
@@ -21,7 +20,7 @@ const TableDetailOrderAdmin = ({ data = [] }) => {
             const itemType = product.type || item.type || "-";
             const unitType = (itemType === "ACCESSORIES" || itemType === "AKSESORIS") ? "Pcs" : "Kg";
             const hargaSatuan = item.basePrice || item.hargaSatuan || item.hargaBeli || 0;
-            const totalHarga = item.totalPrice || (hargaSatuan * (item.quantity || 0));
+            const totalHargaItem = item.totalPrice || (hargaSatuan * (item.quantity || 0));
 
             return {
                 kode: product.code || item.kode || "-",
@@ -30,7 +29,7 @@ const TableDetailOrderAdmin = ({ data = [] }) => {
                 quantity: item.quantity || 0,
                 unit: unitType,
                 hargaSatuan,
-                totalHarga,
+                totalHarga: totalHargaItem,
             };
         });
 
@@ -47,8 +46,6 @@ const TableDetailOrderAdmin = ({ data = [] }) => {
             items: processedItems,
         };
     });
-
-    const grandTotalHarga = rows.reduce((sum, r) => sum + r.totalHargaOrder, 0);
 
     return (
         <table className="w-full text-sm font-inter font-normal">
@@ -162,8 +159,9 @@ const TableDetailOrderAdmin = ({ data = [] }) => {
 
             {rows.length > 0 && (
                 <tr className="font-inter font-semibold text-base border-b bg-gray-50/30">
-                    <td className="px-3 py-6 text-left" colSpan={2}>Total Keseluruhan</td>
-                    <td className="p-3 text-green-600 text-center">Rp {grandTotalHarga.toLocaleString("id-ID")}</td>
+                    <td className="px-3 py-6 text-left">Total Keseluruhan</td>
+                    <td className="p-3 text-center">{totalItem} Item</td>
+                    <td className="p-3 text-green-600 text-center">Rp {totalHarga.toLocaleString("id-ID")}</td>
                     <td></td>
                     <td></td>
                 </tr>

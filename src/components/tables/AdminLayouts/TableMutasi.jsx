@@ -19,15 +19,9 @@ const STATUS_ACTION_TITLE = {
 };
 
 // data yang masuk ke sini SUDAH flattened per-item & sudah di-paginate oleh hook
-const TableMutasi = ({ data = [], onEdit, onDelete, onStatusChange, showActions = true, canChangeStatus }) => {
+// totalKg/totalPcs dihitung dari SELURUH data (bukan per halaman), diteruskan dari hook
+const TableMutasi = ({ data = [], onEdit, onDelete, onStatusChange, showActions = true, canChangeStatus, totalKg = 0, totalPcs = 0 }) => {
     const rows = data;
-
-    const totalKg = rows
-        .filter((r) => r.unit === "Kg")
-        .reduce((t, r) => t + r.quantity, 0);
-    const totalPcs = rows
-        .filter((r) => r.unit === "Pcs")
-        .reduce((t, r) => t + r.quantity, 0);
 
     const colCount = 7 + 1 + (showActions ? 1 : 0);
 
@@ -110,7 +104,7 @@ const TableMutasi = ({ data = [], onEdit, onDelete, onStatusChange, showActions 
                                                 className={`text-trash ${item.status !== "PENDING" ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
                                                 onClick={() => item.status === "PENDING" && onDelete({
                                                     id: item.mutasiId,
-                                                    label: `${item.cabangPengirim} → ${item.cabangPenerima}`
+                                                    label: `${item.cabangPengirim} ? ${item.cabangPenerima}`
                                                 })}
                                                 disabled={item.status !== "PENDING"}
                                                 title={item.status !== "PENDING" ? "Hanya bisa dihapus saat PENDING" : undefined}

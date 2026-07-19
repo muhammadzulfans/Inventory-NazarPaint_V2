@@ -147,15 +147,12 @@ const SalesAdmin = () => {
                 message="Transaksi Berhasil Diproses!"
             />
 
-            {/* ==========================================
-                INTEGRASI WARNING MODAL KAMU DISINI BRO
-               ========================================== */}
             <WarningModal
                 isOpen={isWarningOpen}
                 title="Peringatan Validasi Kasir"
                 message={warningMessage}
                 onClose={() => setIsWarningOpen(false)}
-                onConfirm={() => setIsWarningOpen(false)} // Klik 'Ya, Lanjutkan' akan langsung menutup modal
+                onConfirm={() => setIsWarningOpen(false)}
                 confirmText="Oke, Mengerti"
             />
         </div>

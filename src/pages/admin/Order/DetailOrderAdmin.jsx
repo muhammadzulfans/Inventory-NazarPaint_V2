@@ -16,6 +16,7 @@ import React from "react";
 const DetailOrderAdmin = () => {
     const {
         orderData, error,
+        totalSummary,
         search, setSearch,
         type, setType,
         storeId, setStoreId, storeOptions,
@@ -71,6 +72,8 @@ const DetailOrderAdmin = () => {
                                 onEdit={handleEdit}
                                 onDelete={triggerDelete}
                                 onStatusChange={triggerStatusChange}
+                                totalItem={totalSummary.totalItem}
+                                totalHarga={totalSummary.totalHarga}
                             />
                         )}
                         <TablePagination

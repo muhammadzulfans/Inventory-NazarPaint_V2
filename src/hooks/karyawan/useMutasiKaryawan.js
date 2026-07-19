@@ -31,6 +31,12 @@ export const useMutasiKaryawan = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    const totalSummary = useMemo(() => {
+        const totalKg = allRows.filter((r) => r.unit === "Kg").reduce((t, r) => t + r.quantity, 0);
+        const totalPcs = allRows.filter((r) => r.unit === "Pcs").reduce((t, r) => t + r.quantity, 0);
+        return { totalKg, totalPcs };
+    }, [allRows]);
+
     const [search, setSearch] = useState("");
     const [type, setType] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -132,6 +138,7 @@ export const useMutasiKaryawan = () => {
 
     return {
         data: paginatedRows, loading, error,
+        totalSummary,
         search, setSearch,
         type, setType,
         dateRange, setDateRange,

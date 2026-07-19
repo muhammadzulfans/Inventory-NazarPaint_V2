@@ -11,12 +11,21 @@ export const useProductInventoryKaryawan = () => {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [type, setType] = useState("");
-
     const [pagination, setPagination] = useState({
         page: 1,
         limit: 10,
         totalPages: 1,
     });
+
+    const [totalSummary, setTotalSummary] = useState({
+        totalStokKg: 0, totalStokPcs: 0, hasKg: false, hasPcs: false,
+    });
+    const [totalCount, setTotalCount] = useState(0);
+
+    const getUnit = (item) => {
+        const t = (item.type || "").toUpperCase();
+        return (t === "ACCESSORIES" || t === "AKSESORIS") ? "Pcs" : "Kg";
+    };
 
     const fetchProducts = useCallback(async () => {
         setIsLoading(true);
@@ -33,10 +42,37 @@ export const useProductInventoryKaryawan = () => {
                     ...prev,
                     totalPages: res.pagination.totalPages || 1,
                 }));
+                setTotalCount(res.pagination.total || 0);
             }
         }
         setIsLoading(false);
     }, [debouncedSearch, type, pagination.page, pagination.limit]);
+
+    // fetch KHUSUS buat total ? filter sama kayak fetchProducts, tapi limit besar & selalu page 1
+    const fetchTotalSummary = useCallback(async () => {
+        const res = await productService.getAllProducts({
+            search: debouncedSearch,
+            type,
+            page: 1,
+            limit: 1000,
+        });
+        if (res) {
+            const list = res.data || [];
+            let totalStokKg = 0, totalStokPcs = 0, hasKg = false, hasPcs = false;
+
+            list.forEach((item) => {
+                const stock = storeId
+                    ? (item.stockPerStore?.find((s) => String(s.store.id).toLowerCase() === String(storeId).toLowerCase())?.quantity ?? 0)
+                    : (item.totalStock ?? 0);
+
+                if (getUnit(item) === "Kg") { totalStokKg += stock; hasKg = true; }
+                else { totalStokPcs += stock; hasPcs = true; }
+            });
+
+            setTotalSummary({ totalStokKg, totalStokPcs, hasKg, hasPcs });
+        }
+    }, [debouncedSearch, type, storeId]);
+    // ? sengaja TIDAK include pagination.page/limit, biar gak fetch ulang pas cuma ganti halaman
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -54,6 +90,10 @@ export const useProductInventoryKaryawan = () => {
         fetchProducts().catch((err) => console.error("Gagal memuat produk:", err));
     }, [fetchProducts]);
 
+    useEffect(() => {
+        fetchTotalSummary().catch((err) => console.error("Gagal memuat total stok:", err));
+    }, [fetchTotalSummary]);
+
     const handlePageChange = (newPage) => {
         setPagination((prev) => ({ ...prev, page: newPage }));
     };
@@ -66,7 +106,9 @@ export const useProductInventoryKaryawan = () => {
         products, isLoading,
         search, setSearch,
         type, setType,
-        storeId, // dipakai TableAdmin buat nampilin stok cabang karyawan sendiri
+        storeId,
         pagination, handlePageChange, handleRowsPerPageChange,
+        totalSummary,
+        totalCount,
     };
 };

@@ -20,6 +20,7 @@ import EditSaleModal from "../../../components/modals/EditSaleModal.jsx";
 const HistorySalesKaryawan = () => {
     const {
         salesData, isLoading, error,
+        totalSummary,
         search, setSearch,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
@@ -80,6 +81,8 @@ const HistorySalesKaryawan = () => {
                             onDelete={triggerDelete}
                             showDeleteAction={false}
                             isEditAllowed={canEditSale}
+                            totalItem={totalSummary.totalItem}
+                            totalHarga={totalSummary.totalHarga}
                         />
                     )}
                     <TablePagination

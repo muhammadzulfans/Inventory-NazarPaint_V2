@@ -16,6 +16,7 @@ const DetailSalesAdmin = () => {
         detailSalesData,
         isLoading,
         error,
+        totalSummary,
         search,
         setSearch,
         type,
@@ -73,6 +74,11 @@ const DetailSalesAdmin = () => {
                             data={detailSalesData}
                             isLoading={isLoading}
                             showCostColumns={true}
+                            totalHargaJual={totalSummary.totalHargaJual}
+                            totalHargaBeli={totalSummary.totalHargaBeli}
+                            totalKeuntungan={totalSummary.totalKeuntungan}
+                            totalQtyKg={totalSummary.totalQtyKg}
+                            totalQtyPcs={totalSummary.totalQtyPcs}
                         />
                     )}
                     <TablePagination

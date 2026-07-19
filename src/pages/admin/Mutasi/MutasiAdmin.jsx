@@ -1,4 +1,7 @@
 import { useMutasiAdmin } from "../../../hooks/admin/useMutasiAdmin.js";
+
+import {catTypes} from "../../../Data/DropdownOptions.jsx";
+
 import TableMutasi from "../../../components/tables/AdminLayouts/TableMutasi.jsx";
 import FormCreateMutasi from "./FormCreateMutasi.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
@@ -6,14 +9,14 @@ import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
-import { FiFilter, FiSearch } from "react-icons/fi";
-import React from "react";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
-import {catTypes} from "../../../Data/DropdownOptions.jsx";
+
+import { FiFilter, FiSearch } from "react-icons/fi";
 
 const MutasiAdmin = () => {
     const {
         data, loading, error,
+        totalSummary,
         search, setSearch,
         type,setType,
         filterStoreId, setFilterStoreId,
@@ -83,6 +86,8 @@ const MutasiAdmin = () => {
                                 onDelete={handleTriggerDelete}
                                 onStatusChange={triggerStatusChange}
                                 canChangeStatus={canChangeStatus}
+                                totalKg={totalSummary.totalKg}
+                                totalPcs={totalSummary.totalPcs}
                             />
                         )}
                         <TablePagination

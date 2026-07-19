@@ -16,6 +16,7 @@ import EditSaleModal from "../../../components/modals/EditSaleModal.jsx";
 const HistorySalesAdmin = () => {
     const {
         salesData, isLoading, error,
+        totalSummary,
         search, setSearch,
         storeId, setStoreId, storeOptions,
         dateRange, setDateRange,
@@ -83,6 +84,8 @@ const HistorySalesAdmin = () => {
                             onPreview={handlePreview}
                             onEdit={handleEdit}
                             onDelete={triggerDelete}
+                            totalItem={totalSummary.totalItem}
+                            totalHarga={totalSummary.totalHarga}
                         />
                     )}
                     <TablePagination

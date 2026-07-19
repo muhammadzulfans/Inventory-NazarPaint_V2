@@ -9,6 +9,8 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const [totalSummary, setTotalSummary] = useState({ totalItem: 0, totalHarga: 0 });
+
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [type, setType] = useState("");
@@ -185,8 +187,38 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         }
     };
 
+    // fetch KHUSUS buat total ? filter sama kayak fetchOrders, tapi limit besar & selalu page 1
+    const fetchTotalSummary = useCallback(async () => {
+        try {
+            const res = await orderService.getAll({
+                search: debouncedSearch,
+                type,
+                storeId,
+                status: fixedStatus,
+                page: 1,
+                limit: 1000,
+            });
+            if (res) {
+                const list = res.data || [];
+                const totalItem = list.reduce((sum, order) => sum + (order.items || []).length, 0);
+                const totalHarga = list.reduce((sum, order) => {
+                    const orderTotal = (order.items || []).reduce((s, item) => s + (item.totalPrice ?? 0), 0);
+                    return sum + orderTotal;
+                }, 0);
+                setTotalSummary({ totalItem, totalHarga });
+            }
+        } catch (err) {
+            console.error("Fetch Order Total Summary Error:", err);
+        }
+    }, [debouncedSearch, type, storeId, fixedStatus]);
+
+    useEffect(() => {
+        fetchTotalSummary();
+    }, [fetchTotalSummary]);
+
     return {
         orderData, isLoading, error, fetchOrders,
+        totalSummary,
         search, setSearch,
         type, setType,
         storeId, setStoreId, storeOptions,

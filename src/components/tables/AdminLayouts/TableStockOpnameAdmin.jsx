@@ -45,7 +45,7 @@ const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwn
                 </tr>
             ) : (
                 data.map((row) => {
-                    const isExpandable = row.items.length > 1;
+                    const isExpandable = row.items.length > 0;
                     const isExpanded = expandedIds.has(row.id);
                     const isDraft = row.status === "DRAFT";
                     const canEdit = isDraft && isOwner; // edit = delete+create, DELETE cuma boleh OWNER

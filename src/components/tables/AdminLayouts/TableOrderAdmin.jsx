@@ -1,7 +1,6 @@
 import { FiEdit, FiEye, FiXCircle } from "react-icons/fi";
 import React from "react";
 
-// Mapping label tampilan ? raw value backend TETAP PENDING/RECEIVED/CANCELLED
 const STATUS_LABEL = {
     PENDING: "ORDER",
     RECEIVED: "RECEIVED",
@@ -14,7 +13,7 @@ const STATUS_BADGE_CLASS = {
     CANCELLED: "bg-red-100 text-red-700",
 };
 
-const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onReject }) => {
+const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onReject, totalItem = 0, totalHarga = 0 }) => {
     const rows = data.map((order) => {
         const items = order.items || [];
         const totalPriceInOrder = items.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
@@ -32,9 +31,6 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
             rawPayload: order
         };
     });
-
-    const grandTotalItem = rows.reduce((t, r) => t + r.itemCount, 0);
-    const grandTotalHarga = rows.reduce((t, r) => t + r.totalHarga, 0);
 
     return (
         <table className="w-full text-sm font-inter font-normal">
@@ -75,7 +71,6 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
                             </td>
                             <td className="p-3 text-center">{row.tanggal}</td>
 
-                            {/* KOLOM STATUS */}
                             <td className="p-3 text-center">
                                 {isPending ? (
                                     <button
@@ -92,14 +87,12 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
                                 )}
                             </td>
 
-                            {/* KOLOM PREVIEW */}
                             <td className="p-3 flex justify-center items-center">
                                 <button className="text-blue-500" onClick={() => onPreview && onPreview(row.rawPayload)}>
                                     <FiEye className="size-7 p-1 border border-blue-500 rounded-md hover:bg-blue-50 transition" />
                                 </button>
                             </td>
 
-                            {/* KOLOM AKSI: Edit + Reject saja, Delete di-hide sementara */}
                             <td className="p-3">
                                 <div className="flex justify-center items-center gap-2">
                                     <button
@@ -128,9 +121,9 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
             <tr className="font-inter font-bold text-base border-b bg-gray-50/30 text-center">
                 <td className="p-5 text-center">Total</td>
                 <td></td>
-                <td className="p-3 font-inter">{grandTotalItem} Item</td>
+                <td className="p-3 font-inter">{totalItem} Item</td>
                 <td className="p-3 font-inter text-green-600">
-                    Rp. {grandTotalHarga.toLocaleString("id-ID")}
+                    Rp. {totalHarga.toLocaleString("id-ID")}
                 </td>
                 <td></td><td></td><td></td><td></td>
             </tr>

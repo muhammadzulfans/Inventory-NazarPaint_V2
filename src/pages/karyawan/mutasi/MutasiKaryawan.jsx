@@ -13,6 +13,7 @@ import {catTypes} from "../../../Data/DropdownOptions.jsx";
 const MutasiKaryawan = () => {
     const {
         data, loading, error,
+        totalSummary,
         search, setSearch,
         type, setType,
         dateRange, setDateRange,
@@ -65,6 +66,8 @@ const MutasiKaryawan = () => {
                             showActions={false}
                             onStatusChange={triggerStatusChange}
                             canChangeStatus={canChangeStatus}
+                            totalKg={totalSummary.totalKg}
+                            totalPcs={totalSummary.totalPcs}
                         />
                     )}
                     <TablePagination

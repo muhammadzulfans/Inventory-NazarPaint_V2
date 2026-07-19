@@ -1,24 +1,20 @@
 import React from "react";
 
-const TableDetailSalesAdmin = ({ data = [], showCostColumns = true }) => {
+const TableDetailSalesAdmin = ({ data = [], showCostColumns = true, totalHargaJual = 0, totalHargaBeli = 0, totalKeuntungan = 0, totalQtyKg = 0, totalQtyPcs = 0  }) => {
     const rows = data.map((item) => {
         const unitType = (item.type === "ACCESSORIES" || item.type === "AKSESORIS") ? "Pcs" : "Kg";
-        const totalHargaJual = item.hargaJual * item.quantity;
-        const totalHargaBeli = item.hargaBeli * item.quantity;
-        const totalKeuntungan = totalHargaJual - totalHargaBeli;
+        const totalHargaJualRow = item.hargaJual * item.quantity;
+        const totalHargaBeliRow = item.hargaBeli * item.quantity;
+        const totalKeuntunganRow = totalHargaJualRow - totalHargaBeliRow;
 
         return {
             idPenjualan: item.idPenjualan, kode: item.kode, type: item.type,
             namaBarang: item.namaBarang, quantity: item.quantity, unit: unitType,
             hargaJual: item.hargaJual, hargaBeli: item.hargaBeli,
-            totalHarga: totalHargaJual, totalHargaBeli, totalKeuntungan,
+            totalHarga: totalHargaJualRow, totalHargaBeli: totalHargaBeliRow, totalKeuntungan: totalKeuntunganRow,
             tanggal: item.tanggal,
         };
     });
-
-    const grandTotalHargaJual = rows.reduce((sum, r) => sum + r.totalHarga, 0);
-    const grandTotalHargaBeli = rows.reduce((sum, r) => sum + r.totalHargaBeli, 0);
-    const grandTotalProfit = rows.reduce((sum, r) => sum + r.totalKeuntungan, 0);
 
     const colCount = showCostColumns ? 10 : 7;
 
@@ -98,12 +94,18 @@ const TableDetailSalesAdmin = ({ data = [], showCostColumns = true }) => {
             {rows.length > 0 && (
                 <tr className="font-inter font-semibold text-base border-b bg-gray-50/30">
                     <td className="px-3 py-6 text-left" colSpan={3}>Total Keseluruhan</td>
-                    <td></td><td></td>
+                    <td></td>
+                    <td className="p-3 font-inter text-sm text-black">
+                        {totalQtyKg === 0 && totalQtyPcs === 0 && "0"}
+                        {totalQtyKg > 0 && `${totalQtyKg} Kg`}
+                        {totalQtyKg > 0 && totalQtyPcs > 0 && " / "}
+                        {totalQtyPcs > 0 && `${totalQtyPcs} Pcs`}
+                    </td>
                     {showCostColumns && <td></td>}
                     <td></td>
-                    <td className="p-3 text-green-600">Rp {grandTotalHargaJual.toLocaleString("id-ID")}</td>
-                    {showCostColumns && <td className="p-3 text-black">Rp {grandTotalHargaBeli.toLocaleString("id-ID")}</td>}
-                    {showCostColumns && <td className="p-3 text-blue-600">Rp {grandTotalProfit.toLocaleString("id-ID")}</td>}
+                    <td className="p-3 text-green-600">Rp {totalHargaJual.toLocaleString("id-ID")}</td>
+                    {showCostColumns && <td className="p-3 text-black">Rp {totalHargaBeli.toLocaleString("id-ID")}</td>}
+                    {showCostColumns && <td className="p-3 text-blue-600">Rp {totalKeuntungan.toLocaleString("id-ID")}</td>}
                     <td></td>
                 </tr>
             )}

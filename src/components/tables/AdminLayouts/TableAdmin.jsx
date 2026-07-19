@@ -3,7 +3,11 @@ import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { PiTrashBold } from "react-icons/pi";
 import { FiBarChart2 } from "react-icons/fi";
 
-const TableAdmin = ({ data = [], onEdit, onDelete, onPreview, isLoading, isEditable = false, storeId, showBasePrice = true }) => {
+const TableAdmin = ({
+                        data = [], onEdit, onDelete, onPreview, isLoading, isEditable = false, storeId, showBasePrice = true,
+                        totalStokKg = 0, totalStokPcs = 0, hasKg = false, hasPcs = false
+}) => {
+
     const formatDate = (isoString) => {
         if (!isoString) return "-";
         try {
@@ -30,15 +34,6 @@ const TableAdmin = ({ data = [], onEdit, onDelete, onPreview, isLoading, isEdita
         }
         return item.totalStock ?? 0;
     };
-
-    const totalStokKg = data
-        .filter((item) => getUnit(item) === "Kg")
-        .reduce((acc, item) => acc + getDisplayStock(item), 0);
-    const totalStokPcs = data
-        .filter((item) => getUnit(item) === "Pcs")
-        .reduce((acc, item) => acc + getDisplayStock(item), 0);
-    const hasKg = data.some((item) => getUnit(item) === "Kg");
-    const hasPcs = data.some((item) => getUnit(item) === "Pcs");
 
     const showPreview = typeof onPreview === "function";
     const maxCols = 4 + (showBasePrice ? 1 : 0) + 2 + (showPreview ? 1 : 0) + (isEditable ? 1 : 0);
@@ -133,16 +128,11 @@ const TableAdmin = ({ data = [], onEdit, onDelete, onPreview, isLoading, isEdita
                     <td className="px-3 py-6">Jumlah</td>
                     <td></td>
                     <td></td>
-                    <td className="flex flex-row justify-between  py-8 font-inter text-sm text-green-700">
-                        {hasKg &&
-                            <div>
-                                {totalStokKg} Kg
-                            </div>
-                        }
-                        {hasPcs &&
-                            <div>
-                                {totalStokPcs} Pcs
-                            </div>}
+                    <td className="p-3 font-inter text-sm text-black ">
+                        {totalStokKg === 0 && totalStokPcs === 0 && "0"}
+                        {totalStokKg > 0 && `${totalStokKg} Kg`}
+                        {totalStokKg > 0 && totalStokPcs > 0 && " / "}
+                        {totalStokPcs > 0 && `${totalStokPcs} Pcs`}
                     </td>
                     {showBasePrice && <td></td>}
                     <td></td>

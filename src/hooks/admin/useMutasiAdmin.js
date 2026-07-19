@@ -37,6 +37,12 @@ export const useMutasiAdmin = () => {
     const [type, setType] = useState("");
     const [filterStoreId, setFilterStoreId] = useState("");
 
+    const totalSummary = useMemo(() => {
+        const totalKg = allRows.filter((r) => r.unit === "Kg").reduce((t, r) => t + r.quantity, 0);
+        const totalPcs = allRows.filter((r) => r.unit === "Pcs").reduce((t, r) => t + r.quantity, 0);
+        return { totalKg, totalPcs };
+    }, [allRows]);
+
     const [pagination, setPagination] = useState({
         page: 1,
         limit: 10,
@@ -220,6 +226,7 @@ export const useMutasiAdmin = () => {
 
     return {
         data: paginatedRows, loading, error,
+        totalSummary,
         search, setSearch,
         type, setType,
         filterStoreId, setFilterStoreId,

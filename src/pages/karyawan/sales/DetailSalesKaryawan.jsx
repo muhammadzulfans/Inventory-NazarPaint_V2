@@ -16,6 +16,7 @@ import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 const DetailSalesKaryawan = () => {
     const {
         detailSalesData, isLoading, error,
+        totalSummary,
         search, setSearch, type, setType,
         pagination, handlePageChange, handleRowsPerPageChange,
     } = useDetailSalesManagementKaryawan();
@@ -58,6 +59,9 @@ const DetailSalesKaryawan = () => {
                             data={detailSalesData}
                             isLoading={isLoading}
                             showCostColumns={false}
+                            totalHargaJual={totalSummary.totalHargaJual}
+                            totalQtyKg={totalSummary.totalQtyKg}
+                            totalQtyPcs={totalSummary.totalQtyPcs}
                         />
                     )}
                     <TablePagination
