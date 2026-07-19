@@ -9,10 +9,12 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const [totalSummary, setTotalSummary] = useState({ totalItem: 0, totalHarga: 0 });
+
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [type, setType] = useState("");
     const [storeId, setStoreId] = useState("");
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
     const [storeOptions, setStoreOptions] = useState([]);
 
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1 });
@@ -51,8 +53,9 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         try {
             const res = await orderService.getAll({
                 search: debouncedSearch,
-                type,
                 storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 status: fixedStatus,
                 page: pagination.page,
                 limit: pagination.limit
@@ -69,7 +72,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, storeId, fixedStatus, pagination.page, pagination.limit]);
+    }, [debouncedSearch, storeId, dateRange, fixedStatus, pagination.page, pagination.limit]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -81,7 +84,7 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
 
     useEffect(() => {
         setPagination(prev => ({ ...prev, page: 1 }));
-    }, [storeId, type]);
+    }, [storeId, dateRange]);
 
     useEffect(() => {
         fetchOrders();
@@ -185,10 +188,41 @@ export const useOrderManagement = ({ fixedStatus } = {}) => {
         }
     };
 
+    // fetch KHUSUS buat total ? filter sama kayak fetchOrders, tapi limit besar & selalu page 1
+    const fetchTotalSummary = useCallback(async () => {
+        try {
+            const res = await orderService.getAll({
+                search: debouncedSearch,
+                storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
+                status: fixedStatus,
+                page: 1,
+                limit: 1000,
+            });
+            if (res) {
+                const list = res.data || [];
+                const totalItem = list.reduce((sum, order) => sum + (order.items || []).length, 0);
+                const totalHarga = list.reduce((sum, order) => {
+                    const orderTotal = (order.items || []).reduce((s, item) => s + (item.totalPrice ?? 0), 0);
+                    return sum + orderTotal;
+                }, 0);
+                setTotalSummary({ totalItem, totalHarga });
+            }
+        } catch (err) {
+            console.error("Fetch Order Total Summary Error:", err);
+        }
+    }, [debouncedSearch, storeId, dateRange, fixedStatus]);
+
+    useEffect(() => {
+        fetchTotalSummary();
+    }, [fetchTotalSummary]);
+
     return {
         orderData, isLoading, error, fetchOrders,
+        totalSummary,
         search, setSearch,
-        type, setType,
+        dateRange, setDateRange,
         storeId, setStoreId, storeOptions,
         pagination, handlePageChange, handleRowsPerPageChange,
         editOrder, setEditOrder,

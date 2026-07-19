@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useOrderCreate } from "../../../hooks/admin/useOrderCreate.js";
 import { useOrderManagement } from "../../../hooks/admin/useOrderManagement.js";
 
-import OrderItemsTable from "../../../components/tables/AdminLayouts/TableOrderItems.jsx";
 import OrderSummaryPanel from "../../../components/ui/OrderSummaryPanel.jsx";
+import TableOrderItems from "../../../components/tables/AdminLayouts/TableOrderItems.jsx";
 import TableOrderAdmin from "../../../components/tables/AdminLayouts/TableOrderAdmin.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
@@ -13,7 +13,7 @@ import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import FormCreateOrder from "./FormCreateOrder.jsx";
-import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+import TransactionDetailModalPreview from "../../../components/modals/TransactionDetailModalPreview.jsx";
 
 const OrderAdmin = () => {
     const orderCreate = useOrderCreate();
@@ -64,7 +64,7 @@ const OrderAdmin = () => {
 
                 {/* SISI KIRI */}
                 <div className="flex-1 w-full lg:w-3/4 flex flex-col gap-6">
-                    <OrderItemsTable
+                    <TableOrderItems
                         orderItems={orderCreate.orderItems}
                         removeOrderItem={orderCreate.removeOrderItem}
                         onEditItem={orderCreate.handleEditCartItem}
@@ -108,6 +108,8 @@ const OrderAdmin = () => {
                                         setPreviewTransaction(orderData);
                                         setIsPreviewOpen(true);
                                     }}
+                                    totalItem={orderMgmt.totalSummary.totalItem}
+                                    totalHarga={orderMgmt.totalSummary.totalHarga}
                                 />
                             )}
                             <TablePagination
@@ -154,7 +156,7 @@ const OrderAdmin = () => {
             </div>
 
             {/* 5. Ditambahkan komponen Modal Preview di paling bawah sini bro */}
-            <TransactionDetailModal
+            <TransactionDetailModalPreview
                 isOpen={isPreviewOpen}
                 onClose={() => {
                     setIsPreviewOpen(false);

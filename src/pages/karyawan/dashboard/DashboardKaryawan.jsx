@@ -29,9 +29,9 @@ const DashboardKaryawan = () => {
 
     // Penyesuaian yang sama untuk dashboard karyawan
     const rekapRows = [
-        ['Total Stok Order', `${stockRecap.totalStokMasuk} Kg`],
-        ['Total Stok Keluar', `${stockRecap.totalStokKeluar} Kg`],
-        ['Total Stok Akhir', `${stockRecap.totalStokAkhir} Kg`],
+        ['Total Stok Pembelian/Masuk', `${stockRecap.totalStokMasuk} Unit`],
+        ['Total Stok Penjualan/Keluar', `${stockRecap.totalStokKeluar} Unit`],
+        ['Total Stok Akhir', `${stockRecap.totalStokAkhir} Unit`],
         ['Jumlah Total Penghasilan Kotor', formatRupiah(endOfMonthRecap.sales.thisMonth.totalAmount)],
     ];
 
@@ -45,12 +45,12 @@ const DashboardKaryawan = () => {
             <div className="grid grid-cols-3 gap-16 mb-14">
                 <Card
                     title="Kategori Produk"
-                    value={`${productSummary.categories.length}`}
+                    value={`${productSummary.categories.length} Kategori`}
                     icon={<BsBoxSeam className="size-7 m-3.5" />}
                 />
                 <Card
                     title="Total Produk"
-                    value={`${productSummary.totalProduct}`}
+                    value={`${productSummary.totalProduct} Item`}
                     icon={<AiOutlineProduct className="size-8 m-3" />}
                 />
                 <Card
@@ -76,7 +76,7 @@ const DashboardKaryawan = () => {
             </div>
 
             <div className="bg-card py-7 px-7 shadow-[0_4px_4px_rgba(0,0,0,0.2)]">
-                <h2 className="text-2xl font-inter font-medium mb-3">Data Rekap Akhir Bulan</h2>
+                <h2 className="text-2xl font-inter font-medium mb-3">Data Rekap Bulan Ini</h2>
                 <div className="space-y-4">
                     {rekapRows.map(([label, value], i) => (
                         <div

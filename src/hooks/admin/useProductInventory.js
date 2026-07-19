@@ -25,11 +25,21 @@ export const useProductInventory = () => {
 
     // State untuk Form Tambah/Edit
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [modalConfig, setModalConfig] = useState({ isOpen: false, type: 'ADD' });
+    const [modalConfig, setModalConfig] = useState({
+        isOpen: false, type: 'ADD'
+    });
+    const [totalSummary, setTotalSummary] = useState({
+        totalStokKg: 0, totalStokPcs: 0, hasKg: false, hasPcs: false,
+    });
 
     // State untuk Delete
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
+
+    const getUnit = (item) => {
+        const t = (item.type || "").toUpperCase();
+        return (t === "ACCESSORIES" || t === "AKSESORIS") ? "Pcs" : "Kg";
+    };
 
     // 3. FETCH LOGIC
     // Fetch cabang sekali saat mount
@@ -111,6 +121,45 @@ export const useProductInventory = () => {
             console.error("Gagal memuat produk:", error);
         });
     }, [fetchProducts]);
+
+    // fetch KHUSUS buat total — filter sama kayak fetchProducts, tapi limit besar & selalu page 1
+    const fetchTotalSummary = useCallback(async () => {
+        const res = await productService.getAllProducts({
+            search: debouncedSearch,
+            type,
+            storeId,
+            startDate: dateRange.startDate,
+            endDate: dateRange.endDate,
+            page: 1,
+            limit: 1000,
+        });
+        if (res) {
+            const list = res.data || [];
+            let totalStokKg = 0, totalStokPcs = 0, hasKg = false, hasPcs = false;
+
+            list.forEach((item) => {
+                let stock = item.totalStock ?? 0;
+                if (storeId) {
+                    const branchData = item.stockPerStore?.find(
+                        (s) => String(s.store.id).toLowerCase() === String(storeId).toLowerCase()
+                    );
+                    stock = branchData ? branchData.quantity : 0;
+                }
+                if (getUnit(item) === "Kg") { totalStokKg += stock; hasKg = true; }
+                else { totalStokPcs += stock; hasPcs = true; }
+            });
+
+            setTotalSummary({ totalStokKg, totalStokPcs, hasKg, hasPcs });
+        }
+    }, [debouncedSearch, type, storeId, dateRange]);
+// ← sengaja TIDAK include pagination.page/limit, biar gak fetch ulang pas cuma ganti halaman
+
+// effect terpisah dari EFFECT 3 yang udah ada
+    useEffect(() => {
+        fetchTotalSummary().catch((error) => {
+            console.error("Gagal memuat total stok:", error);
+        });
+    }, [fetchTotalSummary]);
 
     // 4. PAGINATION HANDLERS
     const handlePageChange = (newPage) => {
@@ -199,6 +248,7 @@ export const useProductInventory = () => {
     return {
         // Table & Filter States
         products, isLoading, setIsLoading,
+        totalSummary,
         search, setSearch,
         type, setType,
         storeId, setStoreId, storeOptions,

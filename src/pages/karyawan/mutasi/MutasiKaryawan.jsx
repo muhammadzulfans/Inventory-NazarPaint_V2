@@ -1,20 +1,18 @@
 import { useMutasiKaryawan } from "../../../hooks/karyawan/useMutasiKaryawan.js";
+
 import TableMutasi from "../../../components/tables/AdminLayouts/TableMutasi.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
 import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
-import {FiFilter, FiSearch} from "react-icons/fi";
-import React from "react";
+import { FiSearch } from "react-icons/fi";
 import WarningModal from "../../../components/modals/WarningModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
-import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
-import {catTypes} from "../../../Data/DropdownOptions.jsx";
 
 const MutasiKaryawan = () => {
     const {
         data, loading, error,
+        totalSummary,
         search, setSearch,
-        type, setType,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         triggerStatusChange, confirmStatusChange,
@@ -45,13 +43,6 @@ const MutasiKaryawan = () => {
                         value={dateRange}
                         onChange={setDateRange}
                     />
-                    <FilterDropdown
-                        icon={FiFilter}
-                        label="Type Cat"
-                        value={type}
-                        onChange={(val) => setType(val)}
-                        options={[{ value: "", label: "Semua Tipe" }, ...catTypes]}
-                    />
                 </div>
 
                 <div className="overflow-x-auto bg-white">
@@ -65,6 +56,8 @@ const MutasiKaryawan = () => {
                             showActions={false}
                             onStatusChange={triggerStatusChange}
                             canChangeStatus={canChangeStatus}
+                            totalKg={totalSummary.totalKg}
+                            totalPcs={totalSummary.totalPcs}
                         />
                     )}
                     <TablePagination

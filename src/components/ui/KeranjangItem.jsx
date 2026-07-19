@@ -23,7 +23,7 @@ const KeranjangItem = ({
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-400 text-black text-xs font-bold">
                     <FiShoppingCart />
                     <span>
-                        {totalItems} item{totalItems !== 1 ? "s" : ""}
+                        {cart.length} item{cart.length !== 1 ? "s" : ""}
                     </span>
                 </div>
             </div>
@@ -64,7 +64,7 @@ const KeranjangItem = ({
             <div className="px-6 py-6 border-t border-gray-100 bg-gray-50 flex-shrink-0 space-y-6">
                 <div className="space-y-2.5 text-sm font-inter">
                     <div className="flex items-center justify-between text-base font-bold text-black">
-                        <span>Total ({totalItems} item{totalItems !== 1 ? "s" : ""})</span>
+                        <span>Total ({totalItems} Unit)</span>
                         <span>{formatRupiah(subtotal)}</span>
                     </div>
                 </div>

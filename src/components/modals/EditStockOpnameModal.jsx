@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Modal from "./Modal.jsx";
 
+
+const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
+
 const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => {
     const [rowData, setRowData] = useState({});
 
@@ -77,21 +80,22 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
                 <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                     {(opname.items || []).map((item) => {
                         const selisih = getSelisih(item);
+                        const unit = getUnit(item.product?.type);
                         return (
                             <div key={item.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <div
                                             className="w-3 h-3 rounded-full shrink-0 border border-gray-200"
-                                            style={{ backgroundColor: item.product?.hexColor }}
+                                            style={{ backgroundColor: item.product?.hexColor || (item.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af") }}
                                         ></div>
                                         <div>
                                             <p className="text-sm font-semibold text-black">{item.product?.name}</p>
-                                            <p className="text-xs text-gray-700">{item.product?.code} · {item.product?.type}</p>
+                                            <p className="text-xs text-gray-700">{item.product?.code} – {item.product?.type}</p>
                                         </div>
                                     </div>
                                     <span className="text-xs text-black">
-                                        Stok Sistem: <b className="text-black">{item.stokSistem} {item.product?.unit}</b>
+                                        Stok Sistem: <b className="text-black">{item.stokSistem} {unit}</b>
                                     </span>
                                 </div>
 
@@ -114,7 +118,7 @@ const EditStockOpnameModal = ({ isOpen, onClose, opname, onSave, isSaving }) => 
                                                     selisih === 0 ? "bg-gray-100 text-gray-600" :
                                                         selisih > 0 ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
                                                 }`}>
-                                                    {selisih > 0 ? "+" : ""}{selisih} {item.product?.unit}
+                                                    {selisih > 0 ? "+" : ""}{selisih} {unit}
                                                 </span>
                                             ) : (
                                                 <span className="text-gray-300 text-xs">-</span>

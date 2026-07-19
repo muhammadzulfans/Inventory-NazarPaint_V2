@@ -17,6 +17,9 @@ const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, 
 
     const [items, setItems] = useState([emptyItem()]);
 
+    const fromStoreOptions = storeOptions.filter((opt) => opt.value !== form.toStoreId);
+    const toStoreOptions = storeOptions.filter((opt) => opt.value !== form.fromStoreId);
+
     // Pre-fill saat editMutasi berubah
     useEffect(() => {
         if (editMutasi) {
@@ -100,6 +103,14 @@ const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, 
         }
     };
 
+    const handleFromStoreChange = (val) => {
+        setForm((p) => ({
+            ...p,
+            fromStoreId: val,
+            toStoreId: p.toStoreId === val ? "" : p.toStoreId, // reset kalau jadi bentrok
+        }));
+    };
+
     return (
         <div className="bg-card text-black rounded-2xl px-6 py-7 shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex flex-col gap-5">
             <h2 className="font-inter font-medium text-lg">
@@ -109,14 +120,14 @@ const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, 
 
             <DropDownField
                 label="Cabang Pengirim"
-                options={storeOptions}
+                options={fromStoreOptions}
                 value={form.fromStoreId}
-                onChange={setForm_("fromStoreId")}
+                onChange={handleFromStoreChange}
                 placeholder="Pilih cabang pengirim..."
             />
             <DropDownField
                 label="Cabang Penerima"
-                options={storeOptions}
+                options={toStoreOptions}
                 value={form.toStoreId}
                 onChange={setForm_("toStoreId")}
                 placeholder="Pilih cabang penerima..."

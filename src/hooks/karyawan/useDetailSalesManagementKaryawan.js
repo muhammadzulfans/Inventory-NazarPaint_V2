@@ -6,9 +6,15 @@ export const useDetailSalesManagementKaryawan = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const [totalSummary, setTotalSummary] = useState({
+        totalHargaJual: 0, totalHargaBeli: 0, totalKeuntungan: 0,
+        totalQtyKg: 0, totalQtyPcs: 0,
+    });
+
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [type, setType] = useState("");
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1 });
 
@@ -17,10 +23,11 @@ export const useDetailSalesManagementKaryawan = () => {
         setError("");
         try {
             const res = await salesService.getAll({
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 page: 1,
                 limit: 1000,
             });
-
             if (res) {
                 const sales = res.data || [];
                 let flattened = sales.flatMap((sale) =>
@@ -42,7 +49,6 @@ export const useDetailSalesManagementKaryawan = () => {
                         };
                     })
                 );
-
                 if (type) {
                     flattened = flattened.filter((row) => row.type === type);
                 }
@@ -55,11 +61,27 @@ export const useDetailSalesManagementKaryawan = () => {
                     );
                 }
 
+                const totalHargaJual = flattened.reduce((sum, row) => sum + row.hargaJual * row.quantity, 0);
+                const totalHargaBeli = flattened.reduce((sum, row) => sum + row.hargaBeli * row.quantity, 0);
+                const totalQtyKg = flattened
+                    .filter((row) => row.type !== "ACCESSORIES" && row.type !== "AKSESORIS")
+                    .reduce((sum, row) => sum + row.quantity, 0);
+                const totalQtyPcs = flattened
+                    .filter((row) => row.type === "ACCESSORIES" || row.type === "AKSESORIS")
+                    .reduce((sum, row) => sum + row.quantity, 0);
+
+                setTotalSummary({
+                    totalHargaJual,
+                    totalHargaBeli,
+                    totalKeuntungan: totalHargaJual - totalHargaBeli,
+                    totalQtyKg,
+                    totalQtyPcs,
+                });
+
                 const totalRows = flattened.length;
                 const totalPages = Math.max(1, Math.ceil(totalRows / pagination.limit));
                 const start = (pagination.page - 1) * pagination.limit;
                 const pageRows = flattened.slice(start, start + pagination.limit);
-
                 setDetailSalesData(pageRows);
                 setPagination((prev) => ({ ...prev, totalPages }));
             }
@@ -69,7 +91,7 @@ export const useDetailSalesManagementKaryawan = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, pagination.page, pagination.limit]);
+    }, [debouncedSearch, type, dateRange, pagination.page, pagination.limit]);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -81,7 +103,7 @@ export const useDetailSalesManagementKaryawan = () => {
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [type]);
+    }, [type, dateRange]);
 
     useEffect(() => {
         fetchDetailSales();
@@ -92,6 +114,8 @@ export const useDetailSalesManagementKaryawan = () => {
 
     return {
         detailSalesData, isLoading, error,
+        totalSummary,
+        dateRange, setDateRange,
         search, setSearch,
         type, setType,
         pagination, handlePageChange, handleRowsPerPageChange,

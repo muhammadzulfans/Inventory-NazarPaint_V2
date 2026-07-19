@@ -5,7 +5,8 @@ import React from "react";
 const TableHistorySalesAdmin = ({
                                     data = [], onPreview, onEdit, onDelete,
                                     showDeleteAction = true,
-                                    isEditAllowed, // function opsional: (rawPayload) => boolean
+                                    isEditAllowed,
+                                    totalItem = 0, totalHarga = 0, // tambahan: total keseluruhan, bukan per-halaman
                                 }) => {
     const rows = data.map((sale) => {
         const itemCount = sale.itemCount ?? (sale.items || []).length;
@@ -21,9 +22,6 @@ const TableHistorySalesAdmin = ({
             rawPayload: sale
         };
     });
-
-    const grandTotalItem = rows.reduce((t, r) => t + r.itemCount, 0);
-    const grandTotalHarga = rows.reduce((t, r) => t + r.totalHarga, 0);
 
     return (
         <table className="w-full text-sm font-inter font-normal">
@@ -47,7 +45,6 @@ const TableHistorySalesAdmin = ({
                 </tr>
             ) : (
                 rows.map((row, index) => {
-                    // Default: selalu boleh edit (dipakai Admin). Karyawan kirim function pembatas.
                     const canEdit = isEditAllowed ? isEditAllowed(row.rawPayload) : true;
 
                     return (
@@ -93,9 +90,9 @@ const TableHistorySalesAdmin = ({
             )}
             <tr className="font-inter font-bold text-base border-b bg-gray-50/30 text-center">
                 <td className="px-3 py-6 text-left" colSpan={2}>Total</td>
-                <td className="p-3 font-inter">{grandTotalItem} Item</td>
+                <td className="p-3 font-inter">{totalItem} Item</td>
                 <td className="p-3 font-inter text-green-600">
-                    Rp. {grandTotalHarga.toLocaleString("id-ID")}
+                    Rp. {totalHarga.toLocaleString("id-ID")}
                 </td>
                 <td></td><td></td><td></td>
             </tr>

@@ -12,6 +12,8 @@ const formatRupiah = (number) =>
         minimumFractionDigits: 0,
     }).format(number || 0);
 
+const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
+
 const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
     const [customerName, setCustomerName] = useState("");
     const [items, setItems] = useState([]);
@@ -28,7 +30,8 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                     name: it.product?.name || "Produk",
                     code: it.product?.code || "-",
                     type: it.product?.type || "",
-                    unit: it.product?.unit || "",
+                    unit: getUnit(it.product?.type),
+                    hexColor: it.product?.hexColor || (it.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af"), // tambahan
                     sellPrice: it.sellPrice,
                     quantity: it.quantity,
                 }))
@@ -53,7 +56,8 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                         name: p.name,
                         code: p.code || "-",
                         type: p.type,
-                        unit: p.unit || "Kg",
+                        unit: getUnit(p.type),
+                        hexColor: p.hexColor || (p.type === "ACCESSORIES" ? "#808080" : "#9ca3af"), // tambahan
                         sellPrice: p.sellPrice,
                         stock,
                     };
@@ -97,6 +101,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                     code: product.code,
                     type: product.type,
                     unit: product.unit,
+                    hexColor: product.hexColor,
                     sellPrice: product.sellPrice,
                     quantity: 1,
                 },
@@ -111,6 +116,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
     );
 
     const subtotal = items.reduce((sum, it) => sum + it.sellPrice * it.quantity, 0);
+
     const totalKg = items
         .filter((it) => (it.unit || "").toLowerCase() === "kg")
         .reduce((sum, it) => sum + it.quantity, 0);
@@ -162,8 +168,7 @@ const EditSaleModal = ({ isOpen, onClose, sale, onSave, isSaving }) => {
                             <p className="text-sm text-gray-400 text-center py-4">Belum ada item.</p>
                         ) : (
                             items.map((item) => {
-                                const product = item.product || {};
-                                const hex = product.hexColor || (product.type === "ACCESSORIES" ? "#808080" : "#9ca3af"); // langsung dari backend
+                                const hex = item.hexColor || "#9ca3af";
                                 return (
                                     <div
                                         key={item.productId}

@@ -14,7 +14,7 @@ const formatTanggal = (date) =>
         ? new Date(date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
         : "-";
 
-const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
+const TransactionDetailModalPreview = ({ isOpen, onClose, transaction }) => {
     if (!transaction) return null;
 
     const items = transaction.items || [];
@@ -24,11 +24,13 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
         0
     );
 
+    const isAccessories = (product) => (product?.type || "").toUpperCase() === "ACCESSORIES";
+
     const totalKg = items
-        .filter((it) => (it.product?.unit || "").toLowerCase() === "kg")
+        .filter((it) => !isAccessories(it.product))
         .reduce((sum, it) => sum + it.quantity, 0);
     const totalPcs = items
-        .filter((it) => (it.product?.unit || "").toLowerCase() === "pcs")
+        .filter((it) => isAccessories(it.product))
         .reduce((sum, it) => sum + it.quantity, 0);
 
     return (
@@ -65,7 +67,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                                                 {product.name} {product.code ? `(${product.code})` : ""}
                                             </p>
                                             <p className="text-xs text-gray-400 mt-0.5">
-                                                {item.quantity} {product.unit} x {formatRupiah(item.sellPrice)}
+                                                {item.quantity} {isAccessories(product) ? "Pcs" : "Kg"} x {formatRupiah(item.sellPrice)}
                                             </p>
                                         </div>
                                     </div>
@@ -129,4 +131,4 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
     );
 };
 
-export default TransactionDetailModal;
+export default TransactionDetailModalPreview;

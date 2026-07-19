@@ -6,6 +6,8 @@ export const useSalesManagementKaryawan = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const [totalSummary, setTotalSummary] = useState({ totalItem: 0, totalHarga: 0 });
+
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
@@ -98,8 +100,32 @@ export const useSalesManagementKaryawan = () => {
 
     const confirmDelete = async () => {}; // no-op, tombol delete tidak pernah trigger modal untuk karyawan
 
+    const fetchTotalSummary = useCallback(async () => {
+        const res = await salesService.getAll({
+            search: debouncedSearch,
+            startDate: dateRange.startDate,
+            endDate: dateRange.endDate,
+            page: 1,
+            limit: 1000,
+        });
+        if (res) {
+            const list = res.data || [];
+            const totalItem = list.reduce((sum, sale) => sum + (sale.itemCount ?? (sale.items || []).length), 0);
+            const totalHarga = list.reduce((sum, sale) => {
+                const saleTotal = (sale.items || []).reduce((s, item) => s + (item.totalPrice ?? 0), 0);
+                return sum + saleTotal;
+            }, 0);
+            setTotalSummary({ totalItem, totalHarga });
+        }
+    }, [debouncedSearch, dateRange]);
+
+    useEffect(() => {
+        fetchTotalSummary().catch((err) => console.error("Gagal memuat total penjualan:", err));
+    }, [fetchTotalSummary]);
+
     return {
         salesData, isLoading, error,
+        totalSummary,
         search, setSearch,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,

@@ -9,6 +9,8 @@ const formatDate = (isoString) => {
     } catch { return "-"; }
 };
 
+const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
+
 const StockOpnameDetailModal = ({ isOpen, onClose, opname }) => {
     if (!opname) return null;
     const items = opname.items || [];
@@ -40,35 +42,38 @@ const StockOpnameDetailModal = ({ isOpen, onClose, opname }) => {
                     </div>
 
                     <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                        {items.map((item) => (
-                            <div key={item.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className="w-3 h-3 rounded-full shrink-0 border border-gray-200"
-                                            style={{ backgroundColor: item.product?.hexColor }}
-                                        ></div>
-                                        <div>
-                                            <p className="text-sm font-semibold text-black">{item.product?.name}</p>
-                                            <p className="text-xs text-gray-400">{item.product?.code} · {item.product?.type}</p>
+                        {items.map((item) => {
+                            const unit = getUnit(item.product?.type);
+                            return (
+                                <div key={item.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="w-3 h-3 rounded-full shrink-0 border border-gray-200"
+                                                style={{ backgroundColor: item.product?.hexColor || (item.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af") }}
+                                            ></div>
+                                            <div>
+                                                <p className="text-sm font-semibold text-black">{item.product?.name}</p>
+                                                <p className="text-xs text-gray-400">{item.product?.code} – {item.product?.type}</p>
+                                            </div>
                                         </div>
+                                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
+                                            item.selisih === 0 ? "bg-gray-100 text-gray-600" :
+                                                item.selisih > 0 ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
+                                        }`}>
+                                            {item.selisih > 0 ? "+" : ""}{item.selisih} {unit}
+                                        </span>
                                     </div>
-                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
-                                        item.selisih === 0 ? "bg-gray-100 text-gray-600" :
-                                            item.selisih > 0 ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
-                                    }`}>
-                                        {item.selisih > 0 ? "+" : ""}{item.selisih} {item.product?.unit}
-                                    </span>
+                                    <div className="flex justify-between text-xs text-gray-500">
+                                        <span>Stok Sistem: <b className="text-black">{item.stokSistem} {unit}</b></span>
+                                        <span>Stok Fisik: <b className="text-black">{item.stokFisik} {unit}</b></span>
+                                    </div>
+                                    {item.catatan && (
+                                        <p className="text-xs text-gray-500 italic">Catatan: {item.catatan}</p>
+                                    )}
                                 </div>
-                                <div className="flex justify-between text-xs text-gray-500">
-                                    <span>Stok Sistem: <b className="text-black">{item.stokSistem} {item.product?.unit}</b></span>
-                                    <span>Stok Fisik: <b className="text-black">{item.stokFisik} {item.product?.unit}</b></span>
-                                </div>
-                                {item.catatan && (
-                                    <p className="text-xs text-gray-500 italic">Catatan: {item.catatan}</p>
-                                )}
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 

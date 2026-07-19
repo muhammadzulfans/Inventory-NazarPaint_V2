@@ -7,12 +7,18 @@ export const useDetailSalesManagement = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const [totalSummary, setTotalSummary] = useState({
+        totalHargaJual: 0, totalHargaBeli: 0, totalKeuntungan: 0,
+        totalQtyKg: 0, totalQtyPcs: 0,
+    });
+
     // Filter States
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [type, setType] = useState("");
     const [storeId, setStoreId] = useState("");
     const [storeOptions, setStoreOptions] = useState([]);
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     // Pagination State
     const [pagination, setPagination] = useState({
@@ -41,10 +47,10 @@ export const useDetailSalesManagement = () => {
         try {
             const res = await salesService.getAll({
                 storeId,
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
                 page: 1,
                 limit: 1000,
-                // search TIDAK dikirim ke backend — search sekarang mencakup kode barang
-                // yang backend tidak support, jadi filter dilakukan penuh di FE
             });
 
             if (res) {
@@ -74,7 +80,6 @@ export const useDetailSalesManagement = () => {
                     flattened = flattened.filter((row) => row.type === type);
                 }
 
-                // Search sekarang mencocokkan ID Penjualan ATAU Kode Barang
                 if (debouncedSearch) {
                     const q = debouncedSearch.toLowerCase();
                     flattened = flattened.filter(
@@ -83,6 +88,24 @@ export const useDetailSalesManagement = () => {
                             row.kode.toLowerCase().includes(q)
                     );
                 }
+
+                // Hitung total dari SELURUH data hasil filter (sebelum di-slice per-halaman)
+                const totalHargaJual = flattened.reduce((sum, row) => sum + row.hargaJual * row.quantity, 0);
+                const totalHargaBeli = flattened.reduce((sum, row) => sum + row.hargaBeli * row.quantity, 0);
+                const totalQtyKg = flattened
+                    .filter((row) => row.type !== "ACCESSORIES" && row.type !== "AKSESORIS")
+                    .reduce((sum, row) => sum + row.quantity, 0);
+                const totalQtyPcs = flattened
+                    .filter((row) => row.type === "ACCESSORIES" || row.type === "AKSESORIS")
+                    .reduce((sum, row) => sum + row.quantity, 0);
+
+                setTotalSummary({
+                    totalHargaJual,
+                    totalHargaBeli,
+                    totalKeuntungan: totalHargaJual - totalHargaBeli,
+                    totalQtyKg, // tambahan
+                    totalQtyPcs, // tambahan
+                });
 
                 const totalRows = flattened.length;
                 const totalPages = Math.max(1, Math.ceil(totalRows / pagination.limit));
@@ -98,7 +121,7 @@ export const useDetailSalesManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, type, storeId, pagination.page, pagination.limit]);
+    }, [debouncedSearch, type, storeId, dateRange, pagination.page, pagination.limit]);
 
     // EFFECT 1: Debounce search
     useEffect(() => {
@@ -112,7 +135,7 @@ export const useDetailSalesManagement = () => {
     // EFFECT 2: Reset page saat filter berubah
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [storeId, type]);
+    }, [storeId, dateRange, type]);
 
     // EFFECT 3: Jalankan fetch
     useEffect(() => {
@@ -131,6 +154,7 @@ export const useDetailSalesManagement = () => {
         detailSalesData,
         isLoading,
         error,
+        totalSummary,
         search,
         setSearch,
         type,
@@ -138,6 +162,7 @@ export const useDetailSalesManagement = () => {
         storeId,
         setStoreId,
         storeOptions,
+        dateRange, setDateRange,
         pagination,
         handlePageChange,
         handleRowsPerPageChange,

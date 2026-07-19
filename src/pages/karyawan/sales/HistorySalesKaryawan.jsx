@@ -14,12 +14,13 @@ import DeleteModal from "../../../components/modals/DeleteModal.jsx";
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
-import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+import TransactionDetailModalPreview from "../../../components/modals/TransactionDetailModalPreview.jsx";
 import EditSaleModal from "../../../components/modals/EditSaleModal.jsx";
 
 const HistorySalesKaryawan = () => {
     const {
         salesData, isLoading, error,
+        totalSummary,
         search, setSearch,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
@@ -80,6 +81,8 @@ const HistorySalesKaryawan = () => {
                             onDelete={triggerDelete}
                             showDeleteAction={false}
                             isEditAllowed={canEditSale}
+                            totalItem={totalSummary.totalItem}
+                            totalHarga={totalSummary.totalHarga}
                         />
                     )}
                     <TablePagination
@@ -101,7 +104,7 @@ const HistorySalesKaryawan = () => {
                 isSaving={isUpdating}
             />
 
-            <TransactionDetailModal
+            <TransactionDetailModalPreview
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
                 transaction={selectedTransaction}

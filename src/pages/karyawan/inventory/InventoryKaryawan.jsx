@@ -17,7 +17,8 @@ const InventoryKaryawan = () => {
         search, setSearch,
         type, setType,
         storeId,
-        pagination, handlePageChange, handleRowsPerPageChange
+        pagination, handlePageChange, handleRowsPerPageChange,
+        totalSummary, totalCount,
     } = useProductInventoryKaryawan();
 
     const { overview, isLoading: isLoadingOverview } = useStockOverviewKaryawan();
@@ -81,6 +82,10 @@ const InventoryKaryawan = () => {
                         isEditable={false}
                         showBasePrice={false}
                         storeId={storeId}
+                        totalStokKg={totalSummary.totalStokKg}
+                        totalStokPcs={totalSummary.totalStokPcs}
+                        hasKg={totalSummary.hasKg}
+                        hasPcs={totalSummary.hasPcs}
                     />
                     <TablePagination
                         currentPage={pagination.page}
@@ -90,7 +95,7 @@ const InventoryKaryawan = () => {
                         onRowsPerPageChange={handleRowsPerPageChange}
                     />
                     <div className="mt-4 text-sm font-inter text-gray-500 font-medium">
-                        Total: <span className="text-black font-semibold">{products.length}</span> produk tersedia
+                        Total: <span className="text-black font-semibold">{totalCount}</span> produk tersedia
                     </div>
                 </div>
             </div>

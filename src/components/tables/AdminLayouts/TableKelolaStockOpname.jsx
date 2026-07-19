@@ -1,5 +1,7 @@
 import React from "react";
 
+const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
+
 const TableKelolaStockOpname = ({ products, isLoading, rowData, onFieldChange, getSelisih }) => {
     return (
         <table className="w-full text-sm font-inter font-normal">
@@ -44,7 +46,7 @@ const TableKelolaStockOpname = ({ products, isLoading, rowData, onFieldChange, g
                                     {p.type}
                                 </span>
                             </td>
-                            <td className="p-3 text-center font-semibold">{p.stokSistem} {p.unit}</td>
+                            <td className="p-3 text-center font-semibold">{p.stokSistem} {getUnit(p.type)}</td>
                             <td className="p-3 text-center">
                                 <input
                                     type="number"

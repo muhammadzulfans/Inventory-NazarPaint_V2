@@ -1,3 +1,4 @@
+import React, {useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { useProductInventory } from "../../../hooks/admin/useProductInventory.js";
 
@@ -6,16 +7,15 @@ import SearchFilter from "../../../components/ui/SearchFilter.jsx";
 import TableAdmin from "../../../components/tables/AdminLayouts/TableAdmin.jsx";
 import FilterDropdown from "../../../components/ui/FilterDropdown.jsx";
 import TablePagination from "../../../components/ui/TablePagination.jsx";
-import { catTypes } from "../../../Data/DropdownOptions.jsx";
 
+import { catTypes } from "../../../Data/DropdownOptions.jsx";
 import { FaArrowTrendDown, FaPlus } from "react-icons/fa6";
 import { AiOutlineProduct } from "react-icons/ai";
 import { MdOutlineStore } from "react-icons/md";
 import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
-import React, {useState} from "react";
 import ModalPrediksiStok from "../../../components/modals/ModalPrediksiStok.jsx";
-import {useStockOverviewAdmin} from "../../../hooks/admin/useStockOverviewAdmin.js";
+import { useStockOverviewAdmin } from "../../../hooks/admin/useStockOverviewAdmin.js";
 
 const InventoryAdmin = () => {
     const navigate = useNavigate();
@@ -27,11 +27,12 @@ const InventoryAdmin = () => {
         type, setType,
         storeId, setStoreId, storeOptions,
         dateRange, setDateRange,
-        pagination, handlePageChange, handleRowsPerPageChange
+        pagination, handlePageChange, handleRowsPerPageChange,
+        totalSummary
     } = useProductInventory();
 
     const {
-        overview
+        overview, isLoading: isLoadingOverview,
     } = useStockOverviewAdmin();
 
     const [previewProduct, setPreviewProduct] = useState(null);
@@ -65,25 +66,23 @@ const InventoryAdmin = () => {
             <div className="grid grid-cols-4 gap-16 mb-14">
                 <Card
                     title="Stok Hampir Habis"
-                    value={`${overview?.lowStockCount ?? 0} Item`}
+                    value={isLoadingOverview ? "..." : `${overview?.lowStockCount ?? 0} Item`}
                     icon={<FaArrowTrendDown className="size-7 m-3.5" />}
                 />
                 <Card
                     title="Total Mutasi Keluar"
-                    value={`${overview?.stokKeluar ?? 0} Unit`}
+                    value={isLoadingOverview ? "..." : `${overview?.stokKeluar ?? 0} Unit`}
                     icon={<AiOutlineProduct className="size-8 m-3" />}
                 />
                 <Card
                     title="Total Mutasi Masuk"
-                    value={`${overview?.stokMasuk ?? 0} Unit`}
+                    value={isLoadingOverview ? "..." : `${overview?.stokMasuk ?? 0} Unit`}
                     icon={<AiOutlineProduct className="size-7 m-3.5" />}
                 />
                 <Card
                     title="Jumlah Cabang"
-                    value="3"
-                    icon={<MdOutlineStore
-                        className="size-8 m-3"
-                    />}
+                    value={isLoadingOverview ? "..." : `${overview?.storeCount ?? 0}`}
+                    icon={<MdOutlineStore className="size-8 m-3" />}
                 />
             </div>
 
@@ -103,7 +102,6 @@ const InventoryAdmin = () => {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                     <DateRangeField
-                        // label="Durasi"
                         value={dateRange}
                         onChange={setDateRange}
                     />
@@ -131,6 +129,10 @@ const InventoryAdmin = () => {
                         isEditable={false}
                         storeId={storeId}
                         onPreview={handlePreview}
+                        totalStokKg={totalSummary.totalStokKg}
+                        totalStokPcs={totalSummary.totalStokPcs}
+                        hasKg={totalSummary.hasKg}
+                        hasPcs={totalSummary.hasPcs}
                     />
                     <TablePagination
                         currentPage={pagination.page}

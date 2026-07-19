@@ -10,12 +10,13 @@ import { useSalesManagement } from "../../../hooks/admin/useSalesManagement.js";
 import { FiSearch, FiFilter } from "react-icons/fi";
 
 // Import Komponen Detail Modal Baru
-import TransactionDetailModal from "../../../components/modals/TransactionDetailModal.jsx";
+import TransactionDetailModalPreview from "../../../components/modals/TransactionDetailModalPreview.jsx";
 import EditSaleModal from "../../../components/modals/EditSaleModal.jsx";
 
 const HistorySalesAdmin = () => {
     const {
         salesData, isLoading, error,
+        totalSummary,
         search, setSearch,
         storeId, setStoreId, storeOptions,
         dateRange, setDateRange,
@@ -83,6 +84,8 @@ const HistorySalesAdmin = () => {
                             onPreview={handlePreview}
                             onEdit={handleEdit}
                             onDelete={triggerDelete}
+                            totalItem={totalSummary.totalItem}
+                            totalHarga={totalSummary.totalHarga}
                         />
                     )}
                     <TablePagination
@@ -104,7 +107,7 @@ const HistorySalesAdmin = () => {
                 isSaving={isUpdating}
             />
 
-            <TransactionDetailModal
+            <TransactionDetailModalPreview
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
                 transaction={selectedTransaction}
