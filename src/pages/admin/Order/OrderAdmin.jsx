@@ -190,6 +190,15 @@ const OrderAdmin = () => {
             />
 
             <WarningModal
+                isOpen={orderCreate.isCancelConfirmOpen}
+                onClose={() => orderCreate.setIsCancelConfirmOpen(false)}
+                onConfirm={orderCreate.confirmCancelAll}
+                title="Batalkan Edit Semua Pesanan?"
+                message="Apakah anda yakin ingin membatalkan semua daftar pesanan ini? Item yang sudah ditambahkan akan hilang."
+                confirmText="Ya, Batalkan"
+            />
+
+            <WarningModal
                 isOpen={orderMgmt.isRejectOpen}
                 onClose={() => orderMgmt.setIsRejectOpen(false)}
                 onConfirm={orderMgmt.confirmRejectChange}

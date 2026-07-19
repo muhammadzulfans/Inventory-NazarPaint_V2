@@ -1,6 +1,7 @@
 import React from "react";
 import { FiCornerUpLeft } from "react-icons/fi";
 import Modal from "./Modal.jsx";
+import ProductVisual from "../ui/Productvisual.jsx";
 
 const formatRupiah = (number) =>
     new Intl.NumberFormat("id-ID", {
@@ -51,17 +52,17 @@ const TransactionDetailModalPreview = ({ isOpen, onClose, transaction }) => {
                     <div className="space-y-3 max-h-48 overflow-y-auto pr-1 scrollbar-none">
                         {items.map((item) => {
                             const product = item.product || {};
-                            const hex = product.hexColor || (product.type === "ACCESSORIES" ? "#808080" : "#9ca3af"); // langsung dari backend
                             return (
                                 <div
                                     key={item.id}
                                     className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div
-                                            className="w-10 h-10 rounded-lg shrink-0 border border-gray-200"
-                                            style={{ backgroundColor: hex }}
-                                        ></div>
+                                        <ProductVisual
+                                            product={product}
+                                            size={40}
+                                            className="rounded-lg border border-gray-200"
+                                        />
                                         <div>
                                             <p className="text-sm font-semibold text-black">
                                                 {product.name} {product.code ? `(${product.code})` : ""}

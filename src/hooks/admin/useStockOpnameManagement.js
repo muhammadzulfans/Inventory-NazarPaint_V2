@@ -1,12 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { stockOpnameService } from "../../api/services/stockOpnameService.js";
 import { storeService } from "../../api/services/storeService.js";
-import useAuthStore from "../../store/authStore.js";
 
-export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
-    const { user } = useAuthStore();
-    const isOwner = user?.role === "OWNER";
-
+export const useStockOpnameManagement = () => {
     const [opnameData, setOpnameData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -15,17 +11,22 @@ export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [storeId, setStoreId] = useState("");
     const [storeOptions, setStoreOptions] = useState([]);
-    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1 });
 
-    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
+    const [editOpname, setEditOpname] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    // Finalisasi (DRAFT -> SELESAI)
+    const [deleteOpname, setDeleteOpname] = useState(null);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const [finalizeTarget, setFinalizeTarget] = useState(null);
     const [isFinalizeOpen, setIsFinalizeOpen] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
+
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
 
     useEffect(() => {
         storeService.getAll()
@@ -46,9 +47,6 @@ export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
             const res = await stockOpnameService.getAll({
                 search: debouncedSearch,
                 storeId,
-                status: fixedStatus,
-                startDate: dateRange.startDate,
-                endDate: dateRange.endDate,
                 page: pagination.page,
                 limit: pagination.limit,
             });
@@ -59,12 +57,11 @@ export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
                 }
             }
         } catch (err) {
-            console.error("Fetch Stock Opname Error:", err);
             setError("Gagal memuat data stock opname.");
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, storeId, fixedStatus, dateRange, pagination.page, pagination.limit]);
+    }, [debouncedSearch, storeId, pagination.page, pagination.limit]);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -76,7 +73,7 @@ export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, page: 1 }));
-    }, [storeId, dateRange]);
+    }, [storeId]);
 
     useEffect(() => {
         fetchOpname();
@@ -85,13 +82,48 @@ export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
     const handlePageChange = (newPage) => setPagination((prev) => ({ ...prev, page: newPage }));
     const handleRowsPerPageChange = (newLimit) => setPagination((prev) => ({ ...prev, limit: newLimit, page: 1 }));
 
-    const triggerFinalize = (opname) => {
-        if (!isOwner) {
-            alert("Hanya OWNER yang bisa menyelesaikan stock opname.");
-            return;
+    const handleEdit = (row) => {
+        setEditOpname(row);
+    };
+
+    const handleUpdate = async (opname, items) => {
+        setIsUpdating(true);
+        try {
+            await stockOpnameService.update(opname.id, { items });
+            setEditOpname(null);
+            setSuccessMessage("Stock opname berhasil diperbarui!");
+            setIsSuccessOpen(true);
+            await fetchOpname();
+        } catch (err) {
+            alert("Gagal memperbarui: " + (err.response?.data?.message || err.message));
+        } finally {
+            setIsUpdating(false);
         }
-        if (opname.status !== "DRAFT") return;
-        setFinalizeTarget(opname);
+    };
+
+    const triggerDelete = (row) => {
+        setDeleteOpname(row);
+        setIsDeleteOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        setIsDeleting(true);
+        try {
+            await stockOpnameService.delete(deleteOpname.id);
+            setIsDeleteOpen(false);
+            setDeleteOpname(null);
+            setSuccessMessage("Stock opname berhasil dihapus!");
+            setIsSuccessOpen(true);
+            await fetchOpname();
+        } catch (err) {
+            alert("Gagal menghapus: " + (err.response?.data?.message || err.message));
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const triggerFinalize = (row) => {
+        setFinalizeTarget(row);
         setIsFinalizeOpen(true);
     };
 
@@ -101,7 +133,7 @@ export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
             await stockOpnameService.selesai(finalizeTarget.id);
             setIsFinalizeOpen(false);
             setFinalizeTarget(null);
-            setSuccessMessage("Stock opname diselesaikan, stok sistem sudah disesuaikan!");
+            setSuccessMessage("Stock opname berhasil diselesaikan!");
             setIsSuccessOpen(true);
             await fetchOpname();
         } catch (err) {
@@ -111,26 +143,15 @@ export const useStockOpnameManagement = ({ fixedStatus } = {}) => {
         }
     };
 
-    const handleEditSubmit = async (opname, items) => {
-        // Backend tidak punya endpoint update — edit dilakukan dengan
-        // menghapus draft lama lalu membuat draft baru dengan data terkini.
-        await stockOpnameService.delete(opname.id);
-        await stockOpnameService.create({ storeId: opname.storeId, items });
-
-        setSuccessMessage("Draft stock opname berhasil diperbarui!");
-        setIsSuccessOpen(true);
-        await fetchOpname();
-    };
-
     return {
-        opnameData, isLoading, error, fetchOpname,
+        opnameData, isLoading, error,
         search, setSearch,
         storeId, setStoreId, storeOptions,
-        dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
-        isOwner,
+        editOpname, setEditOpname, handleEdit, handleUpdate, isUpdating,
+        deleteOpname, setDeleteOpname, isDeleteOpen, setIsDeleteOpen, isDeleting, triggerDelete, confirmDelete,
         finalizeTarget, isFinalizeOpen, setIsFinalizeOpen, isFinalizing, triggerFinalize, confirmFinalize,
-        handleEditSubmit,
         isSuccessOpen, setIsSuccessOpen, successMessage,
+        isOwner: true,
     };
 };

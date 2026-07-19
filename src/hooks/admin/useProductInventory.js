@@ -180,7 +180,8 @@ export const useProductInventory = () => {
                 tipeBarang: item.type || "",
                 hargaPokok: item.basePrice || "",
                 hargaJual: item.sellPrice || "",
-                hexColor: item.hexColor || "", // ambil langsung dari backend, no more tebak-tebakan
+                hexColor: item.hexColor || "",
+                icon: item.icon || "",  // BARU
             });
         } else {
             setSelectedProduct({
@@ -188,6 +189,7 @@ export const useProductInventory = () => {
                 kodeBarang: "", namaBarang: "",
                 tipeBarang: "", hargaPokok: "", hargaJual: "",
                 hexColor: "",
+                icon: "",  // BARU
             });
         }
         setModalConfig({ isOpen: true, type });

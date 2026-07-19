@@ -1,6 +1,7 @@
 import React from "react";
 import { FiCornerUpLeft } from "react-icons/fi";
 import Modal from "./Modal.jsx";
+import ProductVisual from "../ui/Productvisual.jsx";
 
 const formatDate = (isoString) => {
     if (!isoString) return "-";
@@ -20,7 +21,6 @@ const StockOpnameDetailModal = ({ isOpen, onClose, opname }) => {
             isOpen={isOpen}
             onClose={onClose}
             title="Detail Stock Opname"
-            // subtitle={`${opname.orderNumber} • ${formatDate(opname.date)}`}
             subtitle={formatDate(opname.date)}
         >
             <div className="font-inter space-y-6">
@@ -48,13 +48,14 @@ const StockOpnameDetailModal = ({ isOpen, onClose, opname }) => {
                                 <div key={item.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-2">
-                                            <div
-                                                className="w-3 h-3 rounded-full shrink-0 border border-gray-200"
-                                                style={{ backgroundColor: item.product?.hexColor || (item.product?.type === "ACCESSORIES" ? "#808080" : "#9ca3af") }}
-                                            ></div>
+                                            <ProductVisual
+                                                product={item.product}
+                                                size={40}
+                                                className="rounded-lg border border-gray-200"
+                                            />
                                             <div>
                                                 <p className="text-sm font-semibold text-black">{item.product?.name}</p>
-                                                <p className="text-xs text-gray-400">{item.product?.code} – {item.product?.type}</p>
+                                                <p className="text-xs text-gray-400">{item.product?.code} • {item.product?.type}</p>
                                             </div>
                                         </div>
                                         <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
