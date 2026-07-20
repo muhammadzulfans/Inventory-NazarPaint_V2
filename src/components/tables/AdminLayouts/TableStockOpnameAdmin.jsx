@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { HiChevronDown, HiChevronRight, HiOutlinePencilSquare } from "react-icons/hi2";
 import { FiEye } from "react-icons/fi";
-import ProductVisual from "../../ui/Productvisual.jsx";
 
 const formatDate = (isoString) => {
     if (!isoString) return "-";
@@ -12,7 +11,7 @@ const formatDate = (isoString) => {
 
 const getUnit = (type) => (type || "").toUpperCase() === "ACCESSORIES" ? "Pcs" : "Kg";
 
-const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwner }) => {
+const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, canManage, canFinalize }) => {
     const [expandedIds, setExpandedIds] = useState(new Set());
 
     const toggleExpand = (id) => {
@@ -48,7 +47,7 @@ const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwn
                     const isExpandable = row.items.length > 0;
                     const isExpanded = expandedIds.has(row.id);
                     const isDraft = row.status === "DRAFT";
-                    const canEdit = isDraft && isOwner; // edit = delete+create, DELETE cuma boleh OWNER
+                    const canEdit = isDraft && canManage;
 
                     return (
                         <React.Fragment key={row.id}>
@@ -76,7 +75,7 @@ const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwn
                                 </td>
                                 <td className="p-3 text-center">{formatDate(row.date)}</td>
                                 <td className="p-3 text-center">
-                                    {isDraft && isOwner ? (
+                                    {isDraft && canFinalize ? (
                                         <button
                                             onClick={() => onFinalize && onFinalize(row)}
                                             className="uppercase text-xs font-semibold bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md hover:bg-yellow-200 transition-all cursor-pointer"
@@ -102,7 +101,7 @@ const TableStockOpnameAdmin = ({ data = [], onPreview, onEdit, onFinalize, isOwn
                                         className={`text-pen ${!canEdit ? "opacity-30 cursor-not-allowed" : "hover:bg-yellow-50"}`}
                                         onClick={() => canEdit && onEdit && onEdit(row)}
                                         disabled={!canEdit}
-                                        title={!canEdit && isDraft ? "Hanya Owner yang bisa mengedit" : undefined}
+                                        title={!canEdit && isDraft ? "Anda tidak memiliki akses untuk mengedit" : undefined}
                                     >
                                         <HiOutlinePencilSquare className="size-7 p-1 border border-current rounded-md transition" />
                                     </button>

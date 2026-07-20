@@ -20,7 +20,6 @@ const KelolaStockOpnameAdmin = () => {
         pagination, handlePageChange, handleRowsPerPageChange,
         isSubmitting, handleSubmit,
         isSuccessOpen, setIsSuccessOpen, successMessage,
-        isEditing,
     } = useStockOpnameCreate();
 
     return (
@@ -32,7 +31,7 @@ const KelolaStockOpnameAdmin = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-inter font-medium text-black">
-                            {isEditing ? "Edit Stock Opname" : "Kelola Stock Opname"}
+                            Kelola Stock Opname
                         </h1>
                         <p className="text-sm font-inter text-black">Isi hasil hitung fisik langsung di tabel</p>
                     </div>

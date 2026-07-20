@@ -5,15 +5,12 @@ export const useStockOpnameManagementKaryawan = () => {
     const [opnameData, setOpnameData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
-
+    const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1 });
-
     const [editOpname, setEditOpname] = useState(null);
     const [isUpdating, setIsUpdating] = useState(false);
-
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
 
@@ -23,6 +20,8 @@ export const useStockOpnameManagementKaryawan = () => {
         try {
             const res = await stockOpnameService.getAll({
                 search: debouncedSearch,
+                startDate: dateRange.startDate || undefined,
+                endDate: dateRange.endDate || undefined,
                 page: pagination.page,
                 limit: pagination.limit,
                 // storeId TIDAK dikirim, backend auto-scope ke cabang karyawan
@@ -38,7 +37,7 @@ export const useStockOpnameManagementKaryawan = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearch, pagination.page, pagination.limit]);
+    }, [debouncedSearch, dateRange, pagination.page, pagination.limit]);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -47,6 +46,10 @@ export const useStockOpnameManagementKaryawan = () => {
         }, 500);
         return () => clearTimeout(t);
     }, [search]);
+
+    useEffect(() => {
+        setPagination((prev) => ({ ...prev, page: 1 }));
+    }, [dateRange]);
 
     useEffect(() => {
         fetchOpname();
@@ -77,9 +80,10 @@ export const useStockOpnameManagementKaryawan = () => {
     return {
         opnameData, isLoading, error,
         search, setSearch,
+        dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         editOpname, setEditOpname, handleEdit, handleUpdate, isUpdating,
         isSuccessOpen, setIsSuccessOpen, successMessage,
-        isOwner: false,
+        canManage: true,
     };
 };

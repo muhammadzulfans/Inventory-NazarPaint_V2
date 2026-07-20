@@ -10,6 +10,7 @@ import StockOpnameDetailModal from "../../../components/modals/StockOpnameDetail
 import SuccessModal from "../../../components/modals/SuccessModal.jsx";
 import { FaPlus } from "react-icons/fa6";
 import { FiSearch } from "react-icons/fi";
+import EditStockOpnameModal from "../../../components/modals/EditStockOpnameModal.jsx";
 
 const StockOpnameKaryawan = () => {
     const navigate = useNavigate();
@@ -18,7 +19,8 @@ const StockOpnameKaryawan = () => {
         search, setSearch,
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
-        isOwner,
+        editOpname, setEditOpname, handleEdit, handleUpdate, isUpdating,
+        canManage,
         isSuccessOpen, setIsSuccessOpen, successMessage,
     } = useStockOpnameManagementKaryawan();
 
@@ -69,9 +71,10 @@ const StockOpnameKaryawan = () => {
                         <TableStockOpnameAdmin
                             data={opnameData}
                             onPreview={handlePreview}
-                            onEdit={() => {}} // tidak pernah terpanggil, tombol otomatis disabled (isOwner=false)
-                            onFinalize={() => {}} // tidak pernah terpanggil, badge otomatis non-klik (isOwner=false)
-                            isOwner={isOwner}
+                            onEdit={handleEdit}
+                            onFinalize={() => {}}
+                            canManage={canManage}
+                            canFinalize={false}
                         />
                     )}
                     <TablePagination
@@ -88,6 +91,14 @@ const StockOpnameKaryawan = () => {
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
                 opname={selectedOpname}
+            />
+
+            <EditStockOpnameModal
+                isOpen={!!editOpname}
+                onClose={() => setEditOpname(null)}
+                opname={editOpname}
+                onSave={handleUpdate}
+                isSaving={isUpdating}
             />
 
             <SuccessModal
