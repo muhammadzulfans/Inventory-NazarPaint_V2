@@ -23,37 +23,17 @@ const StockOpnameAdmin = () => {
         dateRange, setDateRange,
         pagination, handlePageChange, handleRowsPerPageChange,
         isOwner,
+        editOpname, setEditOpname, handleEdit, handleUpdate, isUpdating,
         isFinalizeOpen, setIsFinalizeOpen, isFinalizing, triggerFinalize, confirmFinalize,
-        handleEditSubmit, // baru
         isSuccessOpen, setIsSuccessOpen, successMessage,
     } = useStockOpnameManagement();
 
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [selectedOpname, setSelectedOpname] = useState(null);
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [editTarget, setEditTarget] = useState(null);
-    const [isSavingEdit, setIsSavingEdit] = useState(false);
 
     const handlePreview = (opname) => {
         setSelectedOpname(opname);
         setIsPreviewOpen(true);
-    };
-
-    const handleEdit = (opname) => {
-        setEditTarget(opname);
-        setIsEditOpen(true);
-    };
-
-    const handleSaveEdit = async (opname, items) => {
-        setIsSavingEdit(true);
-        try {
-            await handleEditSubmit(opname, items);
-            setIsEditOpen(false);
-        } catch (err) {
-            alert("Gagal memperbarui: " + (err.response?.data?.message || err.message));
-        } finally {
-            setIsSavingEdit(false);
-        }
     };
 
     return (
@@ -103,7 +83,8 @@ const StockOpnameAdmin = () => {
                             onPreview={handlePreview}
                             onEdit={handleEdit}
                             onFinalize={triggerFinalize}
-                            isOwner={isOwner}
+                            canManage={isOwner}
+                            canFinalize={isOwner}
                         />
                     )}
                     <TablePagination
@@ -144,11 +125,11 @@ const StockOpnameAdmin = () => {
             />
 
             <EditStockOpnameModal
-                isOpen={isEditOpen}
-                onClose={() => setIsEditOpen(false)}
-                opname={editTarget}
-                onSave={handleSaveEdit}
-                isSaving={isSavingEdit}
+                isOpen={!!editOpname}
+                onClose={() => setEditOpname(null)}
+                opname={editOpname}
+                onSave={handleUpdate}
+                isSaving={isUpdating}
             />
         </div>
     );

@@ -88,25 +88,27 @@ export const useStockOpnameCreateKaryawan = () => {
     );
 
     const buildItemsToSubmit = () => {
-        return products
-            .filter((p) => {
-                const v = rowData[p.id]?.stokFisik;
-                return v !== undefined && v !== "";
-            })
-            .map((p) => ({
+        return products.map((p) => {
+            const stokFisikRaw = rowData[p.id]?.stokFisik;
+            const hasStokFisik = stokFisikRaw !== undefined && stokFisikRaw !== "";
+            return {
                 productId: p.id,
-                stokFisik: Number(rowData[p.id].stokFisik),
+                stokSistem: p.stokSistem,
+                stokFisik: hasStokFisik ? Number(stokFisikRaw) : null,
                 catatan: rowData[p.id]?.catatan?.trim() || undefined,
-            }));
+            };
+        });
     };
 
     const handleSubmit = async () => {
+        if (products.length === 0) { alert("Tidak ada produk untuk cabang ini."); return; }
+        if (filledCount === 0) { alert("Isi minimal 1 stok fisik produk sebelum menyimpan."); return; }
+
         const items = buildItemsToSubmit();
-        if (items.length === 0) { alert("Isi minimal 1 stok fisik produk sebelum menyimpan."); return; }
 
         const missingNote = items.find((it) => {
-            const product = products.find((p) => p.id === it.productId);
-            const selisih = it.stokFisik - (product?.stokSistem ?? 0);
+            if (it.stokFisik === null) return false;
+            const selisih = it.stokFisik - it.stokSistem;
             return selisih !== 0 && !it.catatan;
         });
         if (missingNote) {
@@ -120,7 +122,7 @@ export const useStockOpnameCreateKaryawan = () => {
             // storeId tidak perlu dikirim eksplisit — backend override otomatis
             // dari req.user.storeId untuk role KARYAWAN
             await stockOpnameService.create({ items });
-            setSuccessMessage(`Hasil opname untuk ${items.length} produk berhasil disimpan sebagai draft!`);
+            setSuccessMessage(`Hasil opname untuk ${filledCount} produk berhasil disimpan sebagai draft!`);
             setIsSuccessOpen(true);
             setRowData({});
         } catch (err) {

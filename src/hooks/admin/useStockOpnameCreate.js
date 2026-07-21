@@ -1,31 +1,16 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { storeService } from "../../api/services/storeService.js";
 import { productService } from "../../api/services/productService.js";
 import { stockOpnameService } from "../../api/services/stockOpnameService.js";
 
 export const useStockOpnameCreate = () => {
-    const location = useLocation();
-    const editOpname = location.state?.editOpname || null;
-
     const [storeOptions, setStoreOptions] = useState([]);
-    const [selectedStore, setSelectedStore] = useState(editOpname?.storeId || "");
-    const [editingId] = useState(editOpname?.id || null);
+    const [selectedStore, setSelectedStore] = useState("");
 
     const [products, setProducts] = useState([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
-    const [rowData, setRowData] = useState(() => {
-        if (!editOpname) return {};
-        const initial = {};
-        editOpname.items.forEach((it) => {
-            initial[it.productId] = {
-                stokFisik: String(it.stokFisik),
-                catatan: it.catatan || "",
-            };
-        });
-        return initial;
-    });
+    const [rowData, setRowData] = useState({});
 
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1 });
 
@@ -45,7 +30,7 @@ export const useStockOpnameCreate = () => {
     useEffect(() => {
         if (!selectedStore) {
             setProducts([]);
-            if (!editOpname) setRowData({});
+            setRowData({});
             return;
         }
 
@@ -65,7 +50,7 @@ export const useStockOpnameCreate = () => {
                         };
                     });
                     setProducts(mapped);
-                    if (!editOpname) setRowData({});
+                    setRowData({});
                     setPagination((prev) => ({
                         ...prev, page: 1,
                         totalPages: Math.max(1, Math.ceil(mapped.length / prev.limit)),
@@ -74,7 +59,6 @@ export const useStockOpnameCreate = () => {
             })
             .catch((err) => console.error("Error fetch products:", err))
             .finally(() => setIsLoadingProducts(false));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedStore]);
 
     const handleFieldChange = (productId, field, value) => {
@@ -113,29 +97,32 @@ export const useStockOpnameCreate = () => {
         pagination.page * pagination.limit
     );
 
+    // Kirim SEMUA produk cabang, bukan cuma yang diisi — produk yang belum
+    // dihitung tetap tersimpan sebagai baris item dengan stokFisik null.
     const buildItemsToSubmit = () => {
-        return products
-            .filter((p) => {
-                const v = rowData[p.id]?.stokFisik;
-                return v !== undefined && v !== "";
-            })
-            .map((p) => ({
+        return products.map((p) => {
+            const stokFisikRaw = rowData[p.id]?.stokFisik;
+            const hasStokFisik = stokFisikRaw !== undefined && stokFisikRaw !== "";
+            return {
                 productId: p.id,
-                stokFisik: Number(rowData[p.id].stokFisik),
+                stokSistem: p.stokSistem,
+                stokFisik: hasStokFisik ? Number(stokFisikRaw) : null,
                 catatan: rowData[p.id]?.catatan?.trim() || undefined,
-            }));
+            };
+        });
     };
 
     const handleSubmit = async () => {
         if (!selectedStore) { alert("Pilih cabang toko terlebih dahulu."); return; }
+        if (products.length === 0) { alert("Tidak ada produk untuk cabang ini."); return; }
+        if (filledCount === 0) { alert("Isi minimal 1 stok fisik produk sebelum menyimpan."); return; }
 
         const items = buildItemsToSubmit();
-        if (items.length === 0) { alert("Isi minimal 1 stok fisik produk sebelum menyimpan."); return; }
 
-        // Validasi catatan wajib jika ada selisih
+        // Validasi catatan wajib jika ada selisih (hanya untuk item yang sudah diisi)
         const missingNote = items.find((it) => {
-            const product = products.find((p) => p.id === it.productId);
-            const selisih = it.stokFisik - (product?.stokSistem ?? 0);
+            if (it.stokFisik === null) return false;
+            const selisih = it.stokFisik - it.stokSistem;
             return selisih !== 0 && !it.catatan;
         });
         if (missingNote) {
@@ -146,21 +133,10 @@ export const useStockOpnameCreate = () => {
 
         setIsSubmitting(true);
         try {
-            const payload = { storeId: selectedStore, items };
-
-            if (editingId) {
-                // Backend tidak punya endpoint update — edit dilakukan dengan
-                // menghapus draft lama lalu membuat draft baru dengan data terkini.
-                await stockOpnameService.delete(editingId);
-                await stockOpnameService.create(payload);
-                setSuccessMessage("Draft stock opname berhasil diperbarui!");
-            } else {
-                await stockOpnameService.create(payload);
-                setSuccessMessage(`Hasil opname untuk ${items.length} produk berhasil disimpan sebagai draft!`);
-            }
-
+            await stockOpnameService.create({ storeId: selectedStore, items });
+            setSuccessMessage(`Hasil opname untuk ${filledCount} produk berhasil disimpan sebagai draft!`);
             setIsSuccessOpen(true);
-            if (!editingId) setRowData({});
+            setRowData({});
         } catch (err) {
             alert("Gagal menyimpan hasil opname: " + (err.response?.data?.message || err.message));
         } finally {
@@ -177,6 +153,5 @@ export const useStockOpnameCreate = () => {
         pagination, handlePageChange, handleRowsPerPageChange,
         isSubmitting, handleSubmit,
         isSuccessOpen, setIsSuccessOpen, successMessage,
-        isEditing: !!editingId,
     };
 };

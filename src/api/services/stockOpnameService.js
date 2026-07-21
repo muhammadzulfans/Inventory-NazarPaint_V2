@@ -22,7 +22,7 @@ export const stockOpnameService = {
         return response.data;
     },
     update: async (id, payload) => {
-        const response = await api.patch(`/stock-opnames/${id}`, payload);
+        const response = await api.put(`/stock-opnames/${id}`, payload);
         return response.data;
     },
     selesai: async (id) => {
