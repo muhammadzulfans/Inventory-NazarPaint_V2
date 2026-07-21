@@ -17,8 +17,8 @@ import TransactionDetailModalPreview from "../../../components/modals/Transactio
 
 const OrderAdmin = () => {
     const orderCreate = useOrderCreate();
-    const orderMgmt = useOrderManagement({ fixedStatus: "PENDING" });
-    
+    const orderMgmt = useOrderManagement({ fixedStatus: "PENDING,CANCELLED" });
+
     // 1. TAMBAHKAN STATE UNTUK MODAL PREVIEW INI
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewTransaction, setPreviewTransaction] = useState(null);

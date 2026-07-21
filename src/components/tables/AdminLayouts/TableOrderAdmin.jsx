@@ -1,5 +1,5 @@
-import { FiEdit, FiEye, FiXCircle } from "react-icons/fi";
-import React from "react";
+import { FiEdit, FiEye, FiCheck, FiX } from "react-icons/fi";
+import React, { useState, useRef, useEffect } from "react";
 
 const STATUS_LABEL = {
     PENDING: "ORDER",
@@ -14,6 +14,21 @@ const STATUS_BADGE_CLASS = {
 };
 
 const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onReject, totalItem = 0, totalHarga = 0 }) => {
+    // Key row yang popup pilihan status-nya lagi kebuka (cuma 1 yang bisa kebuka sekaligus)
+    const [openPopupKey, setOpenPopupKey] = useState(null);
+    const popupRef = useRef(null);
+
+    // Klik di luar popup otomatis nutup
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (popupRef.current && !popupRef.current.contains(e.target)) {
+                setOpenPopupKey(null);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     const rows = data.map((order) => {
         const items = order.items || [];
         const totalPriceInOrder = items.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
@@ -56,6 +71,7 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
             ) : (
                 rows.map((row) => {
                     const isPending = row.status === "PENDING";
+                    const isPopupOpen = openPopupKey === row.key;
 
                     return (
                         <tr key={row.key} className="border-b border-cardBG hover:bg-gray-50/50 transition-colors">
@@ -71,15 +87,43 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
                             </td>
                             <td className="p-3 text-center">{row.tanggal}</td>
 
-                            <td className="p-3 text-center">
+                            <td className="p-3 text-center relative">
                                 {isPending ? (
-                                    <button
-                                        onClick={() => onStatusChange && onStatusChange(row.rawPayload)}
-                                        className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md hover:opacity-80 transition-all cursor-pointer ${STATUS_BADGE_CLASS[row.status]}`}
-                                        title="Klik untuk terima pesanan"
-                                    >
-                                        {STATUS_LABEL[row.status]}
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={() => setOpenPopupKey(isPopupOpen ? null : row.key)}
+                                            className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md hover:opacity-80 transition-all cursor-pointer ${STATUS_BADGE_CLASS[row.status]}`}
+                                            title="Klik untuk ubah status"
+                                        >
+                                            {STATUS_LABEL[row.status]}
+                                        </button>
+
+                                        {isPopupOpen && (
+                                            <div
+                                                ref={popupRef}
+                                                className="absolute z-10 top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-40"
+                                            >
+                                                <button
+                                                    onClick={() => {
+                                                        setOpenPopupKey(null);
+                                                        onStatusChange && onStatusChange(row.rawPayload);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2.5 text-xs font-semibold text-green-700 hover:bg-green-50 flex items-center gap-2 transition"
+                                                >
+                                                    <FiCheck size={14} /> RECEIVED
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setOpenPopupKey(null);
+                                                        onReject && onReject(row.rawPayload);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-100 transition"
+                                                >
+                                                    <FiX size={14} /> REJECTED
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
                                 ) : (
                                     <span className={`uppercase text-xs font-semibold px-3 py-1.5 rounded-md ${STATUS_BADGE_CLASS[row.status]}`}>
                                         {STATUS_LABEL[row.status] || row.status}
@@ -102,14 +146,6 @@ const TableOrderAdmin = ({ data = [], onPreview, onEdit, onStatusChange, onRejec
                                         title={!isPending ? "Hanya bisa diedit saat status ORDER" : "Edit pesanan"}
                                     >
                                         <FiEdit className="size-7 p-1 border border-current rounded-md transition" />
-                                    </button>
-                                    <button
-                                        className={`text-red-600 ${!isPending ? "opacity-30 cursor-not-allowed" : "hover:bg-red-50"}`}
-                                        onClick={() => isPending && onReject && onReject(row.rawPayload)}
-                                        disabled={!isPending}
-                                        title={!isPending ? "Hanya bisa ditolak saat status ORDER" : "Tolak/batalkan pesanan"}
-                                    >
-                                        <FiXCircle className="size-7 p-1 border border-current rounded-md transition" />
                                     </button>
                                 </div>
                             </td>
