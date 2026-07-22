@@ -15,6 +15,7 @@ import { FiSearch, FiFilter, FiChevronDown } from "react-icons/fi";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 import ModalPrediksiStok from "../../../components/modals/ModalPrediksiStok.jsx";
 import { useStockOverviewAdmin } from "../../../hooks/admin/useStockOverviewAdmin.js";
+import WarningModal from "../../../components/modals/WarningModal.jsx";
 
 const InventoryAdmin = () => {
     const navigate = useNavigate();
@@ -37,8 +38,16 @@ const InventoryAdmin = () => {
     const [previewProduct, setPreviewProduct] = useState(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+    // Tambahkan state warning modal di atas
+    const [isWarningOpen, setIsWarningOpen] = useState(false);
+
 
     const handlePreview = (item) => {
+        // Validasi: Jika cabang belum dipilih, cegah buka modal prediksi
+        if (!storeId) {
+            setIsWarningOpen(true);
+            return;
+        }
         setPreviewProduct(item);
         setIsPreviewOpen(true);
     };
@@ -139,6 +148,15 @@ const InventoryAdmin = () => {
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
                 product={previewProduct}
+                storeId={storeId} // <-- Tambahkan prop ini agar modal tahu cabang mana yang aktif
+            />
+            {/* Tambahkan WarningModal di bawah agar fitur peringatan aktif */}
+            <WarningModal
+                isOpen={isWarningOpen}
+                onClose={() => setIsWarningOpen(false)}
+                title="Cabang Belum Dipilih"
+                message="Silakan pilih cabang toko terlebih dahulu pada filter dropdown di atas sebelum melihat prediksi stok!"
+                singleButton={true}
             />
         </div>
     );
