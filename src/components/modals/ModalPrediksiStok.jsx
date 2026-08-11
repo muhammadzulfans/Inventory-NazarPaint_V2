@@ -16,48 +16,37 @@ const ModalPrediksiStok = ({ isOpen, onClose, product, storeId }) => {
     const fetchPredictionDetail = async () => {
         setLoading(true);
         try {
-            // Ubah storeId menjadi nama cabang teks (sesuaikan dengan isi storeOptions/database Supabase)
-            // Misalnya storeId 1 = Balamoa, 2 = Singkil, 3 = Suradadi (atau sesuaikan dengan value di dropdownmu)
             let cabangName = "Balamoa";
             if (String(storeId) === "2" || String(storeId).toLowerCase().includes("singkil")) cabangName = "Singkil";
             if (String(storeId) === "3" || String(storeId).toLowerCase().includes("suradadi")) cabangName = "Suradadi";
 
-            const response = await api.get('/predictions', {
-                params: {
-                    cabang: cabangName,
-                    kode: product.code
-                }
+            // Menggunakan method POST sesuai endpoint backend Express kita (`/api/predictions`)
+            const response = await api.post('/predictions', {
+                cabang: cabangName,
+                kode_cat: product.code
             });
 
-            const found = response.data.data.find(
-                item => String(item.kode_cat) === String(product.code) &&
-                    item.cabang.toLowerCase() === cabangName.toLowerCase()
-            );
-
-            setPredictionData(found || null);
+            // Mengambil data dari response backend Express yang membungkus hasil Flask
+            const resultData = response.data.data;
+            setPredictionData(resultData || null);
         } catch (err) {
             console.error("Gagal memuat detail prediksi:", err);
+            setPredictionData(null);
         } finally {
             setLoading(false);
         }
     };
 
-    // // Helper kecil untuk mapping storeId ke nama cabang jika diperlukan
-    // const getStoreName = (id) => {
-    //     // Sesuaikan dengan data cabang di app kamu, misal: 1 = Balamoa, dst.
-    //     return "Balamoa";
-    // };
-
     if (!isOpen) return null;
 
-    const rekomendasiStok = predictionData ? predictionData.rekomendasi_stok_jual : "-";
+    const prediksiPenjualan = predictionData ? predictionData.prediksi_penjualan : "-";
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Prediksi Stok & Order (ARIMA)"
-            subtitle={product ? `${product.name} (${product.code})` : "Estimasi kebutuhan"}
+            title="Prediksi Penjualan Bulanan (ARIMA)"
+            subtitle={product ? `${product.name} (${product.code})` : "Estimasi penjualan"}
         >
             <div className="space-y-6">
                 {/* Ringkasan Kartu */}
@@ -68,10 +57,10 @@ const ModalPrediksiStok = ({ isOpen, onClose, product, storeId }) => {
                         <p className="text-lg font-inter font-bold text-black">{product?.totalStock ?? 0}</p>
                     </div>
                     <div className="bg-yellow-50 rounded-xl p-3 flex flex-col items-center text-center">
-                        <FiAlertTriangle className="text-yellow-600 mb-1" size={20} />
-                        <p className="text-xs text-txtNav font-inter">Rekomendasi Stok Jual</p>
+                        <FiTrendingUp className="text-yellow-600 mb-1" size={20} />
+                        <p className="text-xs text-txtNav font-inter">Prediksi Penjualan</p>
                         <p className="text-lg font-inter font-bold text-blue-600">
-                            {loading ? "Memuat..." : `${rekomendasiStok} Pcs/Kg`}
+                            {loading ? "Memuat..." : `${prediksiPenjualan} Pcs/Kg`}
                         </p>
                     </div>
                 </div>
@@ -81,10 +70,10 @@ const ModalPrediksiStok = ({ isOpen, onClose, product, storeId }) => {
                 ) : predictionData ? (
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-900">
                         <p className="font-semibold mb-1">Hasil Peramalan Bulanan:</p>
-                        <p>Target Bulan: <span className="font-bold">{predictionData.target_month}</span></p>
+                        <p>Target Bulan: <span className="font-bold">{predictionData.target_bulan || "2026-03"}</span></p>
                         <p>Cabang: <span className="font-bold">{predictionData.cabang}</span></p>
                         <p className="mt-2 text-xs text-gray-600">
-                            * Nilai rekomendasi dihitung otomatis berdasarkan histori penjualan menggunakan algoritma ARIMA.
+                            * Nilai prediksi dihitung otomatis berdasarkan histori penjualan menggunakan algoritma ARIMA.
                         </p>
                     </div>
                 ) : (
