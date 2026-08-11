@@ -124,6 +124,7 @@ const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, 
                 value={form.fromStoreId}
                 onChange={handleFromStoreChange}
                 placeholder="Pilih cabang pengirim..."
+                maxVisibleItems={4}
             />
             <DropDownField
                 label="Cabang Penerima"
@@ -131,6 +132,7 @@ const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, 
                 value={form.toStoreId}
                 onChange={setForm_("toStoreId")}
                 placeholder="Pilih cabang penerima..."
+                maxVisibleItems={4}
             />
             <DateField
                 label="Tanggal Mutasi"
@@ -169,6 +171,7 @@ const FormCreateMutasi = ({ onSimpan, storeOptions, productOptions, editMutasi, 
                             value={item.productId}
                             onChange={(val) => handleProductChange(index, val)}
                             placeholder="Pilih produk..."
+                            maxVisibleItems={6}
                         />
                         <InputField
                             label="Kode Barang"

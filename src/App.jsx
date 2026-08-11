@@ -20,7 +20,7 @@ import InventoryKaryawan from './pages/karyawan/inventory/InventoryKaryawan.jsx'
 import SalesKaryawan from './pages/karyawan/sales/SalesKaryawan.jsx';
 import MainLayout from './layouts/MainLayout';
 // import CreateAkun from "./pages/admin/users/CreateAkun.jsx";
-// import SwitchToko from "./pages/admin/switch/SwitchBranch.jsx";
+// import SwitchToko from "./pages/admin/stores/KelolaStores.jsx";
 import KelolaInventoryAdmin from "./pages/admin/inventory/KelolaInventoryAdmin.jsx";
 import Profile from "./pages/admin/ProfileAdmin.jsx";
 import DetailSalesAdmin from "./pages/admin/sales/DetailSalesAdmin.jsx";
@@ -33,6 +33,8 @@ import DetailSalesKaryawan from "./pages/karyawan/sales/DetailSalesKaryawan.jsx"
 import KelolaStockOpnameKaryawan from "./pages/karyawan/stockOpname/KelolaStockOpnameKaryawan.jsx";
 import StockOpnameKaryawan from "./pages/karyawan/stockOpname/StockOpnameKaryawan.jsx";
 import MutasiKaryawan from "./pages/karyawan/mutasi/MutasiKaryawan.jsx";
+import CreateAkun from "./pages/admin/users/CreateAkun.jsx";
+import KelolaStores from "./pages/admin/stores/KelolaStores.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -61,8 +63,8 @@ function App() {
                     <Route path="stock-opname" element={<StockOpnameAdmin />} />
                     <Route path="KelolaStockOpname" element={<KelolaStockOpnameAdmin />} />
                     {/*<Route path="prediksi" element={<PrediksiAdmin />} />*/}
-                    {/*<Route path="createAkun" element={<CreateAkun />} />*/}
-                    {/*<Route path="switchToko" element={<SwitchToko />} />*/}
+                    <Route path="createAkun" element={<CreateAkun />} />
+                    <Route path="kelolaCabang" element={<KelolaStores />} />
                     <Route path="profile" element={<Profile />} />
                 </Route>
 

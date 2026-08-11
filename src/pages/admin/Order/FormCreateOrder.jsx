@@ -21,8 +21,9 @@ const FormCreateOrder = ({
                     options={storeOptions}
                     value={selectedStore}
                     onChange={(val) => setSelectedStore(val)}
-                    placeholder="Cari atau pilih cabang toko..."
+                    placeholder="Pilih cabang toko..."
                     disabled={hasItems}
+                    maxVisibleItems={4}
                 />
 
                 <DropDownField
@@ -30,7 +31,8 @@ const FormCreateOrder = ({
                     options={productOptions}
                     value={itemForm.productId}
                     onChange={handleProductChange}
-                    placeholder="Cari produk berdasarkan nama atau tipe..."
+                    placeholder="Pilih produk..."
+                    maxVisibleItems={6}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

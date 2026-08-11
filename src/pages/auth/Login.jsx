@@ -27,7 +27,7 @@ const Login = () => {
         if (result.success) {
             // INTEGRASI MULTI-ROLE:
             // Cek role yang didapat dari backend dan arahkan ke path yang benar
-            if (result.role === "ADMIN") {
+            if (result.role === "OWNER") {
                 navigate("/admin");
             } else if (result.role === "EMPLOYEE" || result.role === "KARYAWAN") {
                 navigate("/karyawan");
