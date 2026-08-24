@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { userService } from "../../../api/services/userService.js";
 import { storeService } from "../../../api/services/storeService.js";
 import { FiUser, FiMail } from "react-icons/fi";
@@ -25,21 +25,33 @@ const CreateAkun = () => {
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
 
-    // === STATE PAGINATION ===
+    // === STATE PAGINATION (server-side, sama pola dengan useMutasiAdmin) ===
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
 
-    const fetchUsers = async () => {
-        const res = await userService.getAllUsers();
-        if (res?.success) setUsers(res.data);
-    };
+    const fetchUsers = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = await userService.getAllUsers({ page, limit });
+            if (res?.success) {
+                setUsers(res.data);
+                setTotalPages(res.pagination?.totalPages ?? 1); // ⬅️ fix di sini
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || "Gagal memuat data pengguna");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [page, limit]);
 
     const fetchStores = async () => {
         const res = await storeService.getAll();
         if (res?.success) setStores(res.data);
     };
 
-    useEffect(() => { fetchUsers(); fetchStores(); }, []);
+    useEffect(() => { fetchUsers(); }, [fetchUsers]);
+    useEffect(() => { fetchStores(); }, []);
 
     const openModal = (type, data = null) => {
         setError("");
@@ -112,14 +124,15 @@ const CreateAkun = () => {
         }
     };
 
+    // === HANDLER PAGINATION (sama pola dengan useMutasiAdmin) ===
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+    };
+
     const handleRowsPerPageChange = (newLimit) => {
         setLimit(newLimit);
         setPage(1);
     };
-
-    // === PAGINASI CLIENT-SIDE ===
-    const totalPages = Math.ceil(users.length / limit) || 1;
-    const paginatedUsers = users.slice((page - 1) * limit, page * limit);
 
     return (
         <div className="px-8 pt-6 pb-10 bg-white min-h-screen">
@@ -139,13 +152,12 @@ const CreateAkun = () => {
                     message={successMessage}
                 />
 
-                {/* === TABEL + PAGINATION — PERSIS SEPERTI OrderAdmin === */}
                 <div className="overflow-x-auto bg-white pb-5 rounded-xl">
                     {error ? (
                         <p className="text-center py-10 text-red-400">{error}</p>
                     ) : (
                         <TableListUsers
-                            users={paginatedUsers}
+                            users={users}
                             onEdit={(u) => openModal('EDIT', u)}
                             onStatusChange={handleStatusChange}
                             isLoading={isLoading}
@@ -157,7 +169,7 @@ const CreateAkun = () => {
                         currentPage={page}
                         totalPages={totalPages}
                         rowsPerPage={limit}
-                        onPageChange={setPage}
+                        onPageChange={handlePageChange}
                         onRowsPerPageChange={handleRowsPerPageChange}
                     />
                 </div>
