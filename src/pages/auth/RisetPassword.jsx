@@ -3,8 +3,7 @@ import { useState } from "react";
 
 import loginImg from "../../assets/images/login1.png";
 import logo from "../../assets/images/logo.png";
-// Ganti dengan action store/service yang sesuai (mis. useAuthStore atau authService)
-// import { forgotPassword } from "../../services/authService.js";
+import { authService } from "../../api/services/authService.js";
 
 const RisetPassword = () => {
     const navigate = useNavigate();
@@ -25,10 +24,14 @@ const RisetPassword = () => {
         }
 
         try {
-            // await forgotPassword(email);
-            navigate("/VerifikasiOTP", { state: { email } });
+            const res = await authService.forgotPassword(email);
+            if (res?.success) {
+                navigate("/VerifikasiOTP", { state: { email } });
+            } else {
+                setError(res?.message || "Gagal mengirim kode OTP. Coba lagi.");
+            }
         } catch (err) {
-            setError(err?.message || "Gagal mengirim kode OTP. Coba lagi.");
+            setError(err?.response?.data?.message || "Gagal mengirim kode OTP. Coba lagi.");
         } finally {
             setIsLoading(false);
         }

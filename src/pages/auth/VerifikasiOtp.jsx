@@ -1,22 +1,32 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 
 import loginImg from "../../assets/images/login1.png";
 import logo from "../../assets/images/logo.png";
-// Ganti dengan action store/service yang sesuai (mis. useAuthStore atau authService)
-// import { verifyOtp, resendOtp } from "../../services/authService.js";
+import { authService } from "../../api/services/authService.js";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
 
 const VerifikasiOTP = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const inputsRef = useRef([]);
+
+    const email = location.state?.email;
 
     const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
     const [isLoading, setIsLoading] = useState(false);
+    const [isResending, setIsResending] = useState(false);
     const [error, setError] = useState("");
     const [countdown, setCountdown] = useState(RESEND_SECONDS);
+
+    // Kalau halaman ini diakses langsung tanpa lewat RisetPassword, tendang balik
+    useEffect(() => {
+        if (!email) {
+            navigate("/RisetPassword", { replace: true });
+        }
+    }, [email, navigate]);
 
     useEffect(() => {
         if (countdown <= 0) return;
@@ -25,7 +35,6 @@ const VerifikasiOTP = () => {
     }, [countdown]);
 
     const handleChange = (index, value) => {
-        // Hanya izinkan satu digit angka
         const digit = value.replace(/[^0-9]/g, "").slice(-1);
 
         const newOtp = [...otp];
@@ -69,23 +78,33 @@ const VerifikasiOTP = () => {
         }
 
         try {
-            // await verifyOtp(code);
-            navigate("/SetNewPassword");
+            const res = await authService.verifyOtp({ email, otpCode: code });
+            if (res?.success) {
+                // otpCode ikut diteruskan karena backend butuh otpCode lagi saat reset-password
+                navigate("/SetNewPassword", { state: { email, otpCode: code } });
+            } else {
+                setError(res?.message || "Kode OTP salah atau sudah kedaluwarsa.");
+            }
         } catch (err) {
-            setError(err?.message || "Kode OTP salah atau sudah kedaluwarsa.");
+            setError(err?.response?.data?.message || "Kode OTP salah atau sudah kedaluwarsa.");
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleResend = async () => {
-        if (countdown > 0) return;
+        if (countdown > 0 || isResending) return;
         setError("");
+        setIsResending(true);
         try {
-            // await resendOtp();
+            await authService.resendOtp(email);
             setCountdown(RESEND_SECONDS);
+            setOtp(Array(OTP_LENGTH).fill(""));
+            inputsRef.current[0]?.focus();
         } catch (err) {
-            setError(err?.message || "Gagal mengirim ulang kode. Coba lagi.");
+            setError(err?.response?.data?.message || "Gagal mengirim ulang kode. Coba lagi.");
+        } finally {
+            setIsResending(false);
         }
     };
 
@@ -103,8 +122,14 @@ const VerifikasiOTP = () => {
                 <h1 className="text-6xl font-normal font-prociono mb-10">
                     Masukkan Kode OTP
                 </h1>
-                <p className="text-xl font-normal font-prociono mb-14 text-center">
-                    Kami telah mengirimkan kode OTP ke email Anda. Silakan masukkan kode tersebut di bawah ini.
+                <p className="text-3xl font-prociono mb-5 text-center text-black">
+                    Silahkan Cek Email Anda
+                </p>
+                <p className="text-lg font-normal font-prociono mb-4 text-center">
+                    Kami telah mengirimkan kode OTP ke {email || "email Anda"}. Silakan masukkan kode tersebut di bawah ini.
+                </p>
+                <p className="text-lg font-normal font-prociono mb-4 text-center">
+                    Silakan masukkan kode tersebut di bawah ini.
                 </p>
 
                 <form className="w-3/4 pb-32" onSubmit={handleSubmit}>
@@ -148,14 +173,18 @@ const VerifikasiOTP = () => {
                             <button
                                 type="button"
                                 onClick={handleResend}
-                                disabled={countdown > 0}
+                                disabled={countdown > 0 || isResending}
                                 className={`text-lg font-prociono font-semibold transition ${
-                                    countdown > 0
+                                    countdown > 0 || isResending
                                         ? "text-gray-400 cursor-not-allowed"
                                         : "text-black hover:underline"
                                 }`}
                             >
-                                {countdown > 0 ? `Kirim ulang (${countdown}s)` : "Kirim ulang"}
+                                {isResending
+                                    ? "Mengirim..."
+                                    : countdown > 0
+                                        ? `Kirim ulang (${countdown}s)`
+                                        : "Kirim ulang"}
                             </button>
                         </div>
                     </div>

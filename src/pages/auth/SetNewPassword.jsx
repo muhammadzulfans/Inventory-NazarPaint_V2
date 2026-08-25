@@ -1,22 +1,39 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import loginImg from "../../assets/images/login1.png";
 import logo from "../../assets/images/logo.png";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-// Ganti dengan action store/service yang sesuai (mis. useAuthStore atau authService)
-// import { resetPassword } from "../../services/authService.js";
+import { authService } from "../../api/services/authService.js";
 
-const SetNewPassword3 = () => {
+const SetNewPassword = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
+    const email = location.state?.email;
+    const otpCode = location.state?.otpCode;
+
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    // Kalau halaman ini diakses langsung tanpa lewat VerifikasiOTP, tendang balik
+    useEffect(() => {
+        if (!email || !otpCode) {
+            navigate("/RisetPassword", { replace: true });
+        }
+    }, [email, otpCode, navigate]);
+
+    // Redirect ke /login setelah user lihat pesan sukses sebentar
+    useEffect(() => {
+        if (!isSuccess) return;
+        const timer = setTimeout(() => navigate("/login"), 2500); // loading 3 detik
+        return () => clearTimeout(timer);
+    }, [isSuccess, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,10 +53,14 @@ const SetNewPassword3 = () => {
         }
 
         try {
-            // await resetPassword({ email: location.state?.email, password });
-            navigate("/login");
+            const res = await authService.resetPassword({ email, otpCode, newPassword: password });
+            if (res?.success) {
+                setIsSuccess(true);
+            } else {
+                setError(res?.message || "Gagal mengubah kata sandi. Coba lagi.");
+            }
         } catch (err) {
-            setError(err?.message || "Gagal mengubah kata sandi. Coba lagi.");
+            setError(err?.response?.data?.message || "Gagal mengubah kata sandi. Coba lagi.");
         } finally {
             setIsLoading(false);
         }
@@ -52,57 +73,68 @@ const SetNewPassword3 = () => {
                     Sandi Baru
                 </h1>
 
-                <form className="w-3/4" onSubmit={handleSubmit}>
-                    {error && <p className="text-red-500 font-medium mb-4 text-center bg-red-50 p-2 rounded-lg border border-red-200">{error}</p>}
+                {isSuccess ? (
+                    <div className="w-3/4 text-center bg-green-50 border border-green-200 rounded-xl p-6">
+                        <p className="text-xl font-prociono text-green-700 font-semibold mb-2">
+                            Kata sandi berhasil diubah!
+                        </p>
+                        <p className="text-sm font-prociono text-green-600">
+                            Mengarahkan ke halaman login...
+                        </p>
+                    </div>
+                ) : (
+                    <form className="w-3/4" onSubmit={handleSubmit}>
+                        {error && <p className="text-red-500 font-medium mb-4 text-center bg-red-50 p-2 rounded-lg border border-red-200">{error}</p>}
 
-                    <label className="block text-lg font-prociono">Kata Sandi Baru</label>
-                    <div className="relative mb-8">
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Masukan kata sandi baru"
-                            className="w-full h-12 p-4 pr-12 rounded-xl text-lg font-prociono bg-transparent border border-black outline-none focus:ring-2 focus:ring-auth transition-all"
-                            required
-                        />
+                        <label className="block text-lg font-prociono">Kata Sandi Baru</label>
+                        <div className="relative mb-8">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Masukan kata sandi baru"
+                                className="w-full h-12 p-4 pr-12 rounded-xl text-lg font-prociono bg-transparent border border-black outline-none focus:ring-2 focus:ring-auth transition-all"
+                                required
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-txtNav hover:text-black transition"
+                            >
+                                {showPassword ? <FiEye className="size-5" /> : <FiEyeOff className="size-5" />}
+                            </button>
+                        </div>
+
+                        <label className="block text-lg font-prociono">Konfirmasi Kata Sandi</label>
+                        <div className="relative mb-10">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Masukan ulang kata sandi baru"
+                                className="w-full h-12 p-4 pr-12 rounded-xl text-lg font-prociono bg-transparent border border-black outline-none focus:ring-2 focus:ring-auth transition-all"
+                                required
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-txtNav hover:text-black transition"
+                            >
+                                {showConfirmPassword ? <FiEye className="size-5" /> : <FiEyeOff className="size-5" />}
+                            </button>
+                        </div>
 
                         <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-txtNav hover:text-black transition"
+                            type="submit"
+                            disabled={isLoading}
+                            className={`w-full h-14 rounded-xl text-xl font-bold font-prompt text-black bg-auth border border-black hover:bg-slate-200 transition-all ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
-                            {showPassword ? <FiEye className="size-5" /> : <FiEyeOff className="size-5" />}
+                            {isLoading ? "Memproses..." : "Simpan Kata Sandi"}
                         </button>
-                    </div>
-
-                    <label className="block text-lg font-prociono">Konfirmasi Kata Sandi</label>
-                    <div className="relative mb-10">
-                        <input
-                            type={showConfirmPassword ? "text" : "password"}
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Masukan ulang kata sandi baru"
-                            className="w-full h-12 p-4 pr-12 rounded-xl text-lg font-prociono bg-transparent border border-black outline-none focus:ring-2 focus:ring-auth transition-all"
-                            required
-                        />
-
-                        <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-txtNav hover:text-black transition"
-                        >
-                            {showConfirmPassword ? <FiEye className="size-5" /> : <FiEyeOff className="size-5" />}
-                        </button>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className={`w-full h-14 rounded-xl text-xl font-bold font-prompt text-black bg-auth border border-black hover:bg-slate-200 transition-all ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                        {isLoading ? "Memproses..." : "Simpan Kata Sandi"}
-                    </button>
-                </form>
+                    </form>
+                )}
 
                 <div className="pt-32">
                     <img src={logo} className="w-60 h-24 mb-16" alt="Logo"/>
@@ -119,4 +151,4 @@ const SetNewPassword3 = () => {
     );
 };
 
-export default SetNewPassword3;
+export default SetNewPassword;
