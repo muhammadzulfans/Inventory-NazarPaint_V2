@@ -61,7 +61,7 @@ const Login = () => {
                     />
 
                     <label className="block text-lg font-prociono">Kata Sandi</label>
-                    <div className="relative mb-20">
+                    <div className="relative mb-5">
                         <input
                             type={showPassword ? "text" : "password"}
                             value={password}
@@ -79,6 +79,16 @@ const Login = () => {
                             {showPassword ? <FiEye className="size-5" /> : <FiEyeOff className="size-5" />}
                         </button>
                     </div>
+                    <div className="w-full text-right mb-10">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/RisetPassword")}
+                            className="text-lg font-semibold font-prociono text-black hover:text-black hover:underline transition"
+                        >
+                            Lupa Kata Sandi?
+                        </button>
+                    </div>
+
 
                     <button
                         type="submit"
@@ -96,9 +106,9 @@ const Login = () => {
             <div className="w-1/2 flex flex-col items-center justify-center">
                 <img src={loginImg} className="w-[580px] h-[644px] mb-7" alt="Login Illustration"/>
                 <h1 className="text-5xl font-prociono mb-4 text-center">
-                    Hallo, Selamat Datang Kembali!
+                    Hallo, Selamat Datang!
                 </h1>
-                <p className="text-lg font-poppins">Selamat Datang Kembali ke Halaman Masuk !!!</p>
+                <p className="text-lg font-poppins">Di Sistem NazarPaint Management</p>
             </div>
         </div>
     );

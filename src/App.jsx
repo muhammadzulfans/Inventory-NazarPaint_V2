@@ -3,7 +3,6 @@ import useAuthStore from './store/authStore.js';
 
 // Import Halaman auth
 import Login from './pages/auth/Login.jsx';
-import LoginKaryawan from './pages/auth/LoginKaryawan.jsx'; // Berdasarkan strukturmu, ini login karyawan
 import Register from './pages/auth/Register';
 
 // Import Halaman Admin
@@ -35,6 +34,10 @@ import StockOpnameKaryawan from "./pages/karyawan/stockOpname/StockOpnameKaryawa
 import MutasiKaryawan from "./pages/karyawan/mutasi/MutasiKaryawan.jsx";
 import CreateAkun from "./pages/admin/users/CreateAkun.jsx";
 import KelolaStores from "./pages/admin/stores/KelolaStores.jsx";
+import ForgotPassword from "./pages/auth/RisetPassword.jsx";
+import RisetPassword from "./pages/auth/RisetPassword.jsx";
+import VerifikasiOtp from "./pages/auth/VerifikasiOtp.jsx";
+import SetNewPassword from "./pages/auth/SetNewPassword.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -45,6 +48,9 @@ function App() {
                 {/* --- PUBLIC ROUTES --- */}
                 <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to={user?.role === 'OWNER' ? "/admin" : "/karyawan"} />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/RisetPassword" element={<RisetPassword />} />
+                <Route path="/VerifikasiOtp" element={<VerifikasiOtp />} />
+                <Route path="/SetNewPassword" element={<SetNewPassword />} />
 
                 {/* --- ADMIN ROUTES --- */}
                 <Route
