@@ -68,7 +68,7 @@ const TransactionDetailModalPreview = ({ isOpen, onClose, transaction }) => {
                                                 {product.name} {product.code ? `(${product.code})` : ""}
                                             </p>
                                             <p className="text-xs text-gray-400 mt-0.5">
-                                                {item.quantity} {isAccessories(product) ? "Pcs" : "Kg"} x {formatRupiah(item.sellPrice)}
+                                                {item.quantity} {isAccessories(product) ? "Pcs" : "Kg"} x {formatRupiah(item.basePrice)}
                                             </p>
                                         </div>
                                     </div>

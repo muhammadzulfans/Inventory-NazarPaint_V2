@@ -38,62 +38,65 @@ import ForgotPassword from "./pages/auth/RisetPassword.jsx";
 import RisetPassword from "./pages/auth/RisetPassword.jsx";
 import VerifikasiOtp from "./pages/auth/VerifikasiOtp.jsx";
 import SetNewPassword from "./pages/auth/SetNewPassword.jsx";
+import ErrorBoundary from "./components/error-boundary/ErrorBoundary.jsx";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
 
     return (
-        <Router>
-            <Routes>
-                {/* --- PUBLIC ROUTES --- */}
-                <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to={user?.role === 'OWNER' ? "/admin" : "/karyawan"} />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/RisetPassword" element={<RisetPassword />} />
-                <Route path="/VerifikasiOtp" element={<VerifikasiOtp />} />
-                <Route path="/SetNewPassword" element={<SetNewPassword />} />
+        <ErrorBoundary>
+            <Router>
+                <Routes>
+                    {/* --- PUBLIC ROUTES --- */}
+                    <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to={user?.role === 'OWNER' ? "/admin" : "/karyawan"} />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/RisetPassword" element={<RisetPassword />} />
+                    <Route path="/VerifikasiOtp" element={<VerifikasiOtp />} />
+                    <Route path="/SetNewPassword" element={<SetNewPassword />} />
 
-                {/* --- ADMIN ROUTES --- */}
-                <Route
-                    path="/admin"
-                    element={isAuthenticated && user?.role === 'OWNER' ? <MainLayout /> : <Navigate to="/login" />}
-                >
-                    <Route index element={<DashboardAdmin />} />
-                    <Route path="inventory" element={<InventoryAdmin />} />
-                    <Route path="KelolaInventory" element={<KelolaInventoryAdmin />} />
-                    <Route path="sales" element={<SalesAdmin />} />
-                    <Route path="history-sales" element={<HistorySalesAdmin />} />
-                    <Route path="detail-sales" element={<DetailSalesAdmin />} />
-                    <Route path="order" element={<OrderAdmin />} />
-                    <Route path="detail-order" element={<DetailOrderAdmin />} />
-                    <Route path="mutasi" element={<MutasiAdmin />} />
-                    <Route path="stock-opname" element={<StockOpnameAdmin />} />
-                    <Route path="KelolaStockOpname" element={<KelolaStockOpnameAdmin />} />
-                    {/*<Route path="prediksi" element={<PrediksiAdmin />} />*/}
-                    <Route path="createAkun" element={<CreateAkun />} />
-                    <Route path="kelolaCabang" element={<KelolaStores />} />
-                    <Route path="profile" element={<Profile />} />
-                </Route>
+                    {/* --- ADMIN ROUTES --- */}
+                    <Route
+                        path="/admin"
+                        element={isAuthenticated && user?.role === 'OWNER' ? <MainLayout /> : <Navigate to="/login" />}
+                    >
+                        <Route index element={<DashboardAdmin />} />
+                        <Route path="inventory" element={<InventoryAdmin />} />
+                        <Route path="KelolaInventory" element={<KelolaInventoryAdmin />} />
+                        <Route path="sales" element={<SalesAdmin />} />
+                        <Route path="history-sales" element={<HistorySalesAdmin />} />
+                        <Route path="detail-sales" element={<DetailSalesAdmin />} />
+                        <Route path="order" element={<OrderAdmin />} />
+                        <Route path="detail-order" element={<DetailOrderAdmin />} />
+                        <Route path="mutasi" element={<MutasiAdmin />} />
+                        <Route path="stock-opname" element={<StockOpnameAdmin />} />
+                        <Route path="KelolaStockOpname" element={<KelolaStockOpnameAdmin />} />
+                        {/*<Route path="prediksi" element={<PrediksiAdmin />} />*/}
+                        <Route path="createAkun" element={<CreateAkun />} />
+                        <Route path="kelolaCabang" element={<KelolaStores />} />
+                        <Route path="profile" element={<Profile />} />
+                    </Route>
 
-                {/* --- KARYAWAN ROUTES --- */}
-                <Route
-                    path="/karyawan"
-                    element={isAuthenticated && (user?.role === 'EMPLOYE' || user?.role === 'KARYAWAN') ? <MainLayout /> : <Navigate to="/login" />}
-                >
-                    <Route index element={<DashboardKaryawan />} />
-                    <Route path="inventory" element={<InventoryKaryawan />} />
-                    <Route path="sales" element={<SalesKaryawan />} />
-                    <Route path="history-sales" element={<HistorySalesKaryawan />} />
-                    <Route path="detail-sales" element={<DetailSalesKaryawan />} />
-                    <Route path="mutasi" element={<MutasiKaryawan />} />
-                    <Route path="stock-opname" element={<StockOpnameKaryawan />} />
-                    <Route path="KelolaStockOpname" element={<KelolaStockOpnameKaryawan />} />
-                    <Route path="profile" element={<Profile />} />
-                </Route>
+                    {/* --- KARYAWAN ROUTES --- */}
+                    <Route
+                        path="/karyawan"
+                        element={isAuthenticated && (user?.role === 'EMPLOYE' || user?.role === 'KARYAWAN') ? <MainLayout /> : <Navigate to="/login" />}
+                    >
+                        <Route index element={<DashboardKaryawan />} />
+                        <Route path="inventory" element={<InventoryKaryawan />} />
+                        <Route path="sales" element={<SalesKaryawan />} />
+                        <Route path="history-sales" element={<HistorySalesKaryawan />} />
+                        <Route path="detail-sales" element={<DetailSalesKaryawan />} />
+                        <Route path="mutasi" element={<MutasiKaryawan />} />
+                        <Route path="stock-opname" element={<StockOpnameKaryawan />} />
+                        <Route path="KelolaStockOpname" element={<KelolaStockOpnameKaryawan />} />
+                        <Route path="profile" element={<Profile />} />
+                    </Route>
 
-                {/* --- INITIAL REDIRECT --- */}
-                <Route path="/" element={<Navigate to="/login" />} />
-            </Routes>
-        </Router>
+                    {/* --- INITIAL REDIRECT --- */}
+                    <Route path="/" element={<Navigate to="/login" />} />
+                </Routes>
+            </Router>
+        </ErrorBoundary>
     );
 }
 
