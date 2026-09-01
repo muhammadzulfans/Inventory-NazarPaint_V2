@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import {useNavigate, useSearchParams} from "react-router-dom";
 import { useState } from "react";
 import useAuthStore from "../../store/authStore.js";
 
@@ -7,6 +7,9 @@ import logo from "../../assets/images/logo.png";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = () => {
+    const [searchParams] = useSearchParams();
+    const noticeFromRedirect = searchParams.get("notice");
+
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const login = useAuthStore((state) => state.login);
@@ -14,7 +17,7 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState(noticeFromRedirect || "");
 
     const handleLogin = async (e) => {
         e.preventDefault();

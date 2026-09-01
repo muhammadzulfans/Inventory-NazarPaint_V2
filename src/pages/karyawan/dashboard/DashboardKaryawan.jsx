@@ -11,8 +11,10 @@ const formatRupiah = (angka) =>
         : 'Rp 0';
 
 const DashboardKaryawan = () => {
-    const { dashboardData,
+    const {
+        dashboardData,
         isLoading,
+        error,
         weeklyChartData,
         monthlyChartData
     } = useDashboardAdmin();
@@ -21,6 +23,28 @@ const DashboardKaryawan = () => {
         return (
             <div className="px-8 pt-6 pb-10 bg-white min-h-screen flex items-center justify-center">
                 <p className="text-lg font-inter text-black">Memuat data...</p>
+            </div>
+        );
+    }
+
+    if (error || !dashboardData) {
+        return (
+            <div className="px-8 pt-6 pb-10 bg-white min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-lg font-inter text-red-600 font-semibold mb-2">
+                        Gagal memuat data dashboard
+                    </p>
+                    <p className="text-sm font-inter text-gray-500 mb-6">
+                        {error || "Terjadi kesalahan saat mengambil data. Silakan coba lagi atau hubungi Admin."}
+                    </p>
+                    {/* BARU: tombol kembali ke login */}
+                    <button
+                        onClick={() => { window.location.href = "/login"; }}
+                        className="bg-auth border border-black px-6 py-3 rounded-xl font-bold hover:bg-slate-200 transition"
+                    >
+                        Kembali ke Login
+                    </button>
+                </div>
             </div>
         );
     }

@@ -33,4 +33,23 @@ api.interceptors.request.use(
     }
 );
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const code = error?.response?.data?.code;
+
+        if (code === "STORE_INACTIVE" || code === "NO_STORE_ASSIGNED") {
+            const message = error?.response?.data?.message || "Sesi Anda tidak valid. Silakan login kembali.";
+
+            // Bersihkan sesi
+            sessionStorage.removeItem('auth-storage');
+
+            // Redirect ke login sambil bawa pesan (query param sederhana, tanpa perlu React Router di sini)
+            window.location.href = `/login?notice=${encodeURIComponent(message)}`;
+        }
+
+        return Promise.reject(error);
+    }
+);
+
 export default api;
