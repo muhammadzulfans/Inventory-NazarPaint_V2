@@ -18,6 +18,7 @@ import { IoChevronBack } from "react-icons/io5";
 import DateRangeField from "../../../components/forms/DateRangeField.jsx";
 import React from "react";
 import IconPickerField from "../../../components/forms/IconPickerField.jsx";
+import WarningModal from "../../../components/modals/WarningModal.jsx";
 
 const KelolaInventoryAdmin = () => {
     const navigate = useNavigate();
@@ -35,7 +36,10 @@ const KelolaInventoryAdmin = () => {
         isSuccessOpen, setIsSuccessOpen, successMessage,
         selectedProduct, setSelectedProduct, modalConfig, setModalConfig,
         isDeleteOpen, setIsDeleteOpen, productToDelete,
-        openModal, handleSaveProduct, triggerDelete, handleConfirmDelete
+        openModal, handleSaveProduct, triggerDelete, handleConfirmDelete,
+
+        statusTarget, isStatusOpen, setIsStatusOpen, isUpdatingStatus,
+        triggerStatusChange, confirmStatusChange,
     } = useProductInventory();
 
     // 2. Fungsi perantara untuk mengolah event form (e.preventDefault)
@@ -122,6 +126,7 @@ const KelolaInventoryAdmin = () => {
                         isEditable={true}
                         onEdit={(item) => openModal('EDIT', item)}
                         onDelete={triggerDelete}
+                        onStatusChange={triggerStatusChange}
                         totalStokKg={totalSummary.totalStokKg}
                         totalStokPcs={totalSummary.totalStokPcs}
                         hasKg={totalSummary.hasKg}
@@ -225,8 +230,22 @@ const KelolaInventoryAdmin = () => {
                     </form>
                 </Modal>
 
+                <WarningModal
+                    isOpen={isStatusOpen}
+                    onClose={() => setIsStatusOpen(false)}
+                    onConfirm={() => confirmStatusChange()}
+                    title={statusTarget?.isActive ? "Stop Jual Produk?" : "Jual Kembali Produk?"}
+                    message={
+                        statusTarget?.isActive
+                            ? "Anda yakin ingin menonaktifkan produk ini? Produk yang nonaktif tidak akan muncul lagi di transaksi Penjualan, Pembelian, Mutasi, dan Stock Opname."
+                            : "Anda yakin ingin mengaktifkan kembali produk ini? Produk akan muncul lagi di semua transaksi."
+                    }
+                    confirmText={statusTarget?.isActive ? "Ya, Hentikan" : "Ya, Jual Kembali"}
+                    isLoading={isUpdatingStatus}
+                />
+
                 <DeleteModal
-                    itemType="Data Persediaan"
+                    itemType="Product"
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
                     onConfirm={handleConfirmDelete}

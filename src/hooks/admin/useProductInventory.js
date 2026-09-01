@@ -13,6 +13,35 @@ export const useProductInventory = () => {
     const [storeOptions, setStoreOptions] = useState([]); // options untuk dropdown cabang
     const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
+    const [statusTarget, setStatusTarget] = useState(null);
+    const [isStatusOpen, setIsStatusOpen] = useState(false);
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+// Pastikan bentuknya PERSIS begini — dua arah (Aktif→Nonaktif dan Nonaktif→Aktif) SAMA-SAMA cuma buka modal, TIDAK ADA yang langsung eksekusi
+    const triggerStatusChange = (item) => {
+        setStatusTarget(item);
+        setIsStatusOpen(true);
+    };
+
+    const confirmStatusChange = async () => {
+        if (!statusTarget) return;
+        setIsUpdatingStatus(true);
+        try {
+            await productService.toggleStatus(statusTarget.id);
+            setIsStatusOpen(false);
+            setSuccessMessage(
+                statusTarget.isActive ? "Produk berhasil dinonaktifkan!" : "Produk berhasil diaktifkan!"
+            );
+            setIsSuccessOpen(true);
+            setStatusTarget(null);
+            await fetchProducts();
+        } catch (err) {
+            alert(err.response?.data?.message || "Gagal mengubah status produk.");
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    };
+
     const [pagination, setPagination] = useState({
         page: 1,
         limit: 10,
@@ -64,7 +93,8 @@ export const useProductInventory = () => {
             startDate: dateRange.startDate,
             endDate: dateRange.endDate,
             page: pagination.page,
-            limit: pagination.limit
+            limit: pagination.limit,
+            includeInactive: true,
         });
         if (res) {
             const list = res.data || [];
@@ -132,6 +162,7 @@ export const useProductInventory = () => {
             endDate: dateRange.endDate,
             page: 1,
             limit: 1000,
+            includeInactive: true,
         });
         if (res) {
             const list = res.data || [];
@@ -266,6 +297,9 @@ export const useProductInventory = () => {
 
         // CRUD Functions
         openModal, handleSaveProduct,
-        triggerDelete, handleConfirmDelete
+        triggerDelete, handleConfirmDelete,
+
+        statusTarget, isStatusOpen, setIsStatusOpen, isUpdatingStatus,
+        triggerStatusChange, confirmStatusChange,
     };
 };

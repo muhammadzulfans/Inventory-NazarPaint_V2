@@ -66,4 +66,9 @@ export const productService = {
             return error.response?.data || { success: false, message: "Gagal menghapus produk" };
         }
     },
+
+    toggleStatus: async (id) => {
+        const res = await api.patch(`/products/${id}/toggle-status`);
+        return res.data;
+    },
 };
