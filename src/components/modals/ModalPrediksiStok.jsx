@@ -39,13 +39,13 @@ const ModalPrediksiStok = ({ isOpen, onClose, product, storeId }) => {
 
     if (!isOpen) return null;
 
-    const prediksiPenjualan = predictionData ? predictionData.prediksi_penjualan : "-";
+    const prediksiPenjualan = predictionData ? predictionData.prediksi_stok_pembelian : "-";
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Prediksi Penjualan Bulanan (ARIMA)"
+            title="Prediksi Stok Pembelian"
             subtitle={product ? `${product.name} (${product.code})` : "Estimasi penjualan"}
         >
             <div className="space-y-6">
@@ -54,11 +54,11 @@ const ModalPrediksiStok = ({ isOpen, onClose, product, storeId }) => {
                     <div className="bg-card rounded-xl p-3 flex flex-col items-center text-center">
                         <FiPackage className="text-txtNav mb-1" size={20} />
                         <p className="text-xs text-txtNav font-inter">Stok Saat Ini</p>
-                        <p className="text-lg font-inter font-bold text-black">{product?.totalStock ?? 0}</p>
+                        <p className="text-lg font-inter font-bold text-black">{product?.totalStock ?? 0} Pcs/Kg</p>
                     </div>
                     <div className="bg-yellow-50 rounded-xl p-3 flex flex-col items-center text-center">
                         <FiTrendingUp className="text-yellow-600 mb-1" size={20} />
-                        <p className="text-xs text-txtNav font-inter">Prediksi Penjualan</p>
+                        <p className="text-xs text-txtNav font-inter">Hasil Prediksi</p>
                         <p className="text-lg font-inter font-bold text-blue-600">
                             {loading ? "Memuat..." : `${prediksiPenjualan} Pcs/Kg`}
                         </p>
@@ -69,8 +69,8 @@ const ModalPrediksiStok = ({ isOpen, onClose, product, storeId }) => {
                     <div className="text-center py-10 text-gray-500">Mengambil data dari model ARIMA...</div>
                 ) : predictionData ? (
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-900">
-                        <p className="font-semibold mb-1">Hasil Peramalan Bulanan:</p>
-                        <p>Target Bulan: <span className="font-bold">{predictionData.target_bulan || "2026-03"}</span></p>
+                        <p className="font-semibold mb-1">Keterangan Hasil Prediksi:</p>
+                        <p>Target Bulan: <span className="font-bold">{predictionData.target_bulan || "2026-08"}</span></p>
                         <p>Cabang: <span className="font-bold">{predictionData.cabang}</span></p>
                         <p className="mt-2 text-xs text-gray-600">
                             * Nilai prediksi dihitung otomatis berdasarkan histori penjualan menggunakan algoritma ARIMA.
